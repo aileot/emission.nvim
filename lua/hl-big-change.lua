@@ -48,7 +48,10 @@ local function on_bytes(
   --     new_end_byte = new_end_byte,
   --   }
   -- )
-  if
+  if not vim.api.nvim_buf_is_valid(bufnr) then
+    -- Return true to detach.
+    return true
+  elseif
     not vim.api.nvim_get_mode().mode:find("n")
     -- (old_end_row < start_row and new_end_row < start_row)
     or (
