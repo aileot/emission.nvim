@@ -96,7 +96,9 @@ function M.clear_highlights(bufnr)
     M.config.duration,
     0,
     vim.schedule_wrap(function()
-      vim.api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
+      if vim.api.nvim_buf_is_valid(bufnr) then
+        vim.api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
+      end
     end)
   )
 end
