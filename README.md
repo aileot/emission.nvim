@@ -1,7 +1,14 @@
 # highlight-undo.nvim
 
-Highlight changed text after Undo / Redo operations. Purely lua / nvim api implementation,
-no external dependencies needed.
+A fork of [tzachar/highlight-undo.nvim](https://github/tzachar/highlight-undo.nvim).
+
+Highlight added/removed texts in current buffer, anywhere, anytime, as well as
+undo/redo.
+You can filter the highlight occasions by changed text length, Vim's mode,
+etc.
+
+Note: Unlike `highlight-undo.nvim` does, `hl-big-change.nvim` does not let you
+alter `hlgroup`s for undo/redo, but only for added/removed.
 
 ## In Action
 
@@ -9,74 +16,40 @@ no external dependencies needed.
 
 ## Installation
 
-Using Lazy:
+Install the plugin with your favorite plugin-manger.
+
+With [folke/lazy.nvim](https://github/folke/lazy.nvim),
 
 ```lua
   {
-    'tzachar/highlight-undo.nvim',
-    opts = {
-      ...
-    },
+    "aileot/hl-big-change.nvim",
+    opts = {},
   },
 ```
 
 ## Setup
 
-You can manually setup `highlight-undo` as follows:
-
 ```lua
-require('highlight-undo').setup({
-  duration = 300,
-  undo = {
-    hlgroup = 'HighlightUndo',
-    mode = 'n',
-    lhs = 'u',
-    map = 'undo',
-    opts = {}
+require("hl-big-change").setup({
+  duration = 400,
+  added = {
+    hlgroup = "HlBigChangeAdded",
   },
   redo = {
-    hlgroup = 'HighlightRedo',
-    mode = 'n',
-    lhs = '<C-r>',
-    map = 'redo',
-    opts = {}
+    hlgroup = "HlBigChangeRemoved",
   },
-  highlight_for_count = true,
 })
 ```
-
-## Keymaps
-
-Specify which keymaps should trigger the beginning and end of tracking changes
-([see here](#how-the-plugin-works)). By default, the plugin starts tracking
-changes before an `undo` or a `redo`.
-
-Keymaps are specified in the same format as `vim.keymap.set` accepts: mode, lhs,
-rhs, opts. Maps are passed verbatim to `vim.keymap.set`.
-
-## `hlgroup`
-
-Specify the highlighting group to use.
-
-By default, `highlight-undo` will use `HighlightUndo` for the undo action and
-`HighlightRedo` for the redo action. Both of these groups, are defined when the
-plugin is loaded. If the groups are already defined elsewhere in your config
-then they will not be overwritten. You can also use others groups, if desired.
 
 ## `duration`
 
 The duration (in milliseconds) to highlight changes. Default is 300.
 
-## highlight_for_count
+## `hlgroup`
 
-Enable support for highlighting when a `<count>` is provided before the key.
-If set to `false` it will only highlight when the mapping is not prefixed with a
-`<count>`.
-
-Default: `true`
+The highlighting group to use.
 
 ## How the Plugin Works
 
-`highlight-undo` will remap the `u` and `<C-r>` keys (for undo and redo, by default) and
-hijack the calls. By utilizing `nvim_buf_attach` to get indications for changes in the
-buffer, the plugin can achieve very low overhead.
+Unlike `highlight-undo`, `hl-big-change` does not work on keymaps, but just on
+`nvim_buf_attach`.
