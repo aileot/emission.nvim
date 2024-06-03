@@ -3,7 +3,7 @@
 
 local M = {
   config = {
-    attach_delay = 50,
+    attach_delay = 100,
     duration = 400,
     hlgroup = { added = "HlBigChangeAdded", removed = "HlBigChangeRemoved" },
   },
@@ -76,6 +76,9 @@ local function on_bytes(
   local hlgroup = M.config.hlgroup.added
   -- TODO: Show extmark for Removed texts.
   vim.schedule(function()
+    if not vim.api.nvim_buf_is_valid(bufnr) then
+      return
+    end
     vim.highlight.range(
       bufnr,
       namespace,
