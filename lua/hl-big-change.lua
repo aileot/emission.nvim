@@ -3,6 +3,7 @@
 
 local M = {
   config = {
+    attach_delay = 50,
     duration = 400,
     hlgroup = { added = "HlBigChangeAdded", removed = "HlBigChangeRemoved" },
   },
@@ -113,9 +114,13 @@ function M.setup(config)
   vim.api.nvim_create_autocmd("BufWinEnter", {
     group = id,
     callback = function(a)
-      vim.api.nvim_buf_attach(a.buf, false, {
-        on_bytes = on_bytes,
-      })
+      vim.defer_fn(function()
+        if vim.api.nvim_buf_is_valid(a.buf) then
+          vim.api.nvim_buf_attach(a.buf, false, {
+            on_bytes = on_bytes,
+          })
+        end
+      end, M.config.attach_delay)
     end,
   })
 end
