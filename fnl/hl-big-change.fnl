@@ -10,18 +10,18 @@
   (when (vim.tbl_contains (vim.opt.foldopen:get) :undo)
     (vim.cmd.normal {1 :zv :bang true})))
 
-(fn on-bytes [ignored
+(fn on-bytes [_ignored
               bufnr
-              changedtick
+              _changedtick
               start-row
               start-col
-              byte-offset
+              _byte-offset
               old-end-row
               old-end-col
-              old-end-byte
+              _old-end-byte
               new-end-row
               new-end-col
-              new-end-byte]
+              _new-end-byte]
   (if (not (vim.api.nvim_buf_is_valid bufnr)) (lua "return true")
       (or (not (: (. (vim.api.nvim_get_mode) :mode) :find :n))
           (and (and (= old-end-row start-row) (= new-end-row start-row))
