@@ -88,13 +88,13 @@
        :callback (fn [a]
                    (if (. wipedout-bufnrs a.buf)
                        (tset wipedout-bufnrs a.buf nil)
-                       (< a.buf biggest-bufnr)
-                       (lua "return "))
-                   (set biggest-bufnr a.buf)
-                   (-> (fn []
-                         (when (vim.api.nvim_buf_is_valid a.buf)
-                           (vim.api.nvim_buf_attach a.buf false
-                                                    {:on_bytes on-bytes})))
-                       (vim.defer_fn M.config.attach_delay)))})))
+                       (< biggest-bufnr a.buf)
+                       (do
+                         (set biggest-bufnr a.buf)
+                         (-> (fn []
+                               (when (vim.api.nvim_buf_is_valid a.buf)
+                                 (vim.api.nvim_buf_attach a.buf false
+                                                          {:on_bytes on-bytes})))
+                             (vim.defer_fn M.config.attach_delay)))))})))
 
 M
