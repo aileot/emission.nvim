@@ -43,12 +43,11 @@
 (fn M.clear_highlights [bufnr]
   (M.timer:stop)
   (M.timer:start M.config.duration 0
-                 (vim.schedule_wrap (fn []
-                                      (when (vim.api.nvim_buf_is_valid bufnr)
-                                        (vim.api.nvim_buf_clear_namespace bufnr
-                                                                          namespace
-                                                                          0
-                                                                          (- 1)))))))
+                 #(vim.schedule (fn []
+                                  (when (vim.api.nvim_buf_is_valid bufnr)
+                                    (vim.api.nvim_buf_clear_namespace bufnr
+                                                                      namespace
+                                                                      0 (- 1)))))))
 
 (var last-bufnr (- 1))
 
