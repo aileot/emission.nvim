@@ -103,6 +103,8 @@ function M.clear_highlights(bufnr)
   )
 end
 
+local last_bufnr = -1
+local wipedout_bufnrs = {}
 function M.setup(config)
   vim.api.nvim_set_hl(0, "HlBigChangeAdded", {
     fg = "#dcd7ba",
@@ -115,10 +117,24 @@ function M.setup(config)
     default = true,
   })
   M.config = vim.tbl_deep_extend("keep", config or {}, M.config)
-  local id = vim.api.nvim_create_augroup("HlBigChangeAdded", {})
+  local id = vim.api.nvim_create_augroup("HlBigChange", {})
+  vim.api.nvim_create_autocmd("BufWipeout", {
+    group = id,
+    callback = function(a)
+      wipedout_bufnrs[a.buf] = true
+    end,
+  })
   vim.api.nvim_create_autocmd("BufWinEnter", {
     group = id,
     callback = function(a)
+      if wipedout_bufnrs[a.buf] then
+        -- Note: Wiping-out buffers could break bufnr sequence.
+        -- See |bufnr()|.
+        wipedout_bufnrs[a.buf] = nil
+      elseif a.buf < last_bufnr then
+        return
+      end
+      last_bufnr = a.buf
       vim.defer_fn(function()
         if vim.api.nvim_buf_is_valid(a.buf) then
           vim.api.nvim_buf_attach(a.buf, false, {
