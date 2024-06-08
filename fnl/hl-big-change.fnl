@@ -8,7 +8,7 @@
 
 (fn open-folds-on-undo []
   (when (vim.tbl_contains (vim.opt.foldopen:get) :undo)
-    (vim.cmd.normal {1 :zv :bang true})))
+    (vim.cmd "normal! zv")))
 
 (fn on-bytes [_ignored
               bufnr
