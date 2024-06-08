@@ -62,22 +62,19 @@
   (set M.config (vim.tbl_deep_extend :keep (or config {}) M.config))
   (local id (vim.api.nvim_create_augroup :HlBigChange {}))
   (vim.api.nvim_create_autocmd :BufWipeout
-                               {:callback (fn [a]
-                                            (tset wipedout-bufnrs a.buf true))
-                                :group id})
+    {:callback (fn [a]
+                 (tset wipedout-bufnrs a.buf true))
+     :group id})
   (vim.api.nvim_create_autocmd :BufWinEnter
-                               {:callback (fn [a]
-                                            (if (. wipedout-bufnrs a.buf)
-                                                (tset wipedout-bufnrs a.buf nil)
-                                                (< a.buf last-bufnr)
-                                                (lua "return "))
-                                            (set last-bufnr a.buf)
-                                            (vim.defer_fn (fn []
-                                                            (when (vim.api.nvim_buf_is_valid a.buf)
-                                                              (vim.api.nvim_buf_attach a.buf
-                                                                                       false
-                                                                                       {:on_bytes on-bytes})))
-                                              M.config.attach_delay))
-                                :group id}))
+    {:callback (fn [a]
+                 (if (. wipedout-bufnrs a.buf) (tset wipedout-bufnrs a.buf nil)
+                     (< a.buf last-bufnr) (lua "return "))
+                 (set last-bufnr a.buf)
+                 (vim.defer_fn (fn []
+                                 (when (vim.api.nvim_buf_is_valid a.buf)
+                                   (vim.api.nvim_buf_attach a.buf false
+                                                            {:on_bytes on-bytes})))
+                   M.config.attach_delay))
+     :group id}))
 
 M
