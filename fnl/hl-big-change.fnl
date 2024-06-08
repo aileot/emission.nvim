@@ -16,21 +16,34 @@
               start-row
               start-col
               _byte-offset
+              ;; Note: The rest are the 0-indexed offsets from start-{row,col}.
               old-end-row
               old-end-col
               _old-end-byte
               new-end-row
               new-end-col
               _new-end-byte]
+  ;; (vim.print {: ignored
+  ;;             : bufnr
+  ;;             : changedtick
+  ;;             : start-row
+  ;;             : start-col
+  ;;             : byte-offset
+  ;;             : old-end-row
+  ;;             : old-end-col
+  ;;             : old-end-byte
+  ;;             : new-end-row
+  ;;             : new-end-col
+  ;;             : new-end-byte})
   (when (and (vim.api.nvim_buf_is_valid bufnr)
              (-> (vim.api.nvim_get_mode)
                  (. :mode)
                  ;; TODO: Configurable modes to highlight?
                  (: :find :n)))
     ;; TODO: Highlight removed texts by extmarks.
-    (if (and (= old-end-row start-row) ;
-             (= new-end-row start-row) ;
-             (<= old-end-col (+ new-end-col 1)))
+    (if (or (< old-end-row new-end-row)
+            (and (= 0 old-end-row new-end-row) ;
+                 (< old-end-col new-end-col)))
         (let [hlgroup M.config.hlgroup.added
               num-lines (vim.api.nvim_buf_line_count 0)
               end-row (+ start-row new-end-row)
