@@ -51,9 +51,9 @@
                           (length (. (vim.api.nvim_buf_get_lines 0 -2 -1 false)
                                      1))
                           (+ start-col new-end-col))]
-          (open-folds-on-undo)
           (-> (fn []
                 (when (vim.api.nvim_buf_is_valid bufnr)
+                  (open-folds-on-undo)
                   (vim.highlight.range bufnr namespace hlgroup
                                        [start-row start-col] [end-row end-col])
                   (M.clear_highlights bufnr)))
