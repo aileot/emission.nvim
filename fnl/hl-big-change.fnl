@@ -29,7 +29,7 @@
   (local end-row (+ start-row new-end-row))
   (var end-col (+ start-col new-end-col))
   (local num-lines (vim.api.nvim_buf_line_count 0))
-  (when (>= end-row num-lines)
+  (when (< num-lines end-row)
     (set end-col
          (length (. (vim.api.nvim_buf_get_lines 0 (- 2) (- 1) false) 1))))
   (open-folds-on-undo)
