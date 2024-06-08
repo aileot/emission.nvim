@@ -30,8 +30,7 @@
   (var end-col (+ start-col new-end-col))
   (local num-lines (vim.api.nvim_buf_line_count 0))
   (when (< num-lines end-row)
-    (set end-col
-         (length (. (vim.api.nvim_buf_get_lines 0 (- 2) (- 1) false) 1))))
+    (set end-col (length (. (vim.api.nvim_buf_get_lines 0 -2 -1 false) 1))))
   (open-folds-on-undo)
   (local hlgroup M.config.hlgroup.added)
   (vim.schedule (fn []
@@ -46,10 +45,10 @@
                  #(-> (fn []
                         (when (vim.api.nvim_buf_is_valid bufnr)
                           (vim.api.nvim_buf_clear_namespace bufnr namespace 0
-                                                            (- 1))))
+                                                            -1)))
                       (vim.schedule))))
 
-(var last-bufnr (- 1))
+(var last-bufnr -1)
 
 (local wipedout-bufnrs {})
 
