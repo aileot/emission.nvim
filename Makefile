@@ -48,10 +48,8 @@ help: ## Show this help
 	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -c 2 -s ':' | sed 's/^/  /'
 	@echo
 
-lua/%/:
-	@mkdir -p $@
-
 lua/%.lua: $(FNL_SRC_DIR)/%.fnl
+	@mkdir -p $(dir $@)
 	@$(FENNEL) \
 		$(FNL_FLAGS) \
 		$(FNL_EXTRA_FLAGS) \
