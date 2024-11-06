@@ -28,11 +28,11 @@ local function glow_added_texts(bufnr, _5_, _6_)
   local new_end_row_offset = _6_[1]
   local new_end_col_offset = _6_[2]
   local hlgroup = M.config.hlgroup.added
-  local num_lines = vim.api.nvim_buf_line_count(0)
+  local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
   if (num_lines < end_row) then
-    end_col = #vim.api.nvim_buf_get_lines(0, -2, -1, false)[1]
+    end_col = #vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)[1]
   else
     end_col = (start_col + new_end_col_offset)
   end

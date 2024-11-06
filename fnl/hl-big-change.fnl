@@ -26,10 +26,10 @@
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
   (let [hlgroup M.config.hlgroup.added
-        num-lines (vim.api.nvim_buf_line_count 0)
+        num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< num-lines end-row)
-                    (length (. (vim.api.nvim_buf_get_lines 0 -2 -1 false) 1))
+                    (length (. (vim.api.nvim_buf_get_lines bufnr -2 -1 false) 1))
                     (+ start-col new-end-col-offset))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
