@@ -29,7 +29,9 @@
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< num-lines end-row)
-                    (length (. (vim.api.nvim_buf_get_lines bufnr -2 -1 false) 1))
+                    (-> (vim.api.nvim_buf_get_lines bufnr -2 -1 false)
+                        (. 1)
+                        (length))
                     (+ start-col new-end-col-offset))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
