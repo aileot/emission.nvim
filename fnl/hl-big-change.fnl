@@ -22,6 +22,22 @@
                                                             -1)))
                       (vim.schedule))))
 
+(fn glow-added-texts [bufnr
+                      [start-row0 start-col]
+                      [new-end-row-offset new-end-col-offset]]
+  (let [hlgroup M.config.hlgroup.added
+        num-lines (vim.api.nvim_buf_line_count 0)
+        end-row (+ start-row0 new-end-row-offset)
+        end-col (if (< num-lines end-row)
+                    (length (. (vim.api.nvim_buf_get_lines 0 -2 -1 false) 1))
+                    (+ start-col new-end-col-offset))]
+    (-> #(when (vim.api.nvim_buf_is_valid bufnr)
+           (open-folds-on-undo)
+           (vim.highlight.range bufnr namespace hlgroup [start-row0 start-col]
+                                [end-row end-col])
+           (clear-highlights bufnr))
+        (vim.schedule))))
+
 (fn on-bytes [_string-bytes
               bufnr
               _changedtick
@@ -55,19 +71,8 @@
     (if (or (< old-end-row-offset new-end-row-offset)
             (and (= 0 old-end-row-offset new-end-row-offset) ;
                  (< old-end-col-offset new-end-col-offset)))
-        (let [hlgroup M.config.hlgroup.added
-              num-lines (vim.api.nvim_buf_line_count 0)
-              end-row (+ start-row0 new-end-row-offset)
-              end-col (if (< num-lines end-row)
-                          (length (. (vim.api.nvim_buf_get_lines 0 -2 -1 false)
-                                     1))
-                          (+ start-col new-end-col-offset))]
-          (-> #(when (vim.api.nvim_buf_is_valid bufnr)
-                 (open-folds-on-undo)
-                 (vim.highlight.range bufnr namespace hlgroup
-                                      [start-row0 start-col] [end-row end-col])
-                 (clear-highlights bufnr))
-              (vim.schedule))))))
+        (glow-added-texts bufnr [start-row0 start-col]
+                          [new-end-row-offset new-end-col-offset]))))
 
 (var biggest-bufnr -1)
 
