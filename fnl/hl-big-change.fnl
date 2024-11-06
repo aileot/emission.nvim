@@ -73,7 +73,7 @@
 
 (local wipedout-bufnrs {})
 
-(fn M.setup [opts]
+(fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
     (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
     (vim.api.nvim_set_hl 0 :HlBigChangeAdded
@@ -99,4 +99,4 @@
                                                         {:on_bytes on-bytes})))
                            (vim.defer_fn M.config.attach_delay))))})))
 
-M
+{: setup}

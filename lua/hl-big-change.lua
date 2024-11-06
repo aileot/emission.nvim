@@ -57,7 +57,7 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
 end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
-M.setup = function(opts)
+local function setup(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
   vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, bg = "#2d4f67", fg = "#dcd7ba"})
@@ -87,4 +87,4 @@ M.setup = function(opts)
   end
   return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _12_})
 end
-return M
+return {setup = setup}
