@@ -1,31 +1,32 @@
 local M = {config = {attach_delay = 100, duration = 400, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = (vim.uv or vim.loop).new_timer()}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function open_folds_on_undo()
-  if vim.tbl_contains((vim.opt.foldopen):get(), "undo") then
+  if vim.tbl_contains(vim.opt.foldopen:get(), "undo") then
     return vim.cmd("normal! zv")
   else
     return nil
   end
 end
-local function on_bytes(_ignored, bufnr, _changedtick, start_row, start_col, _byte_offset, old_end_row, old_end_col, _old_end_byte, new_end_row, new_end_col, _new_end_byte)
-  local function _2_(...)
-    return (vim.api.nvim_get_mode().mode):find("n")
+local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
+  local and_2_ = vim.api.nvim_buf_is_valid(bufnr)
+  if and_2_ then
+    and_2_ = vim.api.nvim_get_mode().mode:find("n")
   end
-  if (vim.api.nvim_buf_is_valid(bufnr) and _2_()) then
-    if ((old_end_row == start_row) and (new_end_row == start_row) and (old_end_col <= (new_end_col + 1))) then
+  if and_2_ then
+    if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
       local hlgroup = M.config.hlgroup.added
       local num_lines = vim.api.nvim_buf_line_count(0)
-      local end_row = (start_row + new_end_row)
+      local end_row = (start_row0 + new_end_row_offset)
       local end_col
       if (num_lines < end_row) then
         end_col = #vim.api.nvim_buf_get_lines(0, -2, -1, false)[1]
       else
-        end_col = (start_col + new_end_col)
+        end_col = (start_col + new_end_col_offset)
       end
-      open_folds_on_undo()
       local function _4_()
         if vim.api.nvim_buf_is_valid(bufnr) then
-          vim.highlight.range(bufnr, namespace, hlgroup, {start_row, start_col}, {end_row, end_col})
+          open_folds_on_undo()
+          vim.highlight.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
           return M.clear_highlights(bufnr)
         else
           return nil
@@ -40,7 +41,7 @@ local function on_bytes(_ignored, bufnr, _changedtick, start_row, start_col, _by
   end
 end
 M.clear_highlights = function(bufnr)
-  do end (M.timer):stop()
+  M.timer:stop()
   local function _8_()
     local function _9_()
       if vim.api.nvim_buf_is_valid(bufnr) then
@@ -51,9 +52,9 @@ M.clear_highlights = function(bufnr)
     end
     return vim.schedule(_9_)
   end
-  return (M.timer):start(M.config.duration, 0, _8_)
+  return M.timer:start(M.config.duration, 0, _8_)
 end
-local last_bufnr = -1
+local biggest_bufnr = -1
 local wipedout_bufnrs = {}
 M.setup = function(config)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
@@ -68,19 +69,20 @@ M.setup = function(config)
   local function _12_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
-    elseif (a.buf < last_bufnr) then
-      return 
-    else
-    end
-    last_bufnr = a.buf
-    local function _14_()
-      if vim.api.nvim_buf_is_valid(a.buf) then
-        return vim.api.nvim_buf_attach(a.buf, false, {on_bytes = on_bytes})
-      else
-        return nil
+      return nil
+    elseif (biggest_bufnr < a.buf) then
+      biggest_bufnr = a.buf
+      local function _13_()
+        if vim.api.nvim_buf_is_valid(a.buf) then
+          return vim.api.nvim_buf_attach(a.buf, false, {on_bytes = on_bytes})
+        else
+          return nil
+        end
       end
+      return vim.defer_fn(_13_, M.config.attach_delay)
+    else
+      return nil
     end
-    return vim.defer_fn(_14_, M.config.attach_delay)
   end
   return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _12_})
 end
