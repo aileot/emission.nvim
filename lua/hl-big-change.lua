@@ -71,8 +71,8 @@ M.setup = function(config)
       wipedout_bufnrs[a.buf] = nil
       return nil
     elseif ((biggest_bufnr < a.buf) and not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[a.buf].filetype)) then
-      biggest_bufnr = a.buf
       local function _13_()
+        biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then
           return vim.api.nvim_buf_attach(a.buf, false, {on_bytes = on_bytes})
         else

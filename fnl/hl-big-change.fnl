@@ -91,12 +91,11 @@
                        (and (< biggest-bufnr a.buf)
                             (not (vim.tbl_contains M.config.excluded_filetypes
                                                    (. vim.bo a.buf :filetype))))
-                       (do
-                         (set biggest-bufnr a.buf)
-                         (-> (fn []
-                               (when (and (vim.api.nvim_buf_is_valid a.buf))
-                                 (vim.api.nvim_buf_attach a.buf false
-                                                          {:on_bytes on-bytes})))
-                             (vim.defer_fn M.config.attach_delay)))))})))
+                       (-> (fn []
+                             (set biggest-bufnr a.buf)
+                             (when (and (vim.api.nvim_buf_is_valid a.buf))
+                               (vim.api.nvim_buf_attach a.buf false
+                                                        {:on_bytes on-bytes})))
+                           (vim.defer_fn M.config.attach_delay))))})))
 
 M
