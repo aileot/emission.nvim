@@ -28,11 +28,11 @@
   (let [hlgroup M.config.hlgroup.added
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
-        end-col (if (< num-lines end-row)
+        end-col (if (< end-row num-lines)
+                    (+ start-col new-end-col-offset)
                     (-> (vim.api.nvim_buf_get_lines bufnr -2 -1 false)
                         (. 1)
-                        (length))
-                    (+ start-col new-end-col-offset))]
+                        (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
            (vim.highlight.range bufnr namespace hlgroup [start-row0 start-col]

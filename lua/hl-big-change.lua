@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer()}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, ["diff-opts"] = {algorithm = "minimal"}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function open_folds_on_undo()
   local foldopen = vim.opt.foldopen:get()
@@ -31,10 +31,10 @@ local function glow_added_texts(bufnr, _5_, _6_)
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
-  if (num_lines < end_row) then
-    end_col = #vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)[1]
-  else
+  if (end_row < num_lines) then
     end_col = (start_col + new_end_col_offset)
+  else
+    end_col = #vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)[1]
   end
   local function _8_()
     if vim.api.nvim_buf_is_valid(bufnr) then
@@ -47,16 +47,20 @@ local function glow_added_texts(bufnr, _5_, _6_)
   end
   return vim.schedule(_8_)
 end
-local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
-  local and_10_ = vim.api.nvim_buf_is_valid(bufnr)
-  if and_10_ then
-    and_10_ = vim.api.nvim_get_mode().mode:find("n")
+local function glow_removed_texts(bufnr, _10_, string_bytes)
+  local start_row0 = _10_[1]
+  local start_col = _10_[2]
+end
+local function on_bytes(string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
+  local and_11_ = vim.api.nvim_buf_is_valid(bufnr)
+  if and_11_ then
+    and_11_ = vim.api.nvim_get_mode().mode:find("n")
   end
-  if and_10_ then
+  if and_11_ then
     if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
       return glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
     else
-      return nil
+      return glow_removed_texts(bufnr, {start_row0, start_col}, string_bytes)
     end
   else
     return nil
@@ -69,16 +73,19 @@ local function setup(opts)
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
   vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, bg = "#2d4f67", fg = "#dcd7ba"})
   vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, bg = "#dcd7ba", fg = "#2d4f67"})
-  local function _13_(a)
+  local function _14_(a)
     wipedout_bufnrs[a.buf] = true
     return nil
   end
-  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _13_})
-  local function _14_(a)
+  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _14_})
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+  end
+  local function _15_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
     elseif ((biggest_bufnr < a.buf) and not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[a.buf].filetype)) then
-      local function _15_()
+      local function _16_()
         biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then
           return vim.api.nvim_buf_attach(a.buf, false, {on_bytes = on_bytes})
@@ -86,11 +93,11 @@ local function setup(opts)
           return nil
         end
       end
-      vim.defer_fn(_15_, M.config.attach_delay)
+      vim.defer_fn(_16_, M.config.attach_delay)
     else
     end
     return nil
   end
-  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _14_})
+  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _15_})
 end
 return {setup = setup}
