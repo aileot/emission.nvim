@@ -13,6 +13,15 @@
               (vim.list_contains foldopen :all))
       (vim.cmd "normal! zv"))))
 
+(fn M.clear_highlights [bufnr]
+  (M.timer:stop)
+  (M.timer:start M.config.duration 0
+                 #(-> (fn []
+                        (when (vim.api.nvim_buf_is_valid bufnr)
+                          (vim.api.nvim_buf_clear_namespace bufnr namespace 0
+                                                            -1)))
+                      (vim.schedule))))
+
 (fn on-bytes [_string-bytes
               bufnr
               _changedtick
@@ -59,15 +68,6 @@
                                       [start-row0 start-col] [end-row end-col])
                  (M.clear_highlights bufnr))
               (vim.schedule))))))
-
-(fn M.clear_highlights [bufnr]
-  (M.timer:stop)
-  (M.timer:start M.config.duration 0
-                 #(-> (fn []
-                        (when (vim.api.nvim_buf_is_valid bufnr)
-                          (vim.api.nvim_buf_clear_namespace bufnr namespace 0
-                                                            -1)))
-                      (vim.schedule))))
 
 (var biggest-bufnr -1)
 

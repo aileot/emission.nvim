@@ -8,12 +8,26 @@ local function open_folds_on_undo()
     return nil
   end
 end
-local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
-  local and_2_ = vim.api.nvim_buf_is_valid(bufnr)
-  if and_2_ then
-    and_2_ = vim.api.nvim_get_mode().mode:find("n")
+M.clear_highlights = function(bufnr)
+  M.timer:stop()
+  local function _2_()
+    local function _3_()
+      if vim.api.nvim_buf_is_valid(bufnr) then
+        return vim.api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
+      else
+        return nil
+      end
+    end
+    return vim.schedule(_3_)
   end
-  if and_2_ then
+  return M.timer:start(M.config.duration, 0, _2_)
+end
+local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
+  local and_5_ = vim.api.nvim_buf_is_valid(bufnr)
+  if and_5_ then
+    and_5_ = vim.api.nvim_get_mode().mode:find("n")
+  end
+  if and_5_ then
     if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
       local hlgroup = M.config.hlgroup.added
       local num_lines = vim.api.nvim_buf_line_count(0)
@@ -24,7 +38,7 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
       else
         end_col = (start_col + new_end_col_offset)
       end
-      local function _4_()
+      local function _7_()
         if vim.api.nvim_buf_is_valid(bufnr) then
           open_folds_on_undo()
           vim.highlight.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
@@ -33,27 +47,13 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
           return nil
         end
       end
-      return vim.schedule(_4_)
+      return vim.schedule(_7_)
     else
       return nil
     end
   else
     return nil
   end
-end
-M.clear_highlights = function(bufnr)
-  M.timer:stop()
-  local function _8_()
-    local function _9_()
-      if vim.api.nvim_buf_is_valid(bufnr) then
-        return vim.api.nvim_buf_clear_namespace(bufnr, namespace, 0, -1)
-      else
-        return nil
-      end
-    end
-    return vim.schedule(_9_)
-  end
-  return M.timer:start(M.config.duration, 0, _8_)
 end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
