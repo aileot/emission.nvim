@@ -1,7 +1,8 @@
 local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function open_folds_on_undo()
-  if vim.list_contains(vim.opt.foldopen:get(), "undo") then
+  local foldopen = vim.opt.foldopen:get()
+  if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
     return vim.cmd("normal! zv")
   else
     return nil

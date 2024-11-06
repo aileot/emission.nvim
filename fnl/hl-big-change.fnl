@@ -8,8 +8,10 @@
 (local namespace (vim.api.nvim_create_namespace :HlBigChange))
 
 (fn open-folds-on-undo []
-  (when (vim.list_contains (vim.opt.foldopen:get) :undo)
-    (vim.cmd "normal! zv")))
+  (let [foldopen (vim.opt.foldopen:get)]
+    (when (or (vim.list_contains foldopen :undo)
+              (vim.list_contains foldopen :all))
+      (vim.cmd "normal! zv"))))
 
 (fn on-bytes [_string-bytes
               bufnr
