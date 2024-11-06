@@ -77,7 +77,6 @@ local function setup(opts)
   local function _14_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
-      return nil
     elseif ((biggest_bufnr < a.buf) and not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[a.buf].filetype)) then
       local function _15_()
         biggest_bufnr = a.buf
@@ -87,10 +86,10 @@ local function setup(opts)
           return nil
         end
       end
-      return vim.defer_fn(_15_, M.config.attach_delay)
+      vim.defer_fn(_15_, M.config.attach_delay)
     else
-      return nil
     end
+    return nil
   end
   return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _14_})
 end

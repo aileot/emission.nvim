@@ -102,6 +102,8 @@
                              (when (and (vim.api.nvim_buf_is_valid a.buf))
                                (vim.api.nvim_buf_attach a.buf false
                                                         {:on_bytes on-bytes})))
-                           (vim.defer_fn M.config.attach_delay))))})))
+                           (vim.defer_fn M.config.attach_delay)))
+                   ;; HACK: Keep the `nil` to resist autocmd deletion.
+                   nil)})))
 
 {: setup}
