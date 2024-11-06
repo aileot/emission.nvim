@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = (vim.uv or vim.loop).new_timer()}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = (vim.uv or vim.loop).new_timer()}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function open_folds_on_undo()
   if vim.tbl_contains(vim.opt.foldopen:get(), "undo") then
@@ -70,7 +70,7 @@ M.setup = function(config)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
       return nil
-    elseif (biggest_bufnr < a.buf) then
+    elseif ((biggest_bufnr < a.buf) and not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[a.buf].filetype)) then
       biggest_bufnr = a.buf
       local function _13_()
         if vim.api.nvim_buf_is_valid(a.buf) then

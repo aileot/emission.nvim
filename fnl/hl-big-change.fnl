@@ -1,5 +1,6 @@
 (local M {:config {:attach_delay 100
                    :duration 400
+                   :excluded_filetypes []
                    :hlgroup {:added :HlBigChangeAdded
                              :removed :HlBigChangeRemoved}}
           :timer ((. (or vim.uv vim.loop) :new_timer))})
@@ -87,11 +88,13 @@
        :callback (fn [a]
                    (if (. wipedout-bufnrs a.buf)
                        (tset wipedout-bufnrs a.buf nil)
-                       (< biggest-bufnr a.buf)
+                       (and (< biggest-bufnr a.buf)
+                            (not (vim.tbl_contains M.config.excluded_filetypes
+                                                   (. vim.bo a.buf :filetype))))
                        (do
                          (set biggest-bufnr a.buf)
                          (-> (fn []
-                               (when (vim.api.nvim_buf_is_valid a.buf)
+                               (when (and (vim.api.nvim_buf_is_valid a.buf))
                                  (vim.api.nvim_buf_attach a.buf false
                                                           {:on_bytes on-bytes})))
                              (vim.defer_fn M.config.attach_delay)))))})))
