@@ -8,7 +8,7 @@ local function open_folds_on_undo()
     return nil
   end
 end
-M.clear_highlights = function(bufnr)
+local function clear_highlights(bufnr)
   M.timer:stop()
   local function _2_()
     local function _3_()
@@ -42,7 +42,7 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
         if vim.api.nvim_buf_is_valid(bufnr) then
           open_folds_on_undo()
           vim.highlight.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
-          return M.clear_highlights(bufnr)
+          return clear_highlights(bufnr)
         else
           return nil
         end

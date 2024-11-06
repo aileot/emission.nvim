@@ -13,7 +13,7 @@
               (vim.list_contains foldopen :all))
       (vim.cmd "normal! zv"))))
 
-(fn M.clear_highlights [bufnr]
+(fn clear-highlights [bufnr]
   (M.timer:stop)
   (M.timer:start M.config.duration 0
                  #(-> (fn []
@@ -66,7 +66,7 @@
                  (open-folds-on-undo)
                  (vim.highlight.range bufnr namespace hlgroup
                                       [start-row0 start-col] [end-row end-col])
-                 (M.clear_highlights bufnr))
+                 (clear-highlights bufnr))
               (vim.schedule))))))
 
 (var biggest-bufnr -1)
