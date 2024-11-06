@@ -71,9 +71,9 @@
 
 (local wipedout-bufnrs {})
 
-(fn M.setup [config]
+(fn M.setup [opts]
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
-    (set M.config (vim.tbl_deep_extend :keep (or config {}) M.config))
+    (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
     (vim.api.nvim_set_hl 0 :HlBigChangeAdded
                          {:default true :bg "#2d4f67" :fg "#dcd7ba"})
     (vim.api.nvim_set_hl 0 :HlBigChangeRemoved

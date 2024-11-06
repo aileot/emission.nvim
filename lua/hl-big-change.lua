@@ -56,9 +56,9 @@ M.clear_highlights = function(bufnr)
 end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
-M.setup = function(config)
+M.setup = function(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
-  M.config = vim.tbl_deep_extend("keep", (config or {}), M.config)
+  M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
   vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, bg = "#2d4f67", fg = "#dcd7ba"})
   vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, bg = "#dcd7ba", fg = "#2d4f67"})
   local function _11_(a)
