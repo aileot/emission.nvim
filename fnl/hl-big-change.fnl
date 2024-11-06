@@ -3,7 +3,7 @@
                    :excluded_filetypes []
                    :hlgroup {:added :HlBigChangeAdded
                              :removed :HlBigChangeRemoved}}
-          :timer ((. (or vim.uv vim.loop) :new_timer))})
+          :timer vim.uv.new_timer})
 
 (local namespace (vim.api.nvim_create_namespace :HlBigChange))
 
