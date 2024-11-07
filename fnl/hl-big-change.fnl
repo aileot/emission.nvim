@@ -91,6 +91,8 @@
       {:group id
        :callback (fn [a]
                    (tset wipedout-bufnrs a.buf true))})
+    (each [_ buf (ipairs (vim.api.nvim_list_bufs))]
+      (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
     (vim.api.nvim_create_autocmd :BufWinEnter
       {:group id
        :callback (fn [a]
