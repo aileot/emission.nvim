@@ -73,9 +73,9 @@ end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
-  vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, bg = "#2d4f67", fg = "#dcd7ba"})
-  vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, bg = "#dcd7ba", fg = "#2d4f67"})
-  local function _13_(a)
+  vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
+  vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
+  local function _21_(a)
     wipedout_bufnrs[a.buf] = true
     return nil
   end

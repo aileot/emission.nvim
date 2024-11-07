@@ -95,9 +95,9 @@
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
     (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
     (vim.api.nvim_set_hl 0 :HlBigChangeAdded
-                         {:default true :bg "#2d4f67" :fg "#dcd7ba"})
+                         {:default true :fg "#dcd7ba" :bg "#2d4f67"})
     (vim.api.nvim_set_hl 0 :HlBigChangeRemoved
-                         {:default true :bg "#dcd7ba" :fg "#2d4f67"})
+                         {:default true :fg "#dcd7ba" :bg "#672d2d"})
     (vim.api.nvim_create_autocmd :BufWipeout
       {:group id
        :callback (fn [a]
