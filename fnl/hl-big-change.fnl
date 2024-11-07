@@ -80,6 +80,10 @@
 
 (local wipedout-bufnrs {})
 
+(fn excluded-buffer? [buf]
+  (not (vim.tbl_contains M.config.excluded_filetypes ;
+                         (. vim.bo buf :filetype))))
+
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
     (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
@@ -98,9 +102,8 @@
        :callback (fn [a]
                    (if (. wipedout-bufnrs a.buf)
                        (tset wipedout-bufnrs a.buf nil)
-                       (and (< biggest-bufnr a.buf)
-                            (not (vim.tbl_contains M.config.excluded_filetypes
-                                                   (. vim.bo a.buf :filetype))))
+                       (and (< biggest-bufnr a.buf) ;
+                            (excluded-buffer? a.buf))
                        (-> (fn []
                              (set biggest-bufnr a.buf)
                              (when (and (vim.api.nvim_buf_is_valid a.buf))

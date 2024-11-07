@@ -68,6 +68,9 @@ local function on_bytes(string_bytes, bufnr, _changedtick, start_row0, start_col
 end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
+local function excluded_buffer_3f(buf)
+  return not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
+end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
@@ -84,7 +87,7 @@ local function setup(opts)
   local function _15_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
-    elseif ((biggest_bufnr < a.buf) and not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[a.buf].filetype)) then
+    elseif ((biggest_bufnr < a.buf) and excluded_buffer_3f(a.buf)) then
       local function _16_()
         biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then
