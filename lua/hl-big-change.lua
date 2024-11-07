@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer()}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function cache_last_texts(bufnr)
   M["last-texts"][bufnr] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -87,7 +87,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
         local start_col0 = (start_col - 1)
         for i = 1, old_end_row_offset do
           local line = removed_lines[i]
-          local chunks = {{line}}
+          local chunks = {{line, hlgroup}}
           local row0 = (start_row0 + i + -1)
           local col0
           if (1 == row0) then
