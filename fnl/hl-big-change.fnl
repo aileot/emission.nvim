@@ -71,11 +71,12 @@
         ?last-removed-line (when (< 0 old-end-row-offset)
                              (. last-texts (+ start-row old-end-row-offset)))
         removed-lines (if ?middle-removed-lines
-                          [first-removed-line
-                           (-> (vim.iter ?middle-removed-lines)
-                               (: :flatten 2)
-                               (: :totable))
-                           ?last-removed-line]
+                          (-> [first-removed-line
+                               ?middle-removed-lines
+                               ?last-removed-line]
+                              (vim.iter)
+                              (: :flatten)
+                              (: :totable))
                           ?last-removed-line
                           [first-removed-line ?last-removed-line]
                           [first-removed-line])]

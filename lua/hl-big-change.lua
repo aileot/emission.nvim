@@ -80,7 +80,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   end
   local removed_lines
   if _3fmiddle_removed_lines then
-    removed_lines = {first_removed_line, vim.iter(_3fmiddle_removed_lines):flatten(2):totable(), _3flast_removed_line}
+    removed_lines = vim.iter({first_removed_line, _3fmiddle_removed_lines, _3flast_removed_line}):flatten():totable()
   elseif _3flast_removed_line then
     removed_lines = {first_removed_line, _3flast_removed_line}
   else
