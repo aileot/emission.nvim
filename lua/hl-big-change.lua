@@ -85,10 +85,20 @@ local function glow_removed_texts(bufnr, _10_, _11_)
       open_folds_on_undo()
       do
         local start_col0 = (start_col - 1)
-        for _, line in ipairs(removed_lines) do
+        for i = 1, old_end_row_offset do
+          local line = removed_lines[i]
           local chunks = {{line}}
-          local extmark_opts = {hl_group = hlgroup, hl_eol = true, virt_text = chunks, virt_text_pos = "inline"}
-          vim.api.nvim_buf_set_extmark(bufnr, namespace, start_row0, start_col0, extmark_opts)
+          local row0 = (start_row0 + i + -1)
+          local col0
+          if (1 == row0) then
+            col0 = start_col0
+          elseif (row0 < old_end_row_offset) then
+            col0 = 0
+          else
+            col0 = old_end_col_offset
+          end
+          local extmark_opts = {hl_eol = true, virt_text = chunks, virt_text_pos = "inline"}
+          vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
         end
       end
       return clear_highlights(bufnr)
@@ -99,11 +109,11 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   return vim.schedule(_15_)
 end
 local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
-  local and_17_ = vim.api.nvim_buf_is_valid(bufnr)
-  if and_17_ then
-    and_17_ = vim.api.nvim_get_mode().mode:find("n")
+  local and_18_ = vim.api.nvim_buf_is_valid(bufnr)
+  if and_18_ then
+    and_18_ = vim.api.nvim_get_mode().mode:find("n")
   end
-  if and_17_ then
+  if and_18_ then
     if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
       glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
     else
@@ -132,18 +142,18 @@ local function setup(opts)
     wipedout_bufnrs[a.buf] = true
     return nil
   end
-  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _20_})
+  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _21_})
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if not excluded_buffer_3f(buf) then
       attach_buffer_21(buf)
     else
     end
   end
-  local function _22_(a)
+  local function _23_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
     elseif ((biggest_bufnr < a.buf) and excluded_buffer_3f(a.buf)) then
-      local function _23_()
+      local function _24_()
         biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then
           return attach_buffer_21(a.buf)
@@ -151,11 +161,11 @@ local function setup(opts)
           return nil
         end
       end
-      vim.defer_fn(_23_, M.config.attach_delay)
+      vim.defer_fn(_24_, M.config.attach_delay)
     else
     end
     return nil
   end
-  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _22_})
+  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _23_})
 end
 return {setup = setup}

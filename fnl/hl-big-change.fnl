@@ -76,14 +76,19 @@
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
            (let [start-col0 (- start-col 1)]
-             (each [_ line (ipairs removed-lines)]
-               (let [chunks [[line]]
+             (for [i 1 old-end-row-offset]
+               (let [line (. removed-lines i)
+                     chunks [[line]]
+                     row0 (+ start-row0 i -1)
+                     col0 (if (= 1 row0) start-col0
+                              (< row0 old-end-row-offset) 0
+                              old-end-col-offset)
                      extmark-opts {:hl_group hlgroup
                                    :hl_eol true
                                    :virt_text chunks
                                    :virt_text_pos :inline}]
-                 (vim.api.nvim_buf_set_extmark bufnr namespace start-row0
-                                               start-col0 extmark-opts))))
+                 (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0
+                                               extmark-opts))))
            (clear-highlights bufnr))
         (vim.schedule))))
 
