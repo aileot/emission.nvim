@@ -139,7 +139,7 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
     and_21_ = vim.api.nvim_get_mode().mode:find("n")
   end
   if and_21_ then
-    if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
+    if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
     else
       glow_removed_texts(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
