@@ -88,6 +88,9 @@
   (vim.list_contains M.config.excluded_filetypes ;
                     (. vim.bo buf :filetype)))
 
+(fn attach-buffer! [buf]
+  (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
     (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
@@ -101,7 +104,7 @@
                    (tset wipedout-bufnrs a.buf true))})
     (each [_ buf (ipairs (vim.api.nvim_list_bufs))]
       (when-not (excluded-buffer? buf)
-        (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})))
+        (attach-buffer! buf)))
     (vim.api.nvim_create_autocmd :BufWinEnter
       {:group id
        :callback (fn [a]
@@ -112,8 +115,7 @@
                        (-> (fn []
                              (set biggest-bufnr a.buf)
                              (when (and (vim.api.nvim_buf_is_valid a.buf))
-                               (vim.api.nvim_buf_attach a.buf false
-                                                        {:on_bytes on-bytes})))
+                               (attach-buffer! a.buf)))
                            (vim.defer_fn M.config.attach_delay)))
                    ;; HACK: Keep the `nil` to resist autocmd deletion.
                    nil)})))

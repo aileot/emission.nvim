@@ -67,6 +67,9 @@ local wipedout_bufnrs = {}
 local function excluded_buffer_3f(buf)
   return vim.list_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
 end
+local function attach_buffer_21(buf)
+  return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
@@ -79,7 +82,7 @@ local function setup(opts)
   vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _13_})
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if not excluded_buffer_3f(buf) then
-      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+      attach_buffer_21(buf)
     else
     end
   end
@@ -90,7 +93,7 @@ local function setup(opts)
       local function _16_()
         biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then
-          return vim.api.nvim_buf_attach(a.buf, false, {on_bytes = on_bytes})
+          return attach_buffer_21(a.buf)
         else
           return nil
         end
