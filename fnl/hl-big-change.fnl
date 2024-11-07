@@ -12,6 +12,12 @@
   `(when (not ,cond)
      ,...))
 
+(fn inc [x]
+  (+ x 1))
+
+(fn dec [x]
+  (- x 1))
+
 (fn cache-last-texts [bufnr]
   (tset M.last-texts bufnr ;
         (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
@@ -54,12 +60,12 @@
                         [old-end-row-offset old-end-col-offset]]
   (let [hlgroup M.config.hlgroup.removed
         last-texts (. M.last-texts bufnr)
-        start-row (+ start-row0 1)
+        start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
-                               (: :sub start-col
-                                  (+ start-col old-end-col-offset -1)))
+                               (: :sub (inc start-col)
+                                  (+ start-col old-end-col-offset)))
         ?middle-removed-lines (when (< 1 old-end-row-offset)
-                                (vim.list_slice last-texts (+ start-row 1)
+                                (vim.list_slice last-texts (inc start-row)
                                                 (+ start-row old-end-row-offset
                                                    -1)))
         ?last-removed-line (when (< 0 old-end-row-offset)
@@ -75,7 +81,7 @@
                           [first-removed-line])]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
-           (let [start-col0 (- start-col 1)]
+           (let [start-col0 (dec start-col)]
              (for [i 1 old-end-row-offset]
                (let [line (. removed-lines i)
                      chunks [[line hlgroup]]

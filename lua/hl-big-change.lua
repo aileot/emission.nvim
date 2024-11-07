@@ -1,5 +1,11 @@
 local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
+local function inc(x)
+  return (x + 1)
+end
+local function dec(x)
+  return (x - 1)
+end
 local function cache_last_texts(bufnr)
   M["last-texts"][bufnr] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return nil
@@ -58,11 +64,11 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   local old_end_col_offset = _11_[2]
   local hlgroup = M.config.hlgroup.removed
   local last_texts = M["last-texts"][bufnr]
-  local start_row = (start_row0 + 1)
-  local first_removed_line = last_texts[start_row]:sub(start_col, (start_col + old_end_col_offset + -1))
+  local start_row = inc(start_row0)
+  local first_removed_line = last_texts[start_row]:sub(inc(start_col), (start_col + old_end_col_offset))
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
-    _3fmiddle_removed_lines = vim.list_slice(last_texts, (start_row + 1), (start_row + old_end_row_offset + -1))
+    _3fmiddle_removed_lines = vim.list_slice(last_texts, inc(start_row), (start_row + old_end_row_offset + -1))
   else
     _3fmiddle_removed_lines = nil
   end
@@ -84,7 +90,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()
       do
-        local start_col0 = (start_col - 1)
+        local start_col0 = dec(start_col)
         for i = 1, old_end_row_offset do
           local line = removed_lines[i]
           local chunks = {{line, hlgroup}}
