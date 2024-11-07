@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, ["diff-opts"] = {algorithm = "minimal"}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer()}
 local namespace = vim.api.nvim_create_namespace("HlBigChange")
 local function open_folds_on_undo()
   local foldopen = vim.opt.foldopen:get()
@@ -47,20 +47,16 @@ local function glow_added_texts(bufnr, _5_, _6_)
   end
   return vim.schedule(_8_)
 end
-local function glow_removed_texts(bufnr, _10_, string_bytes)
-  local start_row0 = _10_[1]
-  local start_col = _10_[2]
-end
-local function on_bytes(string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
-  local and_11_ = vim.api.nvim_buf_is_valid(bufnr)
-  if and_11_ then
-    and_11_ = vim.api.nvim_get_mode().mode:find("n")
+local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
+  local and_10_ = vim.api.nvim_buf_is_valid(bufnr)
+  if and_10_ then
+    and_10_ = vim.api.nvim_get_mode().mode:find("n")
   end
-  if and_11_ then
+  if and_10_ then
     if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
       return glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
     else
-      return glow_removed_texts(bufnr, {start_row0, start_col}, string_bytes)
+      return nil
     end
   else
     return nil
@@ -76,13 +72,16 @@ local function setup(opts)
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
   vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, bg = "#2d4f67", fg = "#dcd7ba"})
   vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, bg = "#dcd7ba", fg = "#2d4f67"})
-  local function _14_(a)
+  local function _13_(a)
     wipedout_bufnrs[a.buf] = true
     return nil
   end
-  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _14_})
+  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _13_})
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+    if not excluded_buffer_3f(buf) then
+      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+    else
+    end
   end
   local function _15_(a)
     if wipedout_bufnrs[a.buf] then

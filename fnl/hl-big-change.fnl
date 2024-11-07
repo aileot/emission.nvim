@@ -7,6 +7,10 @@
 
 (local namespace (vim.api.nvim_create_namespace :HlBigChange))
 
+(macro when-not [cond ...]
+  `(when (not ,cond)
+     ,...))
+
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
     (when (or (vim.list_contains foldopen :undo)
@@ -96,7 +100,8 @@
        :callback (fn [a]
                    (tset wipedout-bufnrs a.buf true))})
     (each [_ buf (ipairs (vim.api.nvim_list_bufs))]
-      (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+      (when-not (excluded-buffer? buf)
+        (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})))
     (vim.api.nvim_create_autocmd :BufWinEnter
       {:group id
        :callback (fn [a]
