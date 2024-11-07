@@ -65,7 +65,7 @@ end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
 local function excluded_buffer_3f(buf)
-  return not vim.tbl_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
+  return vim.list_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("HlBigChange", {})

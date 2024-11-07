@@ -85,8 +85,8 @@
 (local wipedout-bufnrs {})
 
 (fn excluded-buffer? [buf]
-  (not (vim.tbl_contains M.config.excluded_filetypes ;
-                         (. vim.bo buf :filetype))))
+  (vim.list_contains M.config.excluded_filetypes ;
+                    (. vim.bo buf :filetype)))
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
