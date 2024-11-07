@@ -84,13 +84,18 @@
                           [first-removed-line])]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
-           (let [start-col0 (dec start-col)]
-             (for [i 1 old-end-row-offset]
+           (let [start-col0 (dec start-col)
+                 max-idx (if (= 0 old-end-col-offset)
+                             (+ 2 old-end-row-offset)
+                             (inc old-end-row-offset))]
+             (for [i 1 max-idx]
                (let [line (. removed-lines i)
-                     chunks [[line hlgroup]]
+                     chunks (if (and (= i max-idx) (= 0 old-end-col-offset))
+                                [[""]]
+                                [[line hlgroup]])
                      row0 (+ start-row0 i -1)
-                     col0 (if (= 1 row0) start-col0
-                              (< row0 old-end-row-offset) 0
+                     col0 (if (= i 1) (inc start-col0)
+                              (< i old-end-row-offset) 1
                               old-end-col-offset)
                      extmark-opts {:hl_eol true
                                    :virt_text chunks
