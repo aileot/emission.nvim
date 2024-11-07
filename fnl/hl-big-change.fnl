@@ -63,13 +63,15 @@
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
-                                  (+ start-col old-end-col-offset)))
+                                  (when (= 0 old-end-row-offset)
+                                    (+ start-col old-end-col-offset))))
         ?middle-removed-lines (when (< 1 old-end-row-offset)
                                 (vim.list_slice last-texts (inc start-row)
                                                 (+ start-row old-end-row-offset
                                                    -1)))
         ?last-removed-line (when (< 0 old-end-row-offset)
-                             (. last-texts (+ start-row old-end-row-offset)))
+                             (-> (. last-texts (+ start-row old-end-row-offset))
+                                 (: :sub 1 old-end-col-offset)))
         removed-lines (if ?middle-removed-lines
                           (-> [first-removed-line
                                ?middle-removed-lines
