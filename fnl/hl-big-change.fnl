@@ -3,13 +3,18 @@
                    :excluded_filetypes []
                    :hlgroup {:added :HlBigChangeAdded
                              :removed :HlBigChangeRemoved}}
-          :timer (vim.uv.new_timer)})
+          :timer (vim.uv.new_timer)
+          :last-texts {}})
 
 (local namespace (vim.api.nvim_create_namespace :HlBigChange))
 
 (macro when-not [cond ...]
   `(when (not ,cond)
      ,...))
+
+(fn cache-last-texts [bufnr]
+  (tset M.last-texts bufnr ;
+        (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
 
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -44,6 +49,44 @@
            (clear-highlights bufnr))
         (vim.schedule))))
 
+(fn glow-removed-texts [bufnr
+                        [start-row0 start-col]
+                        [old-end-row-offset old-end-col-offset]]
+  (let [hlgroup M.config.hlgroup.removed
+        last-texts (. M.last-texts bufnr)
+        start-row (+ start-row0 1)
+        first-removed-line (-> (. last-texts start-row)
+                               (: :sub start-col
+                                  (+ start-col old-end-col-offset -1)))
+        ?middle-removed-lines (when (< 1 old-end-row-offset)
+                                (vim.list_slice last-texts (+ start-row 1)
+                                                (+ start-row old-end-row-offset
+                                                   -1)))
+        ?last-removed-line (when (< 0 old-end-row-offset)
+                             (. last-texts (+ start-row old-end-row-offset)))
+        removed-lines (if ?middle-removed-lines
+                          [first-removed-line
+                           (-> (vim.iter ?middle-removed-lines)
+                               (: :flatten 2)
+                               (: :totable))
+                           ?last-removed-line]
+                          ?last-removed-line
+                          [first-removed-line ?last-removed-line]
+                          [first-removed-line])]
+    (-> #(when (vim.api.nvim_buf_is_valid bufnr)
+           (open-folds-on-undo)
+           (let [start-col0 (- start-col 1)]
+             (each [_ line (ipairs removed-lines)]
+               (let [chunks [[line]]
+                     extmark-opts {:hl_group hlgroup
+                                   :hl_eol true
+                                   :virt_text chunks
+                                   :virt_text_pos :inline}]
+                 (vim.api.nvim_buf_set_extmark bufnr namespace start-row0
+                                               start-col0 extmark-opts))))
+           (clear-highlights bufnr))
+        (vim.schedule))))
+
 (fn on-bytes [_string-bytes
               bufnr
               _changedtick
@@ -73,12 +116,14 @@
                  (. :mode)
                  ;; TODO: Configurable modes to highlight?
                  (: :find :n)))
-    ;; TODO: Highlight removed texts by extmarks.
     (if (or (< old-end-row-offset new-end-row-offset)
             (and (= 0 old-end-row-offset new-end-row-offset) ;
                  (< old-end-col-offset new-end-col-offset)))
         (glow-added-texts bufnr [start-row0 start-col]
-                          [new-end-row-offset new-end-col-offset]))))
+                          [new-end-row-offset new-end-col-offset])
+        (glow-removed-texts bufnr [start-row0 start-col]
+                            [old-end-row-offset old-end-col-offset]))
+    (cache-last-texts bufnr)))
 
 (var biggest-bufnr -1)
 
@@ -86,9 +131,10 @@
 
 (fn excluded-buffer? [buf]
   (vim.list_contains M.config.excluded_filetypes ;
-                    (. vim.bo buf :filetype)))
+                     (. vim.bo buf :filetype)))
 
 (fn attach-buffer! [buf]
+  (cache-last-texts buf)
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
 
 (fn setup [opts]
