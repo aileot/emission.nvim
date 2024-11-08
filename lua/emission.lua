@@ -155,42 +155,42 @@ local function excluded_buffer_3f(buf)
   return vim.list_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function attach_buffer_21(buf)
-  cache_last_texts(buf)
-  return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+  if wipedout_bufnrs[buf] then
+    wipedout_bufnrs[buf] = nil
+  elseif ((biggest_bufnr < buf) and not excluded_buffer_3f(buf)) then
+    local function _24_()
+      biggest_bufnr = buf
+      cache_last_texts(buf)
+      if vim.api.nvim_buf_is_valid(buf) then
+        return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+      else
+        return nil
+      end
+    end
+    vim.defer_fn(_24_, M.config.attach_delay)
+  else
+  end
+  return nil
 end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
-  local function _24_(a)
+  local function _27_(a)
     wipedout_bufnrs[a.buf] = true
     return nil
   end
-  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _24_})
+  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _27_})
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if not excluded_buffer_3f(buf) then
       attach_buffer_21(buf)
     else
     end
   end
-  local function _26_(a)
-    if wipedout_bufnrs[a.buf] then
-      wipedout_bufnrs[a.buf] = nil
-    elseif ((biggest_bufnr < a.buf) and not excluded_buffer_3f(a.buf)) then
-      local function _27_()
-        biggest_bufnr = a.buf
-        if vim.api.nvim_buf_is_valid(a.buf) then
-          return attach_buffer_21(a.buf)
-        else
-          return nil
-        end
-      end
-      vim.defer_fn(_27_, M.config.attach_delay)
-    else
-    end
-    return nil
+  local function _29_(_241)
+    return attach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _26_})
+  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _29_})
 end
 return {setup = setup}
