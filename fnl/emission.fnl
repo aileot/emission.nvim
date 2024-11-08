@@ -1,6 +1,6 @@
 (local M {:config {:attach_delay 100
                    :duration 400
-                   :excluded_filetypes []
+                   :excluded_filetypes [:lazy :oil]
                    :added {:hlgroup :EmissionAdded}
                    :removed {:hlgroup :EmissionRemoved}}
           :timer (vim.uv.new_timer)

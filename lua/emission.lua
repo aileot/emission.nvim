@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
