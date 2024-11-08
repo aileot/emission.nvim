@@ -144,25 +144,16 @@
                             [old-end-row-offset old-end-col-offset]))
     (cache-last-texts bufnr)))
 
-(var biggest-bufnr -1)
-
-(local wipedout-bufnrs {})
-
 (fn excluded-buffer? [buf]
   (vim.list_contains cache.config.excluded_filetypes ;
                      (. vim.bo buf :filetype)))
 
 (fn attach-buffer! [buf]
-  (if (. wipedout-bufnrs buf)
-      (tset wipedout-bufnrs buf nil)
-      (and (< biggest-bufnr buf) ;
-           (not (excluded-buffer? buf)))
-      (-> (fn []
-            (set biggest-bufnr buf)
-            (cache-last-texts buf)
-            (when (and (vim.api.nvim_buf_is_valid buf))
-              (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})))
-          (vim.defer_fn cache.config.attach_delay)))
+  (when-not (excluded-buffer? buf)
+    (-> #(when (vim.api.nvim_buf_is_valid buf)
+           (cache-last-texts buf)
+           (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+        (vim.defer_fn cache.config.attach_delay)))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)
@@ -174,14 +165,8 @@
                          {:default true :fg "#dcd7ba" :bg "#2d4f67"})
     (vim.api.nvim_set_hl 0 :EmissionRemoved
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
-    (vim.api.nvim_create_autocmd :BufWipeout
-      {:group id
-       :callback (fn [a]
-                   (tset wipedout-bufnrs a.buf true))})
-    (each [_ buf (ipairs (vim.api.nvim_list_bufs))]
-      (when-not (excluded-buffer? buf)
-        (attach-buffer! buf)))
-    (vim.api.nvim_create_autocmd :BufWinEnter
+    (attach-buffer! (vim.api.nvim_get_current_buf))
+    (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(attach-buffer! $.buf)})))
 
 {: setup}

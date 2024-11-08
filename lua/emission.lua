@@ -149,19 +149,14 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
     return nil
   end
 end
-local biggest_bufnr = -1
-local wipedout_bufnrs = {}
 local function excluded_buffer_3f(buf)
   return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function attach_buffer_21(buf)
-  if wipedout_bufnrs[buf] then
-    wipedout_bufnrs[buf] = nil
-  elseif ((biggest_bufnr < buf) and not excluded_buffer_3f(buf)) then
+  if not excluded_buffer_3f(buf) then
     local function _24_()
-      biggest_bufnr = buf
-      cache_last_texts(buf)
       if vim.api.nvim_buf_is_valid(buf) then
+        cache_last_texts(buf)
         return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
       else
         return nil
@@ -177,20 +172,10 @@ local function setup(opts)
   cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
-  local function _27_(a)
-    wipedout_bufnrs[a.buf] = true
-    return nil
-  end
-  vim.api.nvim_create_autocmd("BufWipeout", {group = id, callback = _27_})
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if not excluded_buffer_3f(buf) then
-      attach_buffer_21(buf)
-    else
-    end
-  end
-  local function _29_(_241)
+  attach_buffer_21(vim.api.nvim_get_current_buf())
+  local function _27_(_241)
     return attach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufWinEnter", {group = id, callback = _29_})
+  return vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _27_})
 end
 return {setup = setup}
