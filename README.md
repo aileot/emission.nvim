@@ -1,4 +1,4 @@
-# highlight-undo.nvim
+# ✨ emission.nvim
 
 A fork of [tzachar/highlight-undo.nvim](https://github/tzachar/highlight-undo.nvim).
 
@@ -7,7 +7,7 @@ undo/redo.
 You can filter the highlight occasions by changed text length, Vim's mode,
 etc.
 
-Note: Unlike `highlight-undo.nvim` does, `hl-big-change.nvim` does not let you
+Note: Unlike `highlight-undo.nvim` does, `emission.nvim` does not let you
 alter `hlgroup`s for undo/redo, but only for added/removed.
 
 ## In Action
@@ -22,21 +22,26 @@ With [folke/lazy.nvim](https://github/folke/lazy.nvim),
 
 ```lua
   {
-    "aileot/hl-big-change.nvim",
+    "aileot/emission.nvim",
     opts = {},
   },
 ```
 
 ## Setup
 
+defaults:
+
 ```lua
-require("hl-big-change").setup({
+require("emission").setup({
   duration = 400,
+  excluded_filetypes = {},
   added = {
-    hlgroup = "HlBigChangeAdded",
+    hlgroup = "EmissionAdded",
+    priority = 100,
   },
-  redo = {
-    hlgroup = "HlBigChangeRemoved",
+  removed = {
+    hlgroup = "EmissionRemoved",
+    priority = 100,
   },
 })
 ```
@@ -51,5 +56,5 @@ The highlighting group to use.
 
 ## How the Plugin Works
 
-Unlike `highlight-undo`, `hl-big-change` does not work on keymaps, but just on
+Unlike `highlight-undo.nvim`, `emission.nvim` does not work on keymaps, but just on
 `nvim_buf_attach`.
