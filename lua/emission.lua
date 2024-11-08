@@ -1,4 +1,4 @@
-local cache = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local cache = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
@@ -7,7 +7,7 @@ local function dec(x)
   return (x - 1)
 end
 local function cache_last_texts(bufnr)
-  cache["last-texts"][bufnr] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  cache["last-texts"] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return nil
 end
 local function open_folds_on_undo()
@@ -63,7 +63,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   local old_end_row_offset = _11_[1]
   local old_end_col_offset = _11_[2]
   local hlgroup = cache.config.removed.hlgroup
-  local last_texts = cache["last-texts"][bufnr]
+  local last_texts = cache["last-texts"]
   local start_row = inc(start_row0)
   local first_removed_line
   local function _12_()

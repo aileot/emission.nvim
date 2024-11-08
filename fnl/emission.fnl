@@ -4,7 +4,7 @@
                        :added {:hlgroup :EmissionAdded}
                        :removed {:hlgroup :EmissionRemoved}}
               :timer (vim.uv.new_timer)
-              :last-texts {}})
+              :last-texts nil})
 
 (local namespace (vim.api.nvim_create_namespace :Emission))
 
@@ -19,8 +19,8 @@
   (- x 1))
 
 (fn cache-last-texts [bufnr]
-  (tset cache.last-texts bufnr ;
-        (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
+  (set cache.last-texts ;
+       (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
 
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -59,7 +59,7 @@
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
   (let [hlgroup cache.config.removed.hlgroup
-        last-texts (. cache.last-texts bufnr)
+        last-texts cache.last-texts
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
