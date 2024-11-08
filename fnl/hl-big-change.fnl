@@ -98,6 +98,7 @@
                               (< i old-end-row-offset) 1
                               old-end-col-offset)
                      extmark-opts {:hl_eol true
+                                   :strict false
                                    :virt_text chunks
                                    :virt_text_pos :inline}]
                  (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0

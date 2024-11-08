@@ -122,7 +122,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
           else
             col0 = old_end_col_offset
           end
-          local extmark_opts = {hl_eol = true, virt_text = chunks, virt_text_pos = "inline"}
+          local extmark_opts = {hl_eol = true, virt_text = chunks, virt_text_pos = "inline", strict = false}
           vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
         end
       end
