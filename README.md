@@ -34,7 +34,10 @@ defaults:
 ```lua
 require("emission").setup({
   duration = 400,
-  excluded_filetypes = {},
+  excluded_filetypes = {
+    "lazy",
+    "oil",
+  },
   added = {
     hlgroup = "EmissionAdded",
     priority = 100,
