@@ -1,5 +1,5 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "HlBigChangeAdded", removed = "HlBigChangeRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
-local namespace = vim.api.nvim_create_namespace("HlBigChange")
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "EmissionAdded", removed = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
 end
@@ -159,10 +159,10 @@ local function attach_buffer_21(buf)
   return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
 end
 local function setup(opts)
-  local id = vim.api.nvim_create_augroup("HlBigChange", {})
+  local id = vim.api.nvim_create_augroup("Emission", {})
   M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
-  vim.api.nvim_set_hl(0, "HlBigChangeAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
-  vim.api.nvim_set_hl(0, "HlBigChangeRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
+  vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
+  vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   local function _24_(a)
     wipedout_bufnrs[a.buf] = true
     return nil

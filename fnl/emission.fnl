@@ -1,12 +1,12 @@
 (local M {:config {:attach_delay 100
                    :duration 400
                    :excluded_filetypes []
-                   :hlgroup {:added :HlBigChangeAdded
-                             :removed :HlBigChangeRemoved}}
+                   :hlgroup {:added :EmissionAdded
+                             :removed :EmissionRemoved}}
           :timer (vim.uv.new_timer)
           :last-texts {}})
 
-(local namespace (vim.api.nvim_create_namespace :HlBigChange))
+(local namespace (vim.api.nvim_create_namespace :Emission))
 
 (macro when-not [cond ...]
   `(when (not ,cond)
@@ -157,11 +157,11 @@
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
 
 (fn setup [opts]
-  (let [id (vim.api.nvim_create_augroup :HlBigChange {})]
+  (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
-    (vim.api.nvim_set_hl 0 :HlBigChangeAdded
+    (vim.api.nvim_set_hl 0 :EmissionAdded
                          {:default true :fg "#dcd7ba" :bg "#2d4f67"})
-    (vim.api.nvim_set_hl 0 :HlBigChangeRemoved
+    (vim.api.nvim_set_hl 0 :EmissionRemoved
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
     (vim.api.nvim_create_autocmd :BufWipeout
       {:group id
