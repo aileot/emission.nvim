@@ -1,10 +1,10 @@
-(local M {:config {:attach_delay 100
-                   :duration 400
-                   :excluded_filetypes [:lazy :oil]
-                   :added {:hlgroup :EmissionAdded}
-                   :removed {:hlgroup :EmissionRemoved}}
-          :timer (vim.uv.new_timer)
-          :last-texts {}})
+(local cache {:config {:attach_delay 100
+                       :duration 400
+                       :excluded_filetypes [:lazy :oil]
+                       :added {:hlgroup :EmissionAdded}
+                       :removed {:hlgroup :EmissionRemoved}}
+              :timer (vim.uv.new_timer)
+              :last-texts {}})
 
 (local namespace (vim.api.nvim_create_namespace :Emission))
 
@@ -19,7 +19,7 @@
   (- x 1))
 
 (fn cache-last-texts [bufnr]
-  (tset M.last-texts bufnr ;
+  (tset cache.last-texts bufnr ;
         (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
 
 (fn open-folds-on-undo []
@@ -29,18 +29,18 @@
       (vim.cmd "normal! zv"))))
 
 (fn clear-highlights [bufnr]
-  (M.timer:stop)
-  (M.timer:start M.config.duration 0
-                 #(-> (fn []
-                        (when (vim.api.nvim_buf_is_valid bufnr)
-                          (vim.api.nvim_buf_clear_namespace bufnr namespace 0
-                                                            -1)))
-                      (vim.schedule))))
+  (cache.timer:stop)
+  (cache.timer:start cache.config.duration 0
+                     #(-> (fn []
+                            (when (vim.api.nvim_buf_is_valid bufnr)
+                              (vim.api.nvim_buf_clear_namespace bufnr namespace
+                                                                0 -1)))
+                          (vim.schedule))))
 
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hlgroup M.config.added.hlgroup
+  (let [hlgroup cache.config.added.hlgroup
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -58,8 +58,8 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hlgroup M.config.removed.hlgroup
-        last-texts (. M.last-texts bufnr)
+  (let [hlgroup cache.config.removed.hlgroup
+        last-texts (. cache.last-texts bufnr)
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
@@ -149,7 +149,7 @@
 (local wipedout-bufnrs {})
 
 (fn excluded-buffer? [buf]
-  (vim.list_contains M.config.excluded_filetypes ;
+  (vim.list_contains cache.config.excluded_filetypes ;
                      (. vim.bo buf :filetype)))
 
 (fn attach-buffer! [buf]
@@ -162,14 +162,14 @@
             (cache-last-texts buf)
             (when (and (vim.api.nvim_buf_is_valid buf))
               (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})))
-          (vim.defer_fn M.config.attach_delay)))
+          (vim.defer_fn cache.config.attach_delay)))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
-    (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
+    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
     (vim.api.nvim_set_hl 0 :EmissionAdded
                          {:default true :fg "#dcd7ba" :bg "#2d4f67"})
     (vim.api.nvim_set_hl 0 :EmissionRemoved

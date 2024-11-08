@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local cache = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
@@ -7,7 +7,7 @@ local function dec(x)
   return (x - 1)
 end
 local function cache_last_texts(bufnr)
-  M["last-texts"][bufnr] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  cache["last-texts"][bufnr] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
   return nil
 end
 local function open_folds_on_undo()
@@ -19,7 +19,7 @@ local function open_folds_on_undo()
   end
 end
 local function clear_highlights(bufnr)
-  M.timer:stop()
+  cache.timer:stop()
   local function _2_()
     local function _3_()
       if vim.api.nvim_buf_is_valid(bufnr) then
@@ -30,14 +30,14 @@ local function clear_highlights(bufnr)
     end
     return vim.schedule(_3_)
   end
-  return M.timer:start(M.config.duration, 0, _2_)
+  return cache.timer:start(cache.config.duration, 0, _2_)
 end
 local function glow_added_texts(bufnr, _5_, _6_)
   local start_row0 = _5_[1]
   local start_col = _5_[2]
   local new_end_row_offset = _6_[1]
   local new_end_col_offset = _6_[2]
-  local hlgroup = M.config.added.hlgroup
+  local hlgroup = cache.config.added.hlgroup
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
@@ -62,8 +62,8 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   local start_col = _10_[2]
   local old_end_row_offset = _11_[1]
   local old_end_col_offset = _11_[2]
-  local hlgroup = M.config.removed.hlgroup
-  local last_texts = M["last-texts"][bufnr]
+  local hlgroup = cache.config.removed.hlgroup
+  local last_texts = cache["last-texts"][bufnr]
   local start_row = inc(start_row0)
   local first_removed_line
   local function _12_()
@@ -152,7 +152,7 @@ end
 local biggest_bufnr = -1
 local wipedout_bufnrs = {}
 local function excluded_buffer_3f(buf)
-  return vim.list_contains(M.config.excluded_filetypes, vim.bo[buf].filetype)
+  return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function attach_buffer_21(buf)
   if wipedout_bufnrs[buf] then
@@ -167,14 +167,14 @@ local function attach_buffer_21(buf)
         return nil
       end
     end
-    vim.defer_fn(_24_, M.config.attach_delay)
+    vim.defer_fn(_24_, cache.config.attach_delay)
   else
   end
   return nil
 end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
-  M.config = vim.tbl_deep_extend("keep", (opts or {}), M.config)
+  cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   local function _27_(a)
