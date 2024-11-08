@@ -1,8 +1,8 @@
 (local M {:config {:attach_delay 100
                    :duration 400
                    :excluded_filetypes []
-                   :hlgroup {:added :EmissionAdded
-                             :removed :EmissionRemoved}}
+                   :added {:hlgroup :EmissionAdded}
+                   :removed {:hlgroup :EmissionRemoved}}
           :timer (vim.uv.new_timer)
           :last-texts {}})
 
@@ -40,7 +40,7 @@
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hlgroup M.config.hlgroup.added
+  (let [hlgroup M.config.added.hlgroup
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -58,7 +58,7 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hlgroup M.config.hlgroup.removed
+  (let [hlgroup M.config.removed.hlgroup
         last-texts (. M.last-texts bufnr)
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)

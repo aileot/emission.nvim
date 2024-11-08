@@ -1,4 +1,4 @@
-local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, hlgroup = {added = "EmissionAdded", removed = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
+local M = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["last-texts"] = {}}
 local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
@@ -37,7 +37,7 @@ local function glow_added_texts(bufnr, _5_, _6_)
   local start_col = _5_[2]
   local new_end_row_offset = _6_[1]
   local new_end_col_offset = _6_[2]
-  local hlgroup = M.config.hlgroup.added
+  local hlgroup = M.config.added.hlgroup
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
@@ -62,7 +62,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   local start_col = _10_[2]
   local old_end_row_offset = _11_[1]
   local old_end_col_offset = _11_[2]
-  local hlgroup = M.config.hlgroup.removed
+  local hlgroup = M.config.removed.hlgroup
   local last_texts = M["last-texts"][bufnr]
   local start_row = inc(start_row0)
   local first_removed_line
