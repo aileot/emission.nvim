@@ -140,9 +140,9 @@
                  (. :mode)
                  ;; TODO: Configurable modes to highlight?
                  (: :find :n)))
-    (if (or (<= old-end-row-offset new-end-row-offset)
+    (if (or (< old-end-row-offset new-end-row-offset)
             (and (= 0 old-end-row-offset new-end-row-offset) ;
-                 (<= old-end-col-offset new-end-col-offset)))
+                 (< old-end-col-offset new-end-col-offset)))
         (glow-added-texts bufnr [start-row0 start-col]
                           [new-end-row-offset new-end-col-offset])
         (glow-removed-texts bufnr [start-row0 start-col]
