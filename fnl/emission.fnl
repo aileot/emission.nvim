@@ -1,5 +1,4 @@
-(local cache {:config {:attach_delay 100
-                       :duration 400
+(local cache {:config {:duration 400
                        :excluded_filetypes [:lazy :oil]
                        :added {:hlgroup :EmissionAdded}
                        :removed {:hlgroup :EmissionRemoved}}
@@ -166,7 +165,7 @@
   (when-not (excluded-buffer? buf)
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (attach-buffer! buf))
-        (vim.defer_fn cache.config.attach_delay)))
+        (vim.schedule)))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)

@@ -1,4 +1,4 @@
-local cache = {config = {attach_delay = 100, duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
+local cache = {config = {duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("Emission")
 local function inc(x)
   return (x + 1)
@@ -171,7 +171,7 @@ local function request_to_attach_buffer_21(buf)
         return nil
       end
     end
-    vim.defer_fn(_25_, cache.config.attach_delay)
+    vim.schedule(_25_)
   else
   end
   return nil
