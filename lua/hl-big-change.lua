@@ -177,7 +177,7 @@ local function setup(opts)
   local function _26_(a)
     if wipedout_bufnrs[a.buf] then
       wipedout_bufnrs[a.buf] = nil
-    elseif ((biggest_bufnr < a.buf) and excluded_buffer_3f(a.buf)) then
+    elseif ((biggest_bufnr < a.buf) and not excluded_buffer_3f(a.buf)) then
       local function _27_()
         biggest_bufnr = a.buf
         if vim.api.nvim_buf_is_valid(a.buf) then

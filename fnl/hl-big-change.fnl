@@ -176,7 +176,7 @@
                    (if (. wipedout-bufnrs a.buf)
                        (tset wipedout-bufnrs a.buf nil)
                        (and (< biggest-bufnr a.buf) ;
-                            (excluded-buffer? a.buf))
+                            (not (excluded-buffer? a.buf)))
                        (-> (fn []
                              (set biggest-bufnr a.buf)
                              (when (and (vim.api.nvim_buf_is_valid a.buf))
