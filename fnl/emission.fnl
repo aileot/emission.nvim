@@ -4,6 +4,8 @@
                        :added {:hlgroup :EmissionAdded}
                        :removed {:hlgroup :EmissionRemoved}}
               :timer (vim.uv.new_timer)
+              :attached-buffer nil
+              :buffer->detach {}
               :last-texts nil})
 
 (local namespace (vim.api.nvim_create_namespace :Emission))
@@ -130,6 +132,10 @@
   ;;             : new-end-row-offset
   ;;             : new-end-col-offset
   ;;             : _new-end-byte-offset})
+  (when (. cache.buffer->detach bufnr)
+    (tset cache.buffer->detach bufnr nil)
+    ;; NOTE: Return a truthy value to detach.
+    true)
   (when (and (vim.api.nvim_buf_is_valid bufnr)
              (-> (vim.api.nvim_get_mode)
                  (. :mode)
@@ -151,6 +157,8 @@
 (fn attach-buffer! [buf]
   "Attach to `buf`. This function should not be called directly other than
   `request-to-attach-buffer!`."
+  (set cache.attached-buffer buf)
+  (tset cache.buffer->detach buf nil)
   (cache-last-texts buf)
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
 
@@ -163,6 +171,11 @@
   ;; deletion with any future updates.
   nil)
 
+(fn request-to-detach-buffer! [buf]
+  ;; NOTE: On neovim 0.10.2, there is no function to detach buffer directly.
+  (when-not (. cache.attached-buffer buf)
+    (tset cache.buffer->detach buf true)))
+
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
@@ -172,6 +185,8 @@
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
     (attach-buffer! (vim.api.nvim_get_current_buf))
     (vim.api.nvim_create_autocmd :BufEnter
-      {:group id :callback #(request-to-attach-buffer! $.buf)})))
+      {:group id :callback #(request-to-attach-buffer! $.buf)})
+    (vim.api.nvim_create_autocmd :BufLeave
+      {:group id :callback #(request-to-detach-buffer! $.buf)})))
 
 {: setup}
