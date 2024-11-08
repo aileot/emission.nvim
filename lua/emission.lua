@@ -153,11 +153,14 @@ local function excluded_buffer_3f(buf)
   return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function attach_buffer_21(buf)
+  cache_last_texts(buf)
+  return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+end
+local function request_to_attach_buffer_21(buf)
   if not excluded_buffer_3f(buf) then
     local function _24_()
       if vim.api.nvim_buf_is_valid(buf) then
-        cache_last_texts(buf)
-        return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+        return attach_buffer_21(buf)
       else
         return nil
       end
@@ -174,7 +177,7 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   attach_buffer_21(vim.api.nvim_get_current_buf())
   local function _27_(_241)
-    return attach_buffer_21(_241.buf)
+    return request_to_attach_buffer_21(_241.buf)
   end
   return vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _27_})
 end

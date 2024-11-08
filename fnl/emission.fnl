@@ -149,10 +149,15 @@
                      (. vim.bo buf :filetype)))
 
 (fn attach-buffer! [buf]
+  "Attach to `buf`. This function should not be called directly other than
+  `request-to-attach-buffer!`."
+  (cache-last-texts buf)
+  (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+
+(fn request-to-attach-buffer! [buf]
   (when-not (excluded-buffer? buf)
     (-> #(when (vim.api.nvim_buf_is_valid buf)
-           (cache-last-texts buf)
-           (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+           (attach-buffer! buf))
         (vim.defer_fn cache.config.attach_delay)))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
@@ -167,6 +172,6 @@
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
     (attach-buffer! (vim.api.nvim_get_current_buf))
     (vim.api.nvim_create_autocmd :BufEnter
-      {:group id :callback #(attach-buffer! $.buf)})))
+      {:group id :callback #(request-to-attach-buffer! $.buf)})))
 
 {: setup}
