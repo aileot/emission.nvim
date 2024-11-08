@@ -1,10 +1,11 @@
-(local M {:config {:attach_delay 100
-                   :duration 400
-                   :excluded_filetypes [:lazy :oil]
-                   :added {:hlgroup :EmissionAdded}
-                   :removed {:hlgroup :EmissionRemoved}}
-          :timer (vim.uv.new_timer)
-          :last-texts {}})
+(local cache {:config {:duration 400
+                       :excluded_filetypes [:lazy :oil]
+                       :added {:hlgroup :EmissionAdded}
+                       :removed {:hlgroup :EmissionRemoved}}
+              :timer (vim.uv.new_timer)
+              :attached-buffer nil
+              :buffer->detach {}
+              :last-texts nil})
 
 (local namespace (vim.api.nvim_create_namespace :Emission))
 
@@ -19,8 +20,8 @@
   (- x 1))
 
 (fn cache-last-texts [bufnr]
-  (tset M.last-texts bufnr ;
-        (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
+  (set cache.last-texts ;
+       (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
 
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -29,18 +30,18 @@
       (vim.cmd "normal! zv"))))
 
 (fn clear-highlights [bufnr]
-  (M.timer:stop)
-  (M.timer:start M.config.duration 0
-                 #(-> (fn []
-                        (when (vim.api.nvim_buf_is_valid bufnr)
-                          (vim.api.nvim_buf_clear_namespace bufnr namespace 0
-                                                            -1)))
-                      (vim.schedule))))
+  (cache.timer:stop)
+  (cache.timer:start cache.config.duration 0
+                     #(-> (fn []
+                            (when (vim.api.nvim_buf_is_valid bufnr)
+                              (vim.api.nvim_buf_clear_namespace bufnr namespace
+                                                                0 -1)))
+                          (vim.schedule))))
 
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hlgroup M.config.added.hlgroup
+  (let [hlgroup cache.config.added.hlgroup
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -58,8 +59,8 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hlgroup M.config.removed.hlgroup
-        last-texts (. M.last-texts bufnr)
+  (let [hlgroup cache.config.removed.hlgroup
+        last-texts cache.last-texts
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
@@ -130,6 +131,10 @@
   ;;             : new-end-row-offset
   ;;             : new-end-col-offset
   ;;             : _new-end-byte-offset})
+  (when (. cache.buffer->detach bufnr)
+    (tset cache.buffer->detach bufnr nil)
+    ;; NOTE: Return a truthy value to detach.
+    true)
   (when (and (vim.api.nvim_buf_is_valid bufnr)
              (-> (vim.api.nvim_get_mode)
                  (. :mode)
@@ -144,45 +149,43 @@
                             [old-end-row-offset old-end-col-offset]))
     (cache-last-texts bufnr)))
 
-(var biggest-bufnr -1)
-
-(local wipedout-bufnrs {})
-
 (fn excluded-buffer? [buf]
-  (vim.list_contains M.config.excluded_filetypes ;
+  (vim.list_contains cache.config.excluded_filetypes ;
                      (. vim.bo buf :filetype)))
 
 (fn attach-buffer! [buf]
+  "Attach to `buf`. This function should not be called directly other than
+  `request-to-attach-buffer!`."
+  (set cache.attached-buffer buf)
+  (tset cache.buffer->detach buf nil)
   (cache-last-texts buf)
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
 
+(fn request-to-attach-buffer! [buf]
+  (when-not (excluded-buffer? buf)
+    (-> #(when (vim.api.nvim_buf_is_valid buf)
+           (attach-buffer! buf))
+        (vim.schedule)))
+  ;; HACK: Keep the `nil` to make sure to resist autocmd
+  ;; deletion with any future updates.
+  nil)
+
+(fn request-to-detach-buffer! [buf]
+  ;; NOTE: On neovim 0.10.2, there is no function to detach buffer directly.
+  (when-not (. cache.attached-buffer buf)
+    (tset cache.buffer->detach buf true)))
+
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
-    (set M.config (vim.tbl_deep_extend :keep (or opts {}) M.config))
+    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
     (vim.api.nvim_set_hl 0 :EmissionAdded
                          {:default true :fg "#dcd7ba" :bg "#2d4f67"})
     (vim.api.nvim_set_hl 0 :EmissionRemoved
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
-    (vim.api.nvim_create_autocmd :BufWipeout
-      {:group id
-       :callback (fn [a]
-                   (tset wipedout-bufnrs a.buf true))})
-    (each [_ buf (ipairs (vim.api.nvim_list_bufs))]
-      (when-not (excluded-buffer? buf)
-        (attach-buffer! buf)))
-    (vim.api.nvim_create_autocmd :BufWinEnter
-      {:group id
-       :callback (fn [a]
-                   (if (. wipedout-bufnrs a.buf)
-                       (tset wipedout-bufnrs a.buf nil)
-                       (and (< biggest-bufnr a.buf) ;
-                            (not (excluded-buffer? a.buf)))
-                       (-> (fn []
-                             (set biggest-bufnr a.buf)
-                             (when (and (vim.api.nvim_buf_is_valid a.buf))
-                               (attach-buffer! a.buf)))
-                           (vim.defer_fn M.config.attach_delay)))
-                   ;; HACK: Keep the `nil` to resist autocmd deletion.
-                   nil)})))
+    (attach-buffer! (vim.api.nvim_get_current_buf))
+    (vim.api.nvim_create_autocmd :BufEnter
+      {:group id :callback #(request-to-attach-buffer! $.buf)})
+    (vim.api.nvim_create_autocmd :BufLeave
+      {:group id :callback #(request-to-detach-buffer! $.buf)})))
 
 {: setup}
