@@ -72,38 +72,27 @@
                                                    -1)))
         ?last-removed-line (when (< 0 old-end-row-offset)
                              (-> (. last-texts (+ start-row old-end-row-offset))
-                                 (: :sub 1 old-end-col-offset)))
-        removed-lines (if ?middle-removed-lines
-                          (-> [first-removed-line
-                               ?middle-removed-lines
-                               ?last-removed-line]
-                              (vim.iter)
-                              (: :flatten)
-                              (: :totable))
-                          ?last-removed-line
-                          [first-removed-line ?last-removed-line]
-                          [first-removed-line])]
+                                 (: :sub 1 old-end-col-offset)))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
-           (let [start-col0 (dec start-col)
-                 max-idx (if (= 0 old-end-col-offset)
-                             (+ 2 old-end-row-offset)
-                             (inc old-end-row-offset))]
-             (for [i 1 max-idx]
-               (let [line (. removed-lines i)
-                     chunks (if (and (= i max-idx) (= 0 old-end-col-offset))
-                                [[""]]
-                                [[line hlgroup]])
-                     row0 (+ start-row0 i -1)
-                     col0 (if (= i 1) (inc start-col0)
-                              (< i old-end-row-offset) 1
-                              old-end-col-offset)
-                     extmark-opts {:hl_eol true
-                                   :strict false
-                                   :virt_text chunks
-                                   :virt_text_pos :inline}]
-                 (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0
-                                               extmark-opts))))
+           (let [first-line-chunk [[first-removed-line hlgroup]]
+                 ?rest-line-chunks (if ?middle-removed-lines
+                                       (do
+                                         (table.insert ?middle-removed-lines
+                                                       ?last-removed-line)
+                                         (->> ?middle-removed-lines
+                                              (vim.tbl_map #[[$ hlgroup]])))
+                                       ?last-removed-line
+                                       [[[?last-removed-line hlgroup]]])
+                 row0 start-row0
+                 col0 start-col
+                 extmark-opts {:hl_eol true
+                               :strict false
+                               :virt_text first-line-chunk
+                               :virt_lines ?rest-line-chunks
+                               :virt_text_pos :inline}]
+             (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0
+                                           extmark-opts))
            (clear-highlights bufnr))
         (vim.schedule))))
 
