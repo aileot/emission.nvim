@@ -70,7 +70,8 @@
            (open-folds-on-undo)
            (vim.highlight.range bufnr namespace hlgroup [start-row0 start-col]
                                 [end-row end-col])
-           (clear-highlights bufnr cache.config.added.duration))
+           (clear-highlights bufnr cache.config.added.duration)
+           (cache-last-texts bufnr))
         (vim.schedule))))
 
 (fn glow-removed-texts [bufnr
@@ -154,8 +155,7 @@
                               [new-end-row-offset new-end-col-offset]))
           (when (vim.list_contains cache.config.removed.modes mode)
             (glow-removed-texts bufnr [start-row0 start-col]
-                                [old-end-row-offset old-end-col-offset])))
-      (cache-last-texts bufnr))))
+                                [old-end-row-offset old-end-col-offset]))))))
 
 (fn excluded-buffer? [buf]
   (vim.list_contains cache.config.excluded_filetypes ;
