@@ -7,6 +7,8 @@
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
+              :last-duration 0
+              :last-editing-position [0 0]
               :attached-buffer nil
               :buffer->detach {}
               :last-recache-time 0
@@ -49,8 +51,25 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
+(fn dismiss-deprecated-highlight! [buf [start-row0 start-col]]
+  "Dismiss highlights at the same position."
+  (match cache.last-editing-position
+    [start-row0 start-col]
+    ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
+    ;; the highlights over lines to the exactness with specifying the range.
+    (vim.api.nvim_buf_clear_namespace buf namespace 0 -1)
+    _
+    false)
+  (set cache.last-editing-position [start-row0 start-col]))
+
+(fn dismiss-deprecated-highlights! [buf [start-row0 start-col]]
+  "Dismiss highlights at the same position."
+  ;; TODO: (Low priority) Iterate over the changes considering the option
+  ;; value continuous_editing_time.
+  (dismiss-deprecated-highlight! buf [start-row0 start-col]))
+
 (fn clear-highlights [bufnr duration]
-  (cache.timer:stop)
+  (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid bufnr)
@@ -71,6 +90,7 @@
                         (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-at-cursor!)
+           (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
            (vim/hl.range bufnr namespace hlgroup [start-row0 start-col]
                          [end-row end-col])
            (clear-highlights bufnr cache.config.added.duration)
@@ -131,6 +151,7 @@
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-at-cursor!)
+           (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
            (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
            (clear-highlights bufnr cache.config.removed.duration))
         (vim.schedule))))
