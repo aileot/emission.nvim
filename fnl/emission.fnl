@@ -109,11 +109,13 @@
                               [[[?last-removed-line hlgroup]]])
         row0 start-row0
         col0 start-col
+        virt_text_pos (if (< removed-last-row (length last-texts)) ;
+                          :overlay :inline)
         extmark-opts {:hl_eol true
                       :strict false
                       :virt_text first-line-chunk
                       :virt_lines ?rest-line-chunks
-                      :virt_text_pos :overlay}]
+                      : virt_text_pos}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
            ;; TODO: Show the actual text after of the last line of virtual
