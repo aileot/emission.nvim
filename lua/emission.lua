@@ -1,5 +1,5 @@
 local default_modes = {"n", "no", "nov", "noV", "no\\22"}
-local cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 1500, added = {hlgroup = "EmissionAdded", modes = default_modes, duration = 400}, removed = {hlgroup = "EmissionRemoved", modes = default_modes, duration = 300}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
+local cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hlgroup = "EmissionAdded", modes = default_modes, duration = 400}, removed = {hlgroup = "EmissionRemoved", modes = default_modes, duration = 300}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local function inc(x)
   return (x + 1)

@@ -3,7 +3,7 @@
        [:n :no :nov :noV "no\\22"])
 
 (local cache {:config {:excluded_filetypes [:lazy :oil]
-                       :min_recache_interval 1500
+                       :min_recache_interval 50
                        :added {:hlgroup :EmissionAdded
                                :modes default-modes
                                :duration 400}
