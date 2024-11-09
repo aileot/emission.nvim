@@ -33,7 +33,7 @@ defaults:
 
 ```lua
 require("emission").setup({
-  duration = 400, -- milliseconds
+  min_recache_interval = 50,
   excluded_filetypes = {
     "lazy",
     "oil",
