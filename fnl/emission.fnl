@@ -83,39 +83,51 @@
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
+        ends-with-newline? (= 0 old-end-col-offset)
+        old-end-row-offset* (if ends-with-newline?
+                                ;; NOTE: "\n" at the last line is counted as an extra offset.
+                                (dec old-end-row-offset)
+                                old-end-row-offset)
+        removed-last-row (+ start-row old-end-row-offset*)
+        current-last-row (vim.api.nvim_buf_line_count bufnr)
+        end-of-file-removed? (< current-last-row removed-last-row)
+        ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
+        ;; is removed.
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
                                   (when (= 0 old-end-row-offset)
                                     (+ start-col old-end-col-offset))))
+        ;; NOTE: The rest ?middle-removed-lines and ?last-removed-line will
+        ;; compose `virt_lines`.
         ?middle-removed-lines (when (< 1 old-end-row-offset)
                                 (vim.list_slice last-texts (inc start-row)
-                                                (+ start-row old-end-row-offset
-                                                   -1)))
+                                                removed-last-row))
         ?last-removed-line (when (< 0 old-end-row-offset)
-                             (-> (. last-texts (+ start-row old-end-row-offset))
+                             (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
-        first-line-chunk [[first-removed-line hlgroup]]
+        ?first-line-chunk (when-not end-of-file-removed?
+                            [[first-removed-line hlgroup]])
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
-                                (when-not (= "" ?last-removed-line)
-                                  (table.insert ?middle-removed-lines
-                                                ?last-removed-line))
+                                (table.insert ?middle-removed-lines
+                                              ?last-removed-line)
                                 (->> ?middle-removed-lines
                                      (vim.tbl_map #[[$ hlgroup]])))
-                              (and ?last-removed-line ;
-                                   (= "" ?last-removed-line))
+                              ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
-        row0 start-row0
+        _ (when end-of-file-removed?
+            (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
+        row0 (if end-of-file-removed?
+                 (dec start-row0)
+                 start-row0)
         col0 start-col
         extmark-opts {:hl_eol true
                       :strict false
-                      :virt_text first-line-chunk
+                      :virt_text ?first-line-chunk
                       :virt_lines ?rest-line-chunks
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
-           ;; TODO: Show the actual text after of the last line of virtual
-           ;; texts instead of just after the first line.
            (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
            (clear-highlights bufnr cache.config.removed.duration))
         (vim.schedule))))
