@@ -83,16 +83,21 @@
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
+        ends-with-newline? (= 0 old-end-col-offset)
+        old-end-row-offset* (if ends-with-newline?
+                                ;; NOTE: "\n" at the last line is counted as an extra offset.
+                                (dec old-end-row-offset)
+                                old-end-row-offset)
+        removed-last-row (+ start-row old-end-row-offset*)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
                                   (when (= 0 old-end-row-offset)
                                     (+ start-col old-end-col-offset))))
         ?middle-removed-lines (when (< 1 old-end-row-offset)
                                 (vim.list_slice last-texts (inc start-row)
-                                                (+ start-row old-end-row-offset
-                                                   -1)))
+                                                removed-last-row))
         ?last-removed-line (when (< 0 old-end-row-offset)
-                             (-> (. last-texts (+ start-row old-end-row-offset))
+                             (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
         first-line-chunk [[first-removed-line hlgroup]]
         ?rest-line-chunks (if ?middle-removed-lines
