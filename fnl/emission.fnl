@@ -2,11 +2,13 @@
        ;; NOTE: "\22" represents <C-v> blockwise.
        [:n :no :nov :noV "no\\22"])
 
-(local cache {:config {:duration 400
-                       :excluded_filetypes [:lazy :oil]
-                       :added {:hlgroup :EmissionAdded :modes default-modes}
+(local cache {:config {:excluded_filetypes [:lazy :oil]
+                       :added {:hlgroup :EmissionAdded
+                               :modes default-modes
+                               :duration 400}
                        :removed {:hlgroup :EmissionRemoved
-                                 :modes default-modes}}
+                                 :modes default-modes
+                                 :duration 300}}
               :timer (vim.uv.new_timer)
               :attached-buffer nil
               :buffer->detach {}
@@ -34,9 +36,9 @@
               (vim.list_contains foldopen :all))
       (vim.cmd "normal! zv"))))
 
-(fn clear-highlights [bufnr]
+(fn clear-highlights [bufnr duration]
   (cache.timer:stop)
-  (cache.timer:start cache.config.duration 0
+  (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid bufnr)
                               (vim.api.nvim_buf_clear_namespace bufnr namespace
@@ -58,7 +60,7 @@
            (open-folds-on-undo)
            (vim.highlight.range bufnr namespace hlgroup [start-row0 start-col]
                                 [end-row end-col])
-           (clear-highlights bufnr))
+           (clear-highlights bufnr cache.config.added.duration))
         (vim.schedule))))
 
 (fn glow-removed-texts [bufnr
@@ -100,7 +102,7 @@
              ;; texts instead of just after the first line.
              (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0
                                            extmark-opts))
-           (clear-highlights bufnr))
+           (clear-highlights bufnr cache.config.removed.duration))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes

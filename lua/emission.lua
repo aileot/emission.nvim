@@ -1,5 +1,5 @@
 local default_modes = {"n", "no", "nov", "noV", "no\\22"}
-local cache = {config = {duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded", modes = default_modes}, removed = {hlgroup = "EmissionRemoved", modes = default_modes}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
+local cache = {config = {excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded", modes = default_modes, duration = 400}, removed = {hlgroup = "EmissionRemoved", modes = default_modes, duration = 300}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local function inc(x)
   return (x + 1)
@@ -19,7 +19,7 @@ local function open_folds_on_undo()
     return nil
   end
 end
-local function clear_highlights(bufnr)
+local function clear_highlights(bufnr, duration)
   cache.timer:stop()
   local function _2_()
     local function _3_()
@@ -31,7 +31,7 @@ local function clear_highlights(bufnr)
     end
     return vim.schedule(_3_)
   end
-  return cache.timer:start(cache.config.duration, 0, _2_)
+  return cache.timer:start(duration, 0, _2_)
 end
 local function glow_added_texts(bufnr, _5_, _6_)
   local start_row0 = _5_[1]
@@ -51,7 +51,7 @@ local function glow_added_texts(bufnr, _5_, _6_)
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()
       vim.highlight.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
-      return clear_highlights(bufnr)
+      return clear_highlights(bufnr, cache.config.added.duration)
     else
       return nil
     end
@@ -109,7 +109,7 @@ local function glow_removed_texts(bufnr, _10_, _11_)
         local extmark_opts = {hl_eol = true, virt_text = first_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "inline", strict = false}
         vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
       end
-      return clear_highlights(bufnr)
+      return clear_highlights(bufnr, cache.config.removed.duration)
     else
       return nil
     end
