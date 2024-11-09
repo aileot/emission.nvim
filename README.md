@@ -40,10 +40,12 @@ require("emission").setup({
   },
   added = {
     hlgroup = "EmissionAdded",
+    modes = { "n", "no", "nov", "noV", "no\\22" },
     priority = 100,
   },
   removed = {
     hlgroup = "EmissionRemoved",
+    modes = { "n", "no", "nov", "noV", "no\\22" },
     priority = 100,
   },
 })
