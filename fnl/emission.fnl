@@ -3,6 +3,7 @@
        [:n :no :nov :noV "no\\22"])
 
 (local cache {:config {:excluded_filetypes [:lazy :oil]
+                       :min_recache_interval 50
                        :added {:hlgroup :EmissionAdded
                                :modes default-modes
                                :duration 400}
@@ -12,6 +13,7 @@
               :timer (vim.uv.new_timer)
               :attached-buffer nil
               :buffer->detach {}
+              :last-recache-time 0
               :last-texts nil})
 
 (local namespace (vim.api.nvim_create_namespace :emission))
@@ -27,8 +29,15 @@
   (- x 1))
 
 (fn cache-last-texts [bufnr]
-  (set cache.last-texts ;
-       (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))
+  (let [now (vim.uv.now)]
+    (when (or (p (not= bufnr cache.attached-buffer))
+              (< (- now cache.last-recache-time)
+                 cache.config.min_recache_interval))
+      ;; NOTE: min_recache_interval for multi-line editing which sequentially
+      ;; calls `on_bytes` line by line like `:substitute`.
+      (set cache.last-recache-time now)
+      (set cache.last-texts ;
+           (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))))
 
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
