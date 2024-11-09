@@ -42,16 +42,13 @@ require("emission").setup({
     hlgroup = "EmissionAdded",
     modes = { "n", "no", "nov", "noV", "no\\22" },
     priority = 100,
+    duration = 400, -- milliseconds
   },
   removed = {
     hlgroup = "EmissionRemoved",
     modes = { "n", "no", "nov", "noV", "no\\22" },
     priority = 100,
+    duration = 300, -- milliseconds
   },
 })
 ```
-
-## How the Plugin Works
-
-Unlike `highlight-undo.nvim`, `emission.nvim` does not work on keymaps, but just on
-`nvim_buf_attach`.
