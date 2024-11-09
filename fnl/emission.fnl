@@ -106,7 +106,7 @@
                       :strict false
                       :virt_text first-line-chunk
                       :virt_lines ?rest-line-chunks
-                      :virt_text_pos :inline}]
+                      :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
            ;; TODO: Show the actual text after of the last line of virtual
