@@ -87,34 +87,31 @@ local function glow_removed_texts(bufnr, _10_, _11_)
   else
     _3flast_removed_line = nil
   end
-  local function _15_()
+  local first_line_chunk = {{first_removed_line, hlgroup}}
+  local _3frest_line_chunks
+  if _3fmiddle_removed_lines then
+    table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
+    local function _15_(_241)
+      return {{_241, hlgroup}}
+    end
+    _3frest_line_chunks = vim.tbl_map(_15_, _3fmiddle_removed_lines)
+  elseif _3flast_removed_line then
+    _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
+  else
+    _3frest_line_chunks = nil
+  end
+  local row0 = start_row0
+  local col0 = start_col
+  local extmark_opts = {hl_eol = true, virt_text = first_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "inline", strict = false}
+  local function _17_()
     if vim.api.nvim_buf_is_valid(bufnr) then
-      open_folds_on_undo()
-      do
-        local first_line_chunk = {{first_removed_line, hlgroup}}
-        local _3frest_line_chunks
-        if _3fmiddle_removed_lines then
-          table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-          local function _16_(_2410)
-            return {{_2410, hlgroup}}
-          end
-          _3frest_line_chunks = vim.tbl_map(_16_, _3fmiddle_removed_lines)
-        elseif _3flast_removed_line then
-          _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
-        else
-          _3frest_line_chunks = nil
-        end
-        local row0 = start_row0
-        local col0 = start_col
-        local extmark_opts = {hl_eol = true, virt_text = first_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "inline", strict = false}
-        vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
-      end
+      open_folds_on_undo(vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts))
       return clear_highlights(bufnr, cache.config.removed.duration)
     else
       return nil
     end
   end
-  return vim.schedule(_15_)
+  return vim.schedule(_17_)
 end
 local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][bufnr] then
