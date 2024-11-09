@@ -102,13 +102,10 @@
         first-line-chunk [[first-removed-line hlgroup]]
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
-                                (when-not (= "" ?last-removed-line)
-                                  (table.insert ?middle-removed-lines
-                                                ?last-removed-line))
+                                (table.insert ?middle-removed-lines
+                                              ?last-removed-line)
                                 (->> ?middle-removed-lines
                                      (vim.tbl_map #[[$ hlgroup]])))
-                              (and ?last-removed-line ;
-                                   (= "" ?last-removed-line))
                               [[[?last-removed-line hlgroup]]])
         row0 start-row0
         col0 start-col
