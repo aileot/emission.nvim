@@ -7,7 +7,7 @@
               :buffer->detach {}
               :last-texts nil})
 
-(local namespace (vim.api.nvim_create_namespace :Emission))
+(local namespace (vim.api.nvim_create_namespace :emission))
 
 (macro when-not [cond ...]
   `(when (not ,cond)

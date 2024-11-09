@@ -1,5 +1,5 @@
 local cache = {config = {duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
-local namespace = vim.api.nvim_create_namespace("Emission")
+local namespace = vim.api.nvim_create_namespace("emission")
 local function inc(x)
   return (x + 1)
 end
