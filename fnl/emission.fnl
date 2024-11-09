@@ -129,18 +129,6 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  ;; (vim.print {: _string-bytes
-  ;;             : bufnr
-  ;;             : _changedtick
-  ;;             : start-row0
-  ;;             : start-col
-  ;;             : _byte-offset
-  ;;             : old-end-row-offset
-  ;;             : old-end-col-offset
-  ;;             : _old-end-byte-offset
-  ;;             : new-end-row-offset
-  ;;             : new-end-col-offset
-  ;;             : _new-end-byte-offset})
   (when (. cache.buffer->detach bufnr)
     (tset cache.buffer->detach bufnr nil)
     ;; NOTE: Return a truthy value to detach.
