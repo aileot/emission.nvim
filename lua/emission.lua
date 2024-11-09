@@ -1,6 +1,7 @@
 local default_modes = {"n", "no", "nov", "noV", "no\\22"}
 local cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hlgroup = "EmissionAdded", modes = default_modes, duration = 400}, removed = {hlgroup = "EmissionRemoved", modes = default_modes, duration = 300}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
+local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
 end
@@ -57,7 +58,7 @@ local function glow_added_texts(bufnr, _6_, _7_)
   local function _9_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()
-      vim.highlight.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
+      vim_2fhl.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
       clear_highlights(bufnr, cache.config.added.duration)
       return cache_last_texts(bufnr)
     else

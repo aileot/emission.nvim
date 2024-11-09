@@ -18,6 +18,8 @@
 
 (local namespace (vim.api.nvim_create_namespace :emission))
 
+(local vim/hl (or vim.hl vim.highlight))
+
 (macro when-not [cond ...]
   `(when (not ,cond)
      ,...))
@@ -68,8 +70,8 @@
                         (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
-           (vim.highlight.range bufnr namespace hlgroup [start-row0 start-col]
-                                [end-row end-col])
+           (vim/hl.range bufnr namespace hlgroup [start-row0 start-col]
+                         [end-row end-col])
            (clear-highlights bufnr cache.config.added.duration)
            (cache-last-texts bufnr))
         (vim.schedule))))
