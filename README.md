@@ -33,7 +33,7 @@ defaults:
 
 ```lua
 require("emission").setup({
-  duration = 400,
+  duration = 400, -- milliseconds
   excluded_filetypes = {
     "lazy",
     "oil",
@@ -50,14 +50,6 @@ require("emission").setup({
   },
 })
 ```
-
-## `duration`
-
-The duration (in milliseconds) to highlight changes. Default is 300.
-
-## `hlgroup`
-
-The highlighting group to use.
 
 ## How the Plugin Works
 
