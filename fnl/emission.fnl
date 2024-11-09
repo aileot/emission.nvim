@@ -108,11 +108,10 @@
                       :virt_lines ?rest-line-chunks
                       :virt_text_pos :inline}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
-           (open-folds-on-undo ;; TODO: Show the actual text after of the last line of virtual
-                               ;; texts instead of just after the first line.
-                               (vim.api.nvim_buf_set_extmark bufnr namespace
-                                                             row0 col0
-                                                             extmark-opts))
+           (open-folds-on-undo)
+           ;; TODO: Show the actual text after of the last line of virtual
+           ;; texts instead of just after the first line.
+           (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
            (clear-highlights bufnr cache.config.removed.duration))
         (vim.schedule))))
 

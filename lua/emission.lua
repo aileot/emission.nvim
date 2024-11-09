@@ -113,7 +113,8 @@ local function glow_removed_texts(bufnr, _11_, _12_)
   local extmark_opts = {hl_eol = true, virt_text = first_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "inline", strict = false}
   local function _18_()
     if vim.api.nvim_buf_is_valid(bufnr) then
-      open_folds_on_undo(vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts))
+      open_folds_on_undo()
+      vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
       return clear_highlights(bufnr, cache.config.removed.duration)
     else
       return nil
