@@ -120,8 +120,7 @@
                  (dec start-row0)
                  start-row0)
         col0 start-col
-        virt_text_pos (if end-of-file-removed? ;
-                          :inline :overlay)
+        virt_text_pos :overlay
         extmark-opts {:hl_eol true
                       :strict false
                       :virt_text ?first-line-chunk

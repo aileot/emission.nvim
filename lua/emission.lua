@@ -137,14 +137,9 @@ local function glow_removed_texts(bufnr, _11_, _12_)
     row0 = start_row0
   end
   local col0 = start_col
-  local virt_text_pos
-  if end_of_file_removed_3f then
-    virt_text_pos = "inline"
-  else
-    virt_text_pos = "overlay"
-  end
+  local virt_text_pos = "overlay"
   local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = virt_text_pos, strict = false}
-  local function _23_()
+  local function _22_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()
       vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
@@ -153,7 +148,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
       return nil
     end
   end
-  return vim.schedule(_23_)
+  return vim.schedule(_22_)
 end
 local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][bufnr] then
@@ -189,14 +184,14 @@ local function attach_buffer_21(buf)
 end
 local function request_to_attach_buffer_21(buf)
   if not excluded_buffer_3f(buf) then
-    local function _30_()
+    local function _29_()
       if vim.api.nvim_buf_is_valid(buf) then
         return attach_buffer_21(buf)
       else
         return nil
       end
     end
-    vim.schedule(_30_)
+    vim.schedule(_29_)
   else
   end
   return nil
@@ -215,13 +210,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   attach_buffer_21(vim.api.nvim_get_current_buf())
-  local function _34_(_241)
+  local function _33_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _34_})
-  local function _35_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _33_})
+  local function _34_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _35_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _34_})
 end
 return {setup = setup}
