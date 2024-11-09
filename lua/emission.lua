@@ -137,8 +137,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
     row0 = start_row0
   end
   local col0 = start_col
-  local virt_text_pos = "overlay"
-  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = virt_text_pos, strict = false}
+  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "overlay", strict = false}
   local function _22_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()

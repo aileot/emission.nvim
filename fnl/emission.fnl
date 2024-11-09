@@ -120,12 +120,11 @@
                  (dec start-row0)
                  start-row0)
         col0 start-col
-        virt_text_pos :overlay
         extmark-opts {:hl_eol true
                       :strict false
                       :virt_text ?first-line-chunk
                       :virt_lines ?rest-line-chunks
-                      : virt_text_pos}]
+                      :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-on-undo)
            (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
