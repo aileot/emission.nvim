@@ -3,7 +3,7 @@
        [:n :no :nov :noV "no\\22"])
 
 (local cache {:config {:excluded_filetypes [:lazy :oil]
-                       :min_recache_interval 50
+                       :min_recache_interval 1500
                        :added {:hlgroup :EmissionAdded
                                :modes default-modes
                                :duration 400}
@@ -30,14 +30,15 @@
 
 (fn cache-last-texts [bufnr]
   (let [now (vim.uv.now)]
-    (when (or (p (not= bufnr cache.attached-buffer))
-              (< (- now cache.last-recache-time)
-                 cache.config.min_recache_interval))
+    (when (or (not= bufnr cache.attached-buffer)
+              (< cache.config.min_recache_interval
+                 (- now cache.last-recache-time)))
       ;; NOTE: min_recache_interval for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
       (set cache.last-texts ;
-           (vim.api.nvim_buf_get_lines bufnr 0 -1 false)))))
+           (vim.api.nvim_buf_get_lines bufnr 0 -1 false))
+      (set cache.attached-buffer bufnr))))
 
 (fn open-folds-on-undo []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -163,7 +164,6 @@
 (fn attach-buffer! [buf]
   "Attach to `buf`. This function should not be called directly other than
   `request-to-attach-buffer!`."
-  (set cache.attached-buffer buf)
   (tset cache.buffer->detach buf nil)
   (cache-last-texts buf)
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
