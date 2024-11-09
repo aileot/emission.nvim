@@ -108,10 +108,14 @@
                                      (vim.tbl_map #[[$ hlgroup]])))
                               ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
-        row0 start-row0
+        current-last-row (vim.api.nvim_buf_line_count bufnr)
+        end-of-file-removed? (< current-last-row removed-last-row)
+        row0 (if end-of-file-removed?
+                 (dec start-row0)
+                 start-row0)
         col0 start-col
-        virt_text_pos (if (< removed-last-row (length last-texts)) ;
-                          :overlay :inline)
+        virt_text_pos (if end-of-file-removed? ;
+                          :inline :overlay)
         extmark-opts {:hl_eol true
                       :strict false
                       :virt_text first-line-chunk
