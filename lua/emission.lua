@@ -1,4 +1,5 @@
-local cache = {config = {duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded"}, removed = {hlgroup = "EmissionRemoved"}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
+local default_modes = {"n", "no", "nov", "noV", "no\\22"}
+local cache = {config = {duration = 400, excluded_filetypes = {"lazy", "oil"}, added = {hlgroup = "EmissionAdded", modes = default_modes}, removed = {hlgroup = "EmissionRemoved", modes = default_modes}}, timer = vim.uv.new_timer(), ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local function inc(x)
   return (x + 1)
@@ -120,15 +121,18 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
     cache["buffer->detach"][bufnr] = nil
   else
   end
-  local and_20_ = vim.api.nvim_buf_is_valid(bufnr)
-  if and_20_ then
-    and_20_ = vim.api.nvim_get_mode().mode:find("n")
-  end
-  if and_20_ then
+  if vim.api.nvim_buf_is_valid(bufnr) then
+    local mode = vim.api.nvim_get_mode().mode
     if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
-      glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+      if vim.list_contains(cache.config.added.modes, mode) then
+        glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+      else
+      end
     else
-      glow_removed_texts(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+      if vim.list_contains(cache.config.removed.modes, mode) then
+        glow_removed_texts(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+      else
+      end
     end
     return cache_last_texts(bufnr)
   else
@@ -146,14 +150,14 @@ local function attach_buffer_21(buf)
 end
 local function request_to_attach_buffer_21(buf)
   if not excluded_buffer_3f(buf) then
-    local function _23_()
+    local function _24_()
       if vim.api.nvim_buf_is_valid(buf) then
         return attach_buffer_21(buf)
       else
         return nil
       end
     end
-    vim.schedule(_23_)
+    vim.schedule(_24_)
   else
   end
   return nil
@@ -172,13 +176,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   attach_buffer_21(vim.api.nvim_get_current_buf())
-  local function _27_(_241)
+  local function _28_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _27_})
-  local function _28_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _28_})
+  local function _29_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _28_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _29_})
 end
 return {setup = setup}

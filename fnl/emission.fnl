@@ -1,7 +1,12 @@
+(local default-modes ;
+       ;; NOTE: "\22" represents <C-v> blockwise.
+       [:n :no :nov :noV "no\\22"])
+
 (local cache {:config {:duration 400
                        :excluded_filetypes [:lazy :oil]
-                       :added {:hlgroup :EmissionAdded}
-                       :removed {:hlgroup :EmissionRemoved}}
+                       :added {:hlgroup :EmissionAdded :modes default-modes}
+                       :removed {:hlgroup :EmissionRemoved
+                                 :modes default-modes}}
               :timer (vim.uv.new_timer)
               :attached-buffer nil
               :buffer->detach {}
@@ -126,19 +131,19 @@
     (tset cache.buffer->detach bufnr nil)
     ;; NOTE: Return a truthy value to detach.
     true)
-  (when (and (vim.api.nvim_buf_is_valid bufnr)
-             (-> (vim.api.nvim_get_mode)
-                 (. :mode)
-                 ;; TODO: Configurable modes to highlight?
-                 (: :find :n)))
-    (if (or (< old-end-row-offset new-end-row-offset)
-            (and (= 0 old-end-row-offset new-end-row-offset) ;
-                 (< old-end-col-offset new-end-col-offset)))
-        (glow-added-texts bufnr [start-row0 start-col]
-                          [new-end-row-offset new-end-col-offset])
-        (glow-removed-texts bufnr [start-row0 start-col]
-                            [old-end-row-offset old-end-col-offset]))
-    (cache-last-texts bufnr)))
+  (when (vim.api.nvim_buf_is_valid bufnr)
+    (let [mode (-> (vim.api.nvim_get_mode)
+                   (. :mode))]
+      (if (or (< old-end-row-offset new-end-row-offset)
+              (and (= 0 old-end-row-offset new-end-row-offset) ;
+                   (< old-end-col-offset new-end-col-offset)))
+          (when (vim.list_contains cache.config.added.modes mode)
+            (glow-added-texts bufnr [start-row0 start-col]
+                              [new-end-row-offset new-end-col-offset]))
+          (when (vim.list_contains cache.config.removed.modes mode)
+            (glow-removed-texts bufnr [start-row0 start-col]
+                                [old-end-row-offset old-end-col-offset])))
+      (cache-last-texts bufnr))))
 
 (fn excluded-buffer? [buf]
   (vim.list_contains cache.config.excluded_filetypes ;
