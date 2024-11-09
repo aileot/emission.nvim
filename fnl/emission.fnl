@@ -89,17 +89,24 @@
                                 (dec old-end-row-offset)
                                 old-end-row-offset)
         removed-last-row (+ start-row old-end-row-offset*)
-        first-removed-line (-> (. last-texts start-row)
-                               (: :sub (inc start-col)
-                                  (when (= 0 old-end-row-offset)
-                                    (+ start-col old-end-col-offset))))
+        current-last-row (vim.api.nvim_buf_line_count bufnr)
+        end-of-file-removed? (< current-last-row removed-last-row)
+        ?first-removed-line (when-not end-of-file-removed?
+                              (-> (. last-texts start-row)
+                                  (: :sub (inc start-col)
+                                     (when (= 0 old-end-row-offset)
+                                       (+ start-col old-end-col-offset)))))
         ?middle-removed-lines (when (< 1 old-end-row-offset)
-                                (vim.list_slice last-texts (inc start-row)
+                                (vim.list_slice last-texts
+                                                (if end-of-file-removed?
+                                                    start-row
+                                                    (inc start-row))
                                                 removed-last-row))
         ?last-removed-line (when (< 0 old-end-row-offset)
                              (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
-        first-line-chunk [[first-removed-line hlgroup]]
+        ?first-line-chunk (when ?first-removed-line
+                            [[?first-removed-line hlgroup]])
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
                                 (table.insert ?middle-removed-lines
@@ -108,8 +115,6 @@
                                      (vim.tbl_map #[[$ hlgroup]])))
                               ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
-        current-last-row (vim.api.nvim_buf_line_count bufnr)
-        end-of-file-removed? (< current-last-row removed-last-row)
         row0 (if end-of-file-removed?
                  (dec start-row0)
                  start-row0)
@@ -118,7 +123,7 @@
                           :inline :overlay)
         extmark-opts {:hl_eol true
                       :strict false
-                      :virt_text first-line-chunk
+                      :virt_text ?first-line-chunk
                       :virt_lines ?rest-line-chunks
                       : virt_text_pos}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)

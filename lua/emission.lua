@@ -83,18 +83,30 @@ local function glow_removed_texts(bufnr, _11_, _12_)
     old_end_row_offset_2a = old_end_row_offset
   end
   local removed_last_row = (start_row + old_end_row_offset_2a)
-  local first_removed_line
-  local function _14_()
-    if (0 == old_end_row_offset) then
-      return (start_col + old_end_col_offset)
-    else
-      return nil
+  local current_last_row = vim.api.nvim_buf_line_count(bufnr)
+  local end_of_file_removed_3f = (current_last_row < removed_last_row)
+  local _3ffirst_removed_line
+  if not end_of_file_removed_3f then
+    local function _14_()
+      if (0 == old_end_row_offset) then
+        return (start_col + old_end_col_offset)
+      else
+        return nil
+      end
     end
+    _3ffirst_removed_line = last_texts[start_row]:sub(inc(start_col), _14_())
+  else
+    _3ffirst_removed_line = nil
   end
-  first_removed_line = last_texts[start_row]:sub(inc(start_col), _14_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
-    _3fmiddle_removed_lines = vim.list_slice(last_texts, inc(start_row), removed_last_row)
+    local _16_
+    if end_of_file_removed_3f then
+      _16_ = start_row
+    else
+      _16_ = inc(start_row)
+    end
+    _3fmiddle_removed_lines = vim.list_slice(last_texts, _16_, removed_last_row)
   else
     _3fmiddle_removed_lines = nil
   end
@@ -104,21 +116,24 @@ local function glow_removed_texts(bufnr, _11_, _12_)
   else
     _3flast_removed_line = nil
   end
-  local first_line_chunk = {{first_removed_line, hlgroup}}
+  local _3ffirst_line_chunk
+  if _3ffirst_removed_line then
+    _3ffirst_line_chunk = {{_3ffirst_removed_line, hlgroup}}
+  else
+    _3ffirst_line_chunk = nil
+  end
   local _3frest_line_chunks
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-    local function _17_(_241)
+    local function _21_(_241)
       return {{_241, hlgroup}}
     end
-    _3frest_line_chunks = vim.tbl_map(_17_, _3fmiddle_removed_lines)
+    _3frest_line_chunks = vim.tbl_map(_21_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
   else
     _3frest_line_chunks = nil
   end
-  local current_last_row = vim.api.nvim_buf_line_count(bufnr)
-  local end_of_file_removed_3f = (current_last_row < removed_last_row)
   local row0
   if end_of_file_removed_3f then
     row0 = dec(start_row0)
@@ -132,8 +147,8 @@ local function glow_removed_texts(bufnr, _11_, _12_)
   else
     virt_text_pos = "overlay"
   end
-  local extmark_opts = {hl_eol = true, virt_text = first_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = virt_text_pos, strict = false}
-  local function _21_()
+  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = virt_text_pos, strict = false}
+  local function _25_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_on_undo()
       vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
@@ -142,7 +157,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
       return nil
     end
   end
-  return vim.schedule(_21_)
+  return vim.schedule(_25_)
 end
 local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][bufnr] then
@@ -178,14 +193,14 @@ local function attach_buffer_21(buf)
 end
 local function request_to_attach_buffer_21(buf)
   if not excluded_buffer_3f(buf) then
-    local function _28_()
+    local function _32_()
       if vim.api.nvim_buf_is_valid(buf) then
         return attach_buffer_21(buf)
       else
         return nil
       end
     end
-    vim.schedule(_28_)
+    vim.schedule(_32_)
   else
   end
   return nil
@@ -204,13 +219,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   attach_buffer_21(vim.api.nvim_get_current_buf())
-  local function _32_(_241)
+  local function _36_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _32_})
-  local function _33_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _36_})
+  local function _37_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _33_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _37_})
 end
 return {setup = setup}
