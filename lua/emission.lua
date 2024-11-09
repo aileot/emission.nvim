@@ -85,6 +85,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
   local removed_last_row = (start_row + old_end_row_offset_2a)
   local current_last_row = vim.api.nvim_buf_line_count(bufnr)
   local end_of_file_removed_3f = (current_last_row < removed_last_row)
+  local should_virt_lines_include_first_line_removed_3f = (end_of_file_removed_3f and (0 < start_row0))
   local first_removed_line
   local function _14_()
     if (0 == old_end_row_offset) then
@@ -107,7 +108,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
     _3flast_removed_line = nil
   end
   local _3ffirst_line_chunk
-  if not end_of_file_removed_3f then
+  if not should_virt_lines_include_first_line_removed_3f then
     _3ffirst_line_chunk = {{first_removed_line, hlgroup}}
   else
     _3ffirst_line_chunk = nil
@@ -125,13 +126,13 @@ local function glow_removed_texts(bufnr, _11_, _12_)
     _3frest_line_chunks = nil
   end
   local _
-  if end_of_file_removed_3f then
+  if should_virt_lines_include_first_line_removed_3f then
     _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hlgroup}})
   else
     _ = nil
   end
   local row0
-  if end_of_file_removed_3f then
+  if should_virt_lines_include_first_line_removed_3f then
     row0 = dec(start_row0)
   else
     row0 = start_row0

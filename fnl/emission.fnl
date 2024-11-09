@@ -91,6 +91,8 @@
         removed-last-row (+ start-row old-end-row-offset*)
         current-last-row (vim.api.nvim_buf_line_count bufnr)
         end-of-file-removed? (< current-last-row removed-last-row)
+        should-virt_lines-include-first-line-removed? (and end-of-file-removed?
+                                                           (< 0 start-row0))
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. last-texts start-row)
@@ -105,7 +107,7 @@
         ?last-removed-line (when (< 0 old-end-row-offset)
                              (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
-        ?first-line-chunk (when-not end-of-file-removed?
+        ?first-line-chunk (when-not should-virt_lines-include-first-line-removed?
                             [[first-removed-line hlgroup]])
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
@@ -115,9 +117,9 @@
                                      (vim.tbl_map #[[$ hlgroup]])))
                               ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
-        _ (when end-of-file-removed?
+        _ (when should-virt_lines-include-first-line-removed?
             (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
-        row0 (if end-of-file-removed?
+        row0 (if should-virt_lines-include-first-line-removed?
                  (dec start-row0)
                  start-row0)
         col0 start-col
