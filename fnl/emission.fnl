@@ -80,7 +80,8 @@
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
   (let [hlgroup cache.config.removed.hlgroup
-        last-texts cache.last-texts
+        last-texts (assert cache.last-texts
+                           "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)

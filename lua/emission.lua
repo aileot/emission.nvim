@@ -73,7 +73,7 @@ local function glow_removed_texts(bufnr, _11_, _12_)
   local old_end_row_offset = _12_[1]
   local old_end_col_offset = _12_[2]
   local hlgroup = cache.config.removed.hlgroup
-  local last_texts = cache["last-texts"]
+  local last_texts = assert(cache["last-texts"], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)
   local first_removed_line
   local function _13_()
