@@ -177,7 +177,7 @@ local function request_to_attach_buffer_21(buf)
   return nil
 end
 local function request_to_detach_buffer_21(buf)
-  if not cache["attached-buffer"][buf] then
+  if not (buf == cache["attached-buffer"]) then
     cache["buffer->detach"][buf] = true
     return nil
   else

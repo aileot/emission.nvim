@@ -172,7 +172,7 @@
 
 (fn request-to-detach-buffer! [buf]
   ;; NOTE: On neovim 0.10.2, there is no function to detach buffer directly.
-  (when-not (. cache.attached-buffer buf)
+  (when-not (= buf cache.attached-buffer)
     (tset cache.buffer->detach buf true)))
 
 (fn setup [opts]
