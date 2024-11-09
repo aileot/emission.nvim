@@ -106,6 +106,7 @@
                                               ?last-removed-line)
                                 (->> ?middle-removed-lines
                                      (vim.tbl_map #[[$ hlgroup]])))
+                              ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
         row0 start-row0
         col0 start-col

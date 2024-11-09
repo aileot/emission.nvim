@@ -112,8 +112,10 @@ local function glow_removed_texts(bufnr, _11_, _12_)
       return {{_241, hlgroup}}
     end
     _3frest_line_chunks = vim.tbl_map(_17_, _3fmiddle_removed_lines)
-  else
+  elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
+  else
+    _3frest_line_chunks = nil
   end
   local row0 = start_row0
   local col0 = start_col
