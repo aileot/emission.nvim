@@ -91,7 +91,8 @@
         removed-last-row (+ start-row old-end-row-offset*)
         current-last-row (vim.api.nvim_buf_line_count bufnr)
         end-of-file-removed? (< current-last-row removed-last-row)
-        ;; NOTE: first-removed-line will compose `virt_text`.
+        ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
+        ;; is removed.
         first-removed-line (-> (. last-texts start-row)
                                (: :sub (inc start-col)
                                   (when (= 0 old-end-row-offset)
