@@ -38,7 +38,7 @@
            (vim.api.nvim_buf_get_lines bufnr 0 -1 false))
       (set cache.attached-buffer bufnr))))
 
-(fn open-folds-on-undo []
+(fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
     (when (or (vim.list_contains foldopen :undo)
               (vim.list_contains foldopen :all))
@@ -65,7 +65,7 @@
                         (. 1)
                         (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
-           (open-folds-on-undo)
+           (open-folds-at-cursor!)
            (vim/hl.range bufnr namespace hlgroup [start-row0 start-col]
                          [end-row end-col])
            (clear-highlights bufnr cache.config.added.duration)
@@ -125,7 +125,7 @@
                       :virt_lines ?rest-line-chunks
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
-           (open-folds-on-undo)
+           (open-folds-at-cursor!)
            (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
            (clear-highlights bufnr cache.config.removed.duration))
         (vim.schedule))))
