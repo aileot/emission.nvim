@@ -213,6 +213,7 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, "EmissionAdded", {default = true, fg = "#dcd7ba", bg = "#2d4f67"})
   vim.api.nvim_set_hl(0, "EmissionRemoved", {default = true, fg = "#dcd7ba", bg = "#672d2d"})
   attach_buffer_21(vim.api.nvim_get_current_buf())
+  assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
   local function _35_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end

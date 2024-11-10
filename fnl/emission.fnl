@@ -190,6 +190,7 @@
     (vim.api.nvim_set_hl 0 :EmissionRemoved
                          {:default true :fg "#dcd7ba" :bg "#672d2d"})
     (attach-buffer! (vim.api.nvim_get_current_buf))
+    (assert cache.last-texts "Failed to cache lines on attaching to buffer")
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buffer! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
