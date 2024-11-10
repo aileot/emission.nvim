@@ -1,6 +1,6 @@
 # ✨ emission.nvim
 
-A fork of [tzachar/highlight-undo.nvim](https://github/tzachar/highlight-undo.nvim).
+A fork of [tzachar/highlight-undo.nvim](https://github.com/tzachar/highlight-undo.nvim).
 
 Highlight added/removed texts in current buffer, anywhere, anytime, as well as
 undo/redo.
