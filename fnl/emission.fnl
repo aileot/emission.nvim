@@ -42,7 +42,12 @@
   (let [foldopen (vim.opt.foldopen:get)]
     (when (or (vim.list_contains foldopen :undo)
               (vim.list_contains foldopen :all))
-      (vim.cmd "normal! zv"))))
+      ;; NOTE: `normal! zv` unexpectedly shifts cursor position.
+      ;; NOTE: Tested by `nvim --clean` with manual `zf` folding, any
+      ;; operations with `d`, `c`, or `s`, also removes all the folded lines
+      ;; including the cursor line, regardless of the following, specified
+      ;; range for the operators.
+      (vim.cmd "silent! . foldopen!"))))
 
 (fn clear-highlights [bufnr duration]
   (cache.timer:stop)

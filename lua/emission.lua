@@ -26,7 +26,7 @@ end
 local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
   if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
-    return vim.cmd("normal! zv")
+    return vim.cmd("silent! . foldopen!")
   else
     return nil
   end
