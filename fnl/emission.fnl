@@ -154,7 +154,7 @@
     (let [mode (-> (vim.api.nvim_get_mode)
                    (. :mode))]
       (if (or (< old-end-row-offset new-end-row-offset)
-              (and (= 0 old-end-row-offset new-end-row-offset) ;
+              (and (= 0 old-end-row-offset new-end-row-offset)
                    (< old-end-col-offset new-end-col-offset)))
           (when (vim.list_contains cache.config.added.modes mode)
             (glow-added-texts bufnr [start-row0 start-col]
