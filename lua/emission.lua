@@ -23,10 +23,10 @@ local function cache_last_texts(bufnr)
     return nil
   end
 end
-local function open_folds_on_undo()
+local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
   if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
-    return vim.cmd("normal! zv")
+    return vim.cmd("silent! . foldopen!")
   else
     return nil
   end
@@ -61,7 +61,7 @@ local function glow_added_texts(bufnr, _8_, _9_)
   end
   local function _11_()
     if vim.api.nvim_buf_is_valid(bufnr) then
-      open_folds_on_undo()
+      open_folds_at_cursor_21()
       vim_2fhl.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
       clear_highlights(bufnr, cache.config.added.duration)
       return cache_last_texts(bufnr)
@@ -145,7 +145,7 @@ local function glow_removed_texts(bufnr, _13_, _14_)
   local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, virt_text_pos = "overlay", strict = false}
   local function _24_()
     if vim.api.nvim_buf_is_valid(bufnr) then
-      open_folds_on_undo()
+      open_folds_at_cursor_21()
       vim.api.nvim_buf_set_extmark(bufnr, namespace, row0, col0, extmark_opts)
       return clear_highlights(bufnr, cache.config.removed.duration)
     else
