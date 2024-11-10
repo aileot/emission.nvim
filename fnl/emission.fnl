@@ -138,7 +138,8 @@
                                      (vim.tbl_map #[[$ hlgroup]])))
                               ?last-removed-line
                               [[[?last-removed-line hlgroup]]])
-        _ (when should-virt_lines-include-first-line-removed?
+        _ (when (and should-virt_lines-include-first-line-removed?
+                     ?rest-line-chunks)
             (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
         row0 (if should-virt_lines-include-first-line-removed?
                  (dec start-row0)

@@ -150,7 +150,7 @@ local function glow_removed_texts(bufnr, _17_, _18_)
     _3frest_line_chunks = nil
   end
   local _
-  if should_virt_lines_include_first_line_removed_3f then
+  if (should_virt_lines_include_first_line_removed_3f and _3frest_line_chunks) then
     _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hlgroup}})
   else
     _ = nil
