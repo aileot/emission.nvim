@@ -1,12 +1,14 @@
 (local cache {:config {:excluded_filetypes [:lazy :oil]
                        :min_recache_interval 50
-                       :added {:hlgroup :EmissionAdded
+                       :added {:hl_map {:fg "#dcd7ba" :bg "#2d4f67"}
                                :duration 400
                                :filter (fn [])}
-                       :removed {:hlgroup :EmissionRemoved
+                       :removed {:hl_map {:fg "#dcd7ba" :bg "#672d2d"}
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
+              :added {:hlgroup nil}
+              :removed {:hlgroup nil}
               :last-duration 0
               :last-editing-position [0 0]
               :attached-buffer nil
@@ -80,7 +82,7 @@
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hlgroup cache.config.added.hlgroup
+  (let [hlgroup cache.added.hlgroup
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -100,7 +102,7 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hlgroup cache.config.removed.hlgroup
+  (let [hlgroup cache.removed.hlgroup
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
@@ -214,10 +216,10 @@
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
-    (vim.api.nvim_set_hl 0 :EmissionAdded
-                         {:default true :fg "#dcd7ba" :bg "#2d4f67"})
-    (vim.api.nvim_set_hl 0 :EmissionRemoved
-                         {:default true :fg "#dcd7ba" :bg "#672d2d"})
+    (set cache.added.hlgroup
+         (vim.api.nvim_set_hl 0 :EmissionAdded cache.config.added.hl_map))
+    (set cache.removed.hlgroup
+         (vim.api.nvim_set_hl 0 :EmissionRemoved cache.config.removed.hl_map))
     (attach-buffer! (vim.api.nvim_get_current_buf))
     (assert cache.last-texts "Failed to cache lines on attaching to buffer")
     (vim.api.nvim_create_autocmd :BufEnter
