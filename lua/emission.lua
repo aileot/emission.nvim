@@ -145,13 +145,13 @@ local function glow_removed_texts(bufnr, _17_, _18_)
     end
     _3frest_line_chunks = vim.tbl_map(_24_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
-    _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
+    _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
     _3frest_line_chunks = nil
   end
   local _
   if (should_virt_lines_include_first_line_removed_3f and _3frest_line_chunks) then
-    _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hlgroup}})
+    _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hl_group}})
   else
     _ = nil
   end
