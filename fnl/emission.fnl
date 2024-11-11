@@ -7,8 +7,7 @@
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
-              :added {:hl-group nil}
-              :removed {:hl-group nil}
+              :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
               :last-editing-position [0 0]
               :attached-buffer nil
@@ -82,7 +81,7 @@
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hl-group cache.added.hl-group
+  (let [hl-group cache.hl-group.added
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -102,7 +101,7 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hl-group cache.removed.hl-group
+  (let [hl-group cache.hl-group.removed
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
@@ -214,10 +213,10 @@
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
-    (set cache.added.hl-group
-         (vim.api.nvim_set_hl 0 :EmissionAdded cache.config.added.hl_map))
-    (set cache.removed.hl-group
-         (vim.api.nvim_set_hl 0 :EmissionRemoved cache.config.removed.hl_map))
+    ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
+    ;; id, `vim.api.nvim_get_hl` is additionally required.
+    (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
+    (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
     (attach-buffer! (vim.api.nvim_get_current_buf))
     (assert cache.last-texts "Failed to cache lines on attaching to buffer")
     (vim.api.nvim_create_autocmd :BufEnter

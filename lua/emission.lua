@@ -3,7 +3,7 @@ local function _1_()
 end
 local function _2_()
 end
-cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hl_map = {fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _1_}, removed = {hl_map = {fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _2_}}, timer = vim.uv.new_timer(), added = {["hl-group"] = nil}, removed = {["hl-group"] = nil}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
+cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hl_map = {fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _1_}, removed = {hl_map = {fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _2_}}, timer = vim.uv.new_timer(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
@@ -69,7 +69,7 @@ local function glow_added_texts(bufnr, _12_, _13_)
   local start_col = _12_[2]
   local new_end_row_offset = _13_[1]
   local new_end_col_offset = _13_[2]
-  local hl_group = cache.added["hl-group"]
+  local hl_group = cache["hl-group"].added
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
@@ -96,7 +96,7 @@ local function glow_removed_texts(bufnr, _17_, _18_)
   local start_col = _17_[2]
   local old_end_row_offset = _18_[1]
   local old_end_col_offset = _18_[2]
-  local hl_group = cache.removed["hl-group"]
+  local hl_group = cache["hl-group"].removed
   local last_texts = assert(cache["last-texts"], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)
   local ends_with_newline_3f = (0 == old_end_col_offset)
@@ -231,8 +231,8 @@ end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
-  cache.added["hl-group"] = vim.api.nvim_set_hl(0, "EmissionAdded", cache.config.added.hl_map)
-  cache.removed["hl-group"] = vim.api.nvim_set_hl(0, "EmissionRemoved", cache.config.removed.hl_map)
+  vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
+  vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   attach_buffer_21(vim.api.nvim_get_current_buf())
   assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
   local function _39_(_241)
