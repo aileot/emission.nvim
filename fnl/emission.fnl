@@ -137,25 +137,27 @@
                                 (->> ?middle-removed-lines
                                      (vim.tbl_map #[[$ hlgroup]])))
                               ?last-removed-line
-                              [[[?last-removed-line hlgroup]]])
-        _ (when (and should-virt_lines-include-first-line-removed?
-                     ?rest-line-chunks)
-            (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
-        row0 (if should-virt_lines-include-first-line-removed?
-                 (dec start-row0)
-                 start-row0)
-        col0 start-col
-        extmark-opts {:hl_eol true
-                      :strict false
-                      :virt_text ?first-line-chunk
-                      :virt_lines ?rest-line-chunks
-                      :virt_text_pos (if ?rest-line-chunks :overlay :inline)}]
-    (-> #(when (vim.api.nvim_buf_is_valid bufnr)
-           (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
-           (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
-           (clear-highlights bufnr cache.config.removed.duration))
-        (vim.schedule))))
+                              [[[?last-removed-line hlgroup]]])]
+    (when (and should-virt_lines-include-first-line-removed? ?rest-line-chunks)
+      (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
+    (when (or ?first-line-chunk ?rest-line-chunks)
+      (let [row0 (if should-virt_lines-include-first-line-removed?
+                     (dec start-row0)
+                     start-row0)
+            col0 start-col
+            extmark-opts {:hl_eol true
+                          :strict false
+                          :virt_text ?first-line-chunk
+                          :virt_lines ?rest-line-chunks
+                          :virt_text_pos (if ?rest-line-chunks :overlay
+                                             :inline)}]
+        (-> #(when (vim.api.nvim_buf_is_valid bufnr)
+               (open-folds-at-cursor!)
+               (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
+               (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0
+                                             extmark-opts)
+               (clear-highlights bufnr cache.config.removed.duration))
+            (vim.schedule))))))
 
 (fn on-bytes [_string-bytes
               bufnr
