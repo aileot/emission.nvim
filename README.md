@@ -43,17 +43,19 @@ require("emission").setup({
     "oil",
   },
   added = {
-    -- The same options for `nvim_set_hl()` at `{val}` is available.
-    hl_map = { fg = "#dcd7ba", bg = "#2d4f67" },
     priority = 100,
     duration = 400, -- milliseconds
+    -- The same options for `nvim_set_hl()` at `{val}` is available.
+    hl_map = { fg = "#dcd7ba", bg = "#2d4f67" },
     filter = function(bufnr) end, -- See below for examples.
   },
   removed = {
-    hl_map = { fg = "#dcd7ba", bg = "#672d2d" },
+    -- The same options as `added` are available.
+    -- Note that the default values might be different from `added` ones.
     priority = 100,
-    duration = 300, -- milliseconds
-    filter = function(bufnr) end, -- See below for examples.
+    duration = 300,
+    hl_map = { fg = "#dcd7ba", bg = "#672d2d" },
+    filter = function(bufnr) end,
   },
 })
 ```
