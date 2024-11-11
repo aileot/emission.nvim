@@ -149,7 +149,7 @@
                       :strict false
                       :virt_text ?first-line-chunk
                       :virt_lines ?rest-line-chunks
-                      :virt_text_pos :overlay}]
+                      :virt_text_pos (if ?rest-line-chunks :overlay :inline)}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
