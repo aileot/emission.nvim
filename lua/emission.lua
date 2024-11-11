@@ -69,7 +69,7 @@ local function glow_added_texts(bufnr, _12_, _13_)
   local start_col = _12_[2]
   local new_end_row_offset = _13_[1]
   local new_end_col_offset = _13_[2]
-  local hlgroup = cache.added.hlgroup
+  local hl_group = cache.added["hl-group"]
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
@@ -82,7 +82,7 @@ local function glow_added_texts(bufnr, _12_, _13_)
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(bufnr, {start_row0, start_col})
-      vim_2fhl.range(bufnr, namespace, hlgroup, {start_row0, start_col}, {end_row, end_col})
+      vim_2fhl.range(bufnr, namespace, hl_group, {start_row0, start_col}, {end_row, end_col})
       clear_highlights(bufnr, cache.config.added.duration)
       return cache_last_texts(bufnr)
     else
@@ -96,7 +96,7 @@ local function glow_removed_texts(bufnr, _17_, _18_)
   local start_col = _17_[2]
   local old_end_row_offset = _18_[1]
   local old_end_col_offset = _18_[2]
-  local hlgroup = cache.removed.hlgroup
+  local hl_group = cache.removed["hl-group"]
   local last_texts = assert(cache["last-texts"], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)
   local ends_with_newline_3f = (0 == old_end_col_offset)
@@ -133,7 +133,7 @@ local function glow_removed_texts(bufnr, _17_, _18_)
   end
   local _3ffirst_line_chunk
   if not should_virt_lines_include_first_line_removed_3f then
-    _3ffirst_line_chunk = {{first_removed_line, hlgroup}}
+    _3ffirst_line_chunk = {{first_removed_line, hl_group}}
   else
     _3ffirst_line_chunk = nil
   end
@@ -141,16 +141,16 @@ local function glow_removed_texts(bufnr, _17_, _18_)
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
     local function _24_(_241)
-      return {{_241, hlgroup}}
+      return {{_241, hl_group}}
     end
     _3frest_line_chunks = vim.tbl_map(_24_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
-    _3frest_line_chunks = {{{_3flast_removed_line, hlgroup}}}
+    _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
     _3frest_line_chunks = nil
   end
   if (should_virt_lines_include_first_line_removed_3f and _3frest_line_chunks) then
-    table.insert(_3frest_line_chunks, 1, {{first_removed_line, hlgroup}})
+    table.insert(_3frest_line_chunks, 1, {{first_removed_line, hl_group}})
   else
   end
   if (_3ffirst_line_chunk or _3frest_line_chunks) then
@@ -240,8 +240,8 @@ end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
-  cache.added.hlgroup = vim.api.nvim_set_hl(0, "EmissionAdded", cache.config.added.hl_map)
-  cache.removed.hlgroup = vim.api.nvim_set_hl(0, "EmissionRemoved", cache.config.removed.hl_map)
+  cache.added["hl-group"] = vim.api.nvim_set_hl(0, "EmissionAdded", cache.config.added.hl_map)
+  cache.removed["hl-group"] = vim.api.nvim_set_hl(0, "EmissionRemoved", cache.config.removed.hl_map)
   attach_buffer_21(vim.api.nvim_get_current_buf())
   assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
   local function _42_(_241)

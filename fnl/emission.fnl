@@ -7,8 +7,8 @@
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
-              :added {:hlgroup nil}
-              :removed {:hlgroup nil}
+              :added {:hl-group nil}
+              :removed {:hl-group nil}
               :last-duration 0
               :last-editing-position [0 0]
               :attached-buffer nil
@@ -82,7 +82,7 @@
 (fn glow-added-texts [bufnr
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
-  (let [hlgroup cache.added.hlgroup
+  (let [hl-group cache.added.hl-group
         num-lines (vim.api.nvim_buf_line_count bufnr)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
@@ -93,7 +93,7 @@
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
-           (vim/hl.range bufnr namespace hlgroup [start-row0 start-col]
+           (vim/hl.range bufnr namespace hl-group [start-row0 start-col]
                          [end-row end-col])
            (clear-highlights bufnr cache.config.added.duration)
            (cache-last-texts bufnr))
@@ -102,7 +102,7 @@
 (fn glow-removed-texts [bufnr
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [hlgroup cache.removed.hlgroup
+  (let [hl-group cache.removed.hl-group
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
@@ -131,17 +131,17 @@
                              (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
         ?first-line-chunk (when-not should-virt_lines-include-first-line-removed?
-                            [[first-removed-line hlgroup]])
+                            [[first-removed-line hl-group]])
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
                                 (table.insert ?middle-removed-lines
                                               ?last-removed-line)
                                 (->> ?middle-removed-lines
-                                     (vim.tbl_map #[[$ hlgroup]])))
+                                     (vim.tbl_map #[[$ hl-group]])))
                               ?last-removed-line
-                              [[[?last-removed-line hlgroup]]])]
+                              [[[?last-removed-line hl-group]]])]
     (when (and should-virt_lines-include-first-line-removed? ?rest-line-chunks)
-      (table.insert ?rest-line-chunks 1 [[first-removed-line hlgroup]]))
+      (table.insert ?rest-line-chunks 1 [[first-removed-line hl-group]]))
     (when (or ?first-line-chunk ?rest-line-chunks)
       (let [row0 (if should-virt_lines-include-first-line-removed?
                      (dec start-row0)
@@ -216,9 +216,9 @@
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
-    (set cache.added.hlgroup
+    (set cache.added.hl-group
          (vim.api.nvim_set_hl 0 :EmissionAdded cache.config.added.hl_map))
-    (set cache.removed.hlgroup
+    (set cache.removed.hl-group
          (vim.api.nvim_set_hl 0 :EmissionRemoved cache.config.removed.hl_map))
     (attach-buffer! (vim.api.nvim_get_current_buf))
     (assert cache.last-texts "Failed to cache lines on attaching to buffer")
