@@ -1,4 +1,5 @@
-(local cache {:config {:excluded_filetypes [:lazy :oil]
+(local cache {:config {:attach_delay 100
+                       :excluded_filetypes [:lazy :oil]
                        :min_recache_interval 50
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
@@ -201,10 +202,18 @@
   (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
 
 (fn request-to-attach-buffer! [buf]
-  (when-not (excluded-buffer? buf)
-    (-> #(when (vim.api.nvim_buf_is_valid buf)
-           (attach-buffer! buf))
-        (vim.schedule)))
+  ;; NOTE: The option `attach_delay` helps avoid the following issues:
+  ;; 1. Unexpected attaching to buffers before the filetype of a buffer is not
+  ;;    determined; the event fired order of FileType and BufEnter is not
+  ;;    guaranteed.
+  ;; 2. Extra attaching attempts to a series of buffers with rapid firing
+  ;;    BufEnter events like sequential editing with `:cdo`.
+  ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
+  (-> #(when-not (excluded-buffer? buf)
+         (set cache.attached-buffer buf)
+         (when (vim.api.nvim_buf_is_valid buf)
+           (attach-buffer! buf)))
+      (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)
