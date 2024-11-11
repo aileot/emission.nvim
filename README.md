@@ -37,6 +37,7 @@ defaults:
 
 ```lua
 require("emission").setup({
+  attach_delay = 100, -- Useful to avoid extra attaching in simultaneous editing.
   min_recache_interval = 50,
   excluded_filetypes = {
     "lazy",
