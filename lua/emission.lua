@@ -3,7 +3,7 @@ local function _1_()
 end
 local function _2_()
 end
-cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hl_map = {fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _1_}, removed = {hl_map = {fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _2_}}, timer = vim.uv.new_timer(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
+cache = {config = {excluded_filetypes = {"lazy", "oil"}, min_recache_interval = 50, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _1_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _2_}}, timer = vim.uv.new_timer(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)

@@ -1,9 +1,13 @@
 (local cache {:config {:excluded_filetypes [:lazy :oil]
                        :min_recache_interval 50
-                       :added {:hl_map {:fg "#dcd7ba" :bg "#2d4f67"}
+                       :added {:hl_map {:default true
+                                        :fg "#dcd7ba"
+                                        :bg "#2d4f67"}
                                :duration 400
                                :filter (fn [])}
-                       :removed {:hl_map {:fg "#dcd7ba" :bg "#672d2d"}
+                       :removed {:hl_map {:default true
+                                          :fg "#dcd7ba"
+                                          :bg "#672d2d"}
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)

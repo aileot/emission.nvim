@@ -46,7 +46,10 @@ require("emission").setup({
     priority = 100,
     duration = 400, -- milliseconds
     -- The same options for `nvim_set_hl()` at `{val}` is available.
-    hl_map = { fg = "#dcd7ba", bg = "#2d4f67" },
+    -- NOTE: With "default" key set to `true`, you can arrange the highlight
+    -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
+    -- respectively, based on your colorscheme.
+    hl_map = { default = true, fg = "#dcd7ba", bg = "#2d4f67" },
     filter = function(bufnr) end, -- See below for examples.
   },
   removed = {
@@ -54,7 +57,7 @@ require("emission").setup({
     -- Note that the default values might be different from `added` ones.
     priority = 100,
     duration = 300,
-    hl_map = { fg = "#dcd7ba", bg = "#672d2d" },
+    hl_map = { default = true, fg = "#dcd7ba", bg = "#672d2d" },
     filter = function(bufnr) end,
   },
 })
