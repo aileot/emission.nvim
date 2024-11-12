@@ -1,5 +1,5 @@
 (local cache {:config {:attach_delay 100
-                       :excluded_filetypes [:lazy :oil]
+                       :excluded_filetypes []
                        :min_recache_interval 50
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
