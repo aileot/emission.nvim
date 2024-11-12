@@ -33,7 +33,7 @@ With [folke/lazy.nvim](https://github/folke/lazy.nvim),
 
 ## Setup
 
-defaults:
+The default settings:
 
 ```lua
 require("emission").setup({
