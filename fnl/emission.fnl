@@ -103,16 +103,22 @@
            (cache-last-texts bufnr))
         (vim.schedule))))
 
-(fn glow-removed-texts [bufnr
-                        [start-row0 start-col]
-                        [old-end-row-offset old-end-col-offset]]
+(fn compose-chunks [bufnr
+                    [start-row0 start-col]
+                    [old-end-row-offset old-end-col-offset]]
+  "Compose chunks for virtual texts to be set by `vim.api.nvim_buf_set_extmark`.
+  @param bufnr number
+  @param [start-row0 start-col] number[]
+  @param [old-end-row-offset old-end-row-offset] number[]
+  @return table"
   (let [hl-group cache.hl-group.removed
         last-texts (assert cache.last-texts
                            "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
         ends-with-newline? (= 0 old-end-col-offset)
         old-end-row-offset* (if ends-with-newline?
-                                ;; NOTE: "\n" at the last line is counted as an extra offset.
+                                ;; NOTE: "\n" at the last line is counted as
+                                ;; an extra offset.
                                 (dec old-end-row-offset)
                                 old-end-row-offset)
         removed-last-row (+ start-row old-end-row-offset*)
@@ -150,11 +156,21 @@
         row0 (if should-virt_lines-include-first-line-removed?
                  (dec start-row0)
                  start-row0)
-        col0 start-col
+        col0 start-col]
+    {:virt_text ?first-line-chunk :virt_lines ?rest-line-chunks : row0 : col0}))
+
+(fn glow-removed-texts [bufnr
+                        [start-row0 start-col]
+                        [old-end-row-offset old-end-col-offset]]
+  (let [{: virt_text : virt_lines : row0 : col0} (compose-chunks bufnr
+                                                                 [start-row0
+                                                                  start-col]
+                                                                 [old-end-row-offset
+                                                                  old-end-col-offset])
         extmark-opts {:hl_eol true
                       :strict false
-                      :virt_text ?first-line-chunk
-                      :virt_lines ?rest-line-chunks
+                      : virt_text
+                      : virt_lines
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid bufnr)
            (open-folds-at-cursor!)
