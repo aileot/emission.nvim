@@ -208,13 +208,9 @@ local function attach_buffer_21(buf)
 end
 local function request_to_attach_buffer_21(buf)
   local function _35_()
-    if not excluded_buffer_3f(buf) then
+    if (vim.api.nvim_buf_is_valid(buf) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
-      if vim.api.nvim_buf_is_valid(buf) then
-        return attach_buffer_21(buf)
-      else
-        return nil
-      end
+      return attach_buffer_21(buf)
     else
       return nil
     end
@@ -237,13 +233,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   attach_buffer_21(vim.api.nvim_get_current_buf())
   assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
-  local function _39_(_241)
+  local function _38_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _39_})
-  local function _40_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _38_})
+  local function _39_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _40_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _39_})
 end
 return {setup = setup}

@@ -209,10 +209,10 @@
   ;; 2. Extra attaching attempts to a series of buffers with rapid firing
   ;;    BufEnter events like sequential editing with `:cdo`.
   ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
-  (-> #(when-not (excluded-buffer? buf)
+  (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
+                  (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
-         (when (vim.api.nvim_buf_is_valid buf)
-           (attach-buffer! buf)))
+         (attach-buffer! buf))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
