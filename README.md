@@ -69,6 +69,9 @@ require("emission").setup({
 
 ### Recommended filter settings
 
+In the following example, highlighting is restricted to `normal` mode.
+Additionally, it will never highlight during recorded macro execution.
+
 ```lua
 ---@param buf number attached buffer handle
 ---@return boolean true to highlight, false to ignore
