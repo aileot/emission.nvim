@@ -13,7 +13,7 @@ Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 _However, **no need** to worry about keymap conflicts anymore for the
 highlighting features!_
 
-## In Action
+## Demo
 
 <!-- TODO: Replace demo with asciinema -->
 ![recording](https://github.com/tzachar/highlight-undo.nvim/assets/4946827/81b85a3b-b563-4e97-b4e1-7a48d0d2f912)
