@@ -39,9 +39,12 @@ defaults:
 require("emission").setup({
   attach_delay = 100, -- Useful to avoid extra attaching in simultaneous editing.
   min_recache_interval = 50,
+  -- NOTE: For performance reason, it is recommended to use this `excluded_filetypes` option
+  -- to exclude specific filetype buffers.
   excluded_filetypes = {
-    "lazy",
-    "oil",
+    -- NOTE: Nothing is excluded by default. Add any as you need.
+    -- "lazy",
+    -- "oil",
   },
   added = {
     priority = 100,
@@ -91,6 +94,3 @@ require("emission").setup({
   },
 })
 ```
-
-Note: For performance reason, it is recommended to use the
-`excluded_filetypes` option to exclude specific filetype buffers.
