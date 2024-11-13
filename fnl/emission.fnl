@@ -1,6 +1,9 @@
+(local {: Stack} (require :emission.utils))
+
 (local cache {:config {:attach_delay 100
                        :excluded_filetypes []
                        :min_recache_interval 50
+                       :highlight_delay 10
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
                                         :bg "#2d4f67"}
@@ -12,6 +15,7 @@
                                  :duration 300
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
+              :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
               :last-editing-position [0 0]
