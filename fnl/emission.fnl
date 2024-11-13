@@ -2,7 +2,6 @@
 
 (local cache {:config {:attach_delay 100
                        :excluded_filetypes []
-                       :min_recache_interval 50
                        :highlight_delay 10
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
@@ -41,9 +40,9 @@
 (fn cache-last-texts [bufnr]
   (let [now (vim.uv.now)]
     (when (or (not= bufnr cache.attached-buffer)
-              (< cache.config.min_recache_interval
+              (< cache.config.highlight_delay
                  (- now cache.last-recache-time)))
-      ;; NOTE: min_recache_interval for multi-line editing which sequentially
+      ;; NOTE: highlight_delay for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
       (set cache.last-texts ;
@@ -85,6 +84,21 @@
                             (when (vim.api.nvim_buf_is_valid bufnr)
                               (vim.api.nvim_buf_clear_namespace bufnr namespace
                                                                 0 -1)))
+                          (vim.schedule))))
+
+(fn reserve-highlight! [bufnr callback]
+  "Reserve the highlight callback to execute at once all the callbacks stacked
+  during a highlight delay.
+  @param bufnr number
+  @param callback function"
+  (cache.pending-highlights:push! callback)
+  (cache.timer:start cache.config.highlight_delay 0
+                     #(-> (fn []
+                            (when (and (= bufnr cache.attached-buffer)
+                                       (vim.api.nvim_buf_is_valid bufnr))
+                              (while (not (cache.pending-highlights:empty?))
+                                (let [cb (cache.pending-highlights:pop!)]
+                                  (cb)))))
                           (vim.schedule))))
 
 (fn glow-added-texts [bufnr
@@ -204,11 +218,15 @@
             (and (= 0 old-end-row-offset new-end-row-offset)
                  (<= old-end-col-offset new-end-col-offset)))
         (when (cache.config.added.filter bufnr)
-          (glow-added-texts bufnr [start-row0 start-col]
-                            [new-end-row-offset new-end-col-offset]))
+          (->> #(glow-added-texts bufnr [start-row0 start-col]
+                                  [new-end-row-offset new-end-col-offset])
+               (reserve-highlight! bufnr)))
         (when (cache.config.removed.filter bufnr)
-          (glow-removed-texts bufnr [start-row0 start-col]
-                              [old-end-row-offset old-end-col-offset])))))
+          (->> #(glow-removed-texts bufnr [start-row0 start-col]
+                                    [old-end-row-offset old-end-col-offset])
+               (reserve-highlight! bufnr))))
+    ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
+    nil))
 
 (fn excluded-buffer? [buf]
   (vim.list_contains cache.config.excluded_filetypes ;

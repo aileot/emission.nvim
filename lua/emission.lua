@@ -5,7 +5,7 @@ local function _2_()
 end
 local function _3_()
 end
-cache = {config = {attach_delay = 100, excluded_filetypes = {}, min_recache_interval = 50, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _3_}}, timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
+cache = {config = {attach_delay = 100, excluded_filetypes = {}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, duration = 300, filter = _3_}}, timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
@@ -16,7 +16,7 @@ local function dec(x)
 end
 local function cache_last_texts(bufnr)
   local now = vim.uv.now()
-  if ((bufnr ~= cache["attached-buffer"]) or (cache.config.min_recache_interval < (now - cache["last-recache-time"]))) then
+  if ((bufnr ~= cache["attached-buffer"]) or (cache.config.highlight_delay < (now - cache["last-recache-time"]))) then
     cache["last-recache-time"] = now
     cache["last-texts"] = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
     cache["attached-buffer"] = bufnr
@@ -66,11 +66,29 @@ local function clear_highlights(bufnr, duration)
   end
   return cache.timer:start(duration, 0, _10_)
 end
-local function glow_added_texts(bufnr, _13_, _14_)
-  local start_row0 = _13_[1]
-  local start_col = _13_[2]
-  local new_end_row_offset = _14_[1]
-  local new_end_col_offset = _14_[2]
+local function reserve_highlight_21(bufnr, callback)
+  cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
+  local function _13_()
+    local function _14_()
+      if ((bufnr == cache["attached-buffer"]) and vim.api.nvim_buf_is_valid(bufnr)) then
+        while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
+          local cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
+          cb()
+        end
+        return nil
+      else
+        return nil
+      end
+    end
+    return vim.schedule(_14_)
+  end
+  return cache.timer:start(cache.config.highlight_delay, 0, _13_)
+end
+local function glow_added_texts(bufnr, _16_, _17_)
+  local start_row0 = _16_[1]
+  local start_col = _16_[2]
+  local new_end_row_offset = _17_[1]
+  local new_end_col_offset = _17_[2]
   local hl_group = cache["hl-group"].added
   local num_lines = vim.api.nvim_buf_line_count(bufnr)
   local end_row = (start_row0 + new_end_row_offset)
@@ -80,7 +98,7 @@ local function glow_added_texts(bufnr, _13_, _14_)
   else
     end_col = #vim.api.nvim_buf_get_lines(bufnr, -2, -1, false)[1]
   end
-  local function _16_()
+  local function _19_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(bufnr, {start_row0, start_col})
@@ -91,13 +109,13 @@ local function glow_added_texts(bufnr, _13_, _14_)
       return nil
     end
   end
-  return vim.schedule(_16_)
+  return vim.schedule(_19_)
 end
-local function compose_chunks(bufnr, _18_, _19_)
-  local start_row0 = _18_[1]
-  local start_col = _18_[2]
-  local old_end_row_offset = _19_[1]
-  local old_end_col_offset = _19_[2]
+local function compose_chunks(bufnr, _21_, _22_)
+  local start_row0 = _21_[1]
+  local start_col = _21_[2]
+  local old_end_row_offset = _22_[1]
+  local old_end_col_offset = _22_[2]
   local hl_group = cache["hl-group"].removed
   local last_texts = assert(cache["last-texts"], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)
@@ -113,14 +131,14 @@ local function compose_chunks(bufnr, _18_, _19_)
   local end_of_file_removed_3f = (current_last_row < removed_last_row)
   local should_virt_lines_include_first_line_removed_3f = (end_of_file_removed_3f and (0 < start_row0))
   local first_removed_line
-  local function _21_()
+  local function _24_()
     if (0 == old_end_row_offset) then
       return (start_col + old_end_col_offset)
     else
       return nil
     end
   end
-  first_removed_line = last_texts[start_row]:sub(inc(start_col), _21_())
+  first_removed_line = last_texts[start_row]:sub(inc(start_col), _24_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
     _3fmiddle_removed_lines = vim.list_slice(last_texts, inc(start_row), removed_last_row)
@@ -142,10 +160,10 @@ local function compose_chunks(bufnr, _18_, _19_)
   local _3frest_line_chunks
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-    local function _25_(_241)
+    local function _28_(_241)
       return {{_241, hl_group}}
     end
-    _3frest_line_chunks = vim.tbl_map(_25_, _3fmiddle_removed_lines)
+    _3frest_line_chunks = vim.tbl_map(_28_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
@@ -166,18 +184,18 @@ local function compose_chunks(bufnr, _18_, _19_)
   local col0 = start_col
   return {virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, row0 = row0, col0 = col0}
 end
-local function glow_removed_texts(bufnr, _29_, _30_)
-  local start_row0 = _29_[1]
-  local start_col = _29_[2]
-  local old_end_row_offset = _30_[1]
-  local old_end_col_offset = _30_[2]
-  local _let_31_ = compose_chunks(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
-  local virt_text = _let_31_["virt_text"]
-  local virt_lines = _let_31_["virt_lines"]
-  local row0 = _let_31_["row0"]
-  local col0 = _let_31_["col0"]
+local function glow_removed_texts(bufnr, _32_, _33_)
+  local start_row0 = _32_[1]
+  local start_col = _32_[2]
+  local old_end_row_offset = _33_[1]
+  local old_end_col_offset = _33_[2]
+  local _let_34_ = compose_chunks(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+  local virt_text = _let_34_["virt_text"]
+  local virt_lines = _let_34_["virt_lines"]
+  local row0 = _let_34_["row0"]
+  local col0 = _let_34_["col0"]
   local extmark_opts = {hl_eol = true, virt_text = virt_text, virt_lines = virt_lines, virt_text_pos = "overlay", strict = false}
-  local function _32_()
+  local function _35_()
     if vim.api.nvim_buf_is_valid(bufnr) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(bufnr, {start_row0, start_col})
@@ -187,7 +205,7 @@ local function glow_removed_texts(bufnr, _29_, _30_)
       return nil
     end
   end
-  return vim.schedule(_32_)
+  return vim.schedule(_35_)
 end
 local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][bufnr] then
@@ -197,17 +215,22 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
   if vim.api.nvim_buf_is_valid(bufnr) then
     if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(bufnr) then
-        return glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+        local function _38_()
+          return glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+        end
+        reserve_highlight_21(bufnr, _38_)
       else
-        return nil
       end
     else
       if cache.config.removed.filter(bufnr) then
-        return glow_removed_texts(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+        local function _40_()
+          return glow_removed_texts(bufnr, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+        end
+        reserve_highlight_21(bufnr, _40_)
       else
-        return nil
       end
     end
+    return nil
   else
     return nil
   end
@@ -221,7 +244,7 @@ local function attach_buffer_21(buf)
   return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
 end
 local function request_to_attach_buffer_21(buf)
-  local function _39_()
+  local function _44_()
     if (vim.api.nvim_buf_is_valid(buf) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
       return attach_buffer_21(buf)
@@ -229,7 +252,7 @@ local function request_to_attach_buffer_21(buf)
       return nil
     end
   end
-  vim.defer_fn(_39_, cache.config.attach_delay)
+  vim.defer_fn(_44_, cache.config.attach_delay)
   return nil
 end
 local function request_to_detach_buffer_21(buf)
@@ -247,13 +270,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   attach_buffer_21(vim.api.nvim_get_current_buf())
   assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
-  local function _42_(_241)
+  local function _47_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _42_})
-  local function _43_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _47_})
+  local function _48_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _43_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _48_})
 end
 return {setup = setup}
