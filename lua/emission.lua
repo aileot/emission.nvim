@@ -33,7 +33,7 @@ local function open_folds_at_cursor_21()
     return nil
   end
 end
-local function clear_highlights(buf, duration)
+local function clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
   local function _6_()
     local function _7_()
@@ -83,7 +83,7 @@ local function highlight_added_texts_21(buf, _12_, _13_)
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       vim_2fhl.range(buf, namespace, hl_group, {start_row0, start_col}, {end_row, end_col})
-      clear_highlights(buf, cache.config.added.duration)
+      clear_highlights_21(buf, cache.config.added.duration)
       return cache_last_texts(buf)
     else
       return nil
@@ -179,7 +179,7 @@ local function highlight_removed_texts_21(buf, _28_, _29_)
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       vim.api.nvim_buf_set_extmark(buf, namespace, row0, col0, extmark_opts)
-      return clear_highlights(buf, cache.config.removed.duration)
+      return clear_highlights_21(buf, cache.config.removed.duration)
     else
       return nil
     end

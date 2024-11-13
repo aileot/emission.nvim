@@ -59,7 +59,7 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
-(fn clear-highlights [buf duration]
+(fn clear-highlights! [buf duration]
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
@@ -98,7 +98,7 @@
            (open-folds-at-cursor!)
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col])
-           (clear-highlights buf cache.config.added.duration)
+           (clear-highlights! buf cache.config.added.duration)
            (cache-last-texts buf))
         (vim.schedule))))
 
@@ -174,7 +174,7 @@
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
            (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
-           (clear-highlights buf cache.config.removed.duration))
+           (clear-highlights! buf cache.config.removed.duration))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
