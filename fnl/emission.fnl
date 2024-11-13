@@ -59,23 +59,6 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
-(fn dismiss-deprecated-highlight! [buf [start-row0 start-col]]
-  "Dismiss highlights at the same position."
-  (match cache.last-editing-position
-    [start-row0 start-col]
-    ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
-    ;; the highlights over lines to the exactness with specifying the range.
-    (vim.api.nvim_buf_clear_namespace buf namespace 0 -1)
-    _
-    false)
-  (set cache.last-editing-position [start-row0 start-col]))
-
-(fn dismiss-deprecated-highlights! [buf [start-row0 start-col]]
-  "Dismiss highlights at the same position."
-  ;; TODO: (Low priority) Iterate over the changes considering the option
-  ;; value continuous_editing_time.
-  (dismiss-deprecated-highlight! buf [start-row0 start-col]))
-
 (fn clear-highlights [buf duration]
   (set cache.last-duration duration)
   (cache.timer:start duration 0
@@ -113,7 +96,6 @@
                         (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! buf [start-row0 start-col])
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col])
            (clear-highlights buf cache.config.added.duration)
@@ -191,7 +173,6 @@
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! buf [start-row0 start-col])
            (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
            (clear-highlights buf cache.config.removed.duration))
         (vim.schedule))))
