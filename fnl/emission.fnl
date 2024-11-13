@@ -37,17 +37,17 @@
 (fn dec [x]
   (- x 1))
 
-(fn cache-last-texts [bufnr]
+(fn cache-last-texts [buf]
   (let [now (vim.uv.now)]
-    (when (or (not= bufnr cache.attached-buffer)
+    (when (or (not= buf cache.attached-buffer)
               (< cache.config.highlight_delay
                  (- now cache.last-recache-time)))
       ;; NOTE: highlight_delay for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
       (set cache.last-texts ;
-           (vim.api.nvim_buf_get_lines bufnr 0 -1 false))
-      (set cache.attached-buffer bufnr))))
+           (vim.api.nvim_buf_get_lines buf 0 -1 false))
+      (set cache.attached-buffer buf))))
 
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -77,55 +77,55 @@
   ;; value continuous_editing_time.
   (dismiss-deprecated-highlight! buf [start-row0 start-col]))
 
-(fn clear-highlights [bufnr duration]
+(fn clear-highlights [buf duration]
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
-                            (when (vim.api.nvim_buf_is_valid bufnr)
-                              (vim.api.nvim_buf_clear_namespace bufnr namespace
+                            (when (vim.api.nvim_buf_is_valid buf)
+                              (vim.api.nvim_buf_clear_namespace buf namespace
                                                                 0 -1)))
                           (vim.schedule))))
 
-(fn reserve-highlight! [bufnr callback]
+(fn reserve-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
   during a highlight delay.
-  @param bufnr number
+  @param buf number
   @param callback function"
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
-                            (when (and (= bufnr cache.attached-buffer)
-                                       (vim.api.nvim_buf_is_valid bufnr))
+                            (when (and (= buf cache.attached-buffer)
+                                       (vim.api.nvim_buf_is_valid buf))
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
                                   (cb)))))
                           (vim.schedule))))
 
-(fn glow-added-texts [bufnr
+(fn glow-added-texts [buf
                       [start-row0 start-col]
                       [new-end-row-offset new-end-col-offset]]
   (let [hl-group cache.hl-group.added
-        num-lines (vim.api.nvim_buf_line_count bufnr)
+        num-lines (vim.api.nvim_buf_line_count buf)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
                     (+ start-col new-end-col-offset)
-                    (-> (vim.api.nvim_buf_get_lines bufnr -2 -1 false)
+                    (-> (vim.api.nvim_buf_get_lines buf -2 -1 false)
                         (. 1)
                         (length)))]
-    (-> #(when (vim.api.nvim_buf_is_valid bufnr)
+    (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
-           (vim/hl.range bufnr namespace hl-group [start-row0 start-col]
+           (dismiss-deprecated-highlights! buf [start-row0 start-col])
+           (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col])
-           (clear-highlights bufnr cache.config.added.duration)
-           (cache-last-texts bufnr))
+           (clear-highlights buf cache.config.added.duration)
+           (cache-last-texts buf))
         (vim.schedule))))
 
-(fn compose-chunks [bufnr
+(fn compose-chunks [buf
                     [start-row0 start-col]
                     [old-end-row-offset old-end-col-offset]]
   "Compose chunks for virtual texts to be set by `vim.api.nvim_buf_set_extmark`.
-  @param bufnr number
+  @param buf number
   @param [start-row0 start-col] number[]
   @param [old-end-row-offset old-end-row-offset] number[]
   @return table"
@@ -140,7 +140,7 @@
                                 (dec old-end-row-offset)
                                 old-end-row-offset)
         removed-last-row (+ start-row old-end-row-offset*)
-        current-last-row (vim.api.nvim_buf_line_count bufnr)
+        current-last-row (vim.api.nvim_buf_line_count buf)
         end-of-file-removed? (< current-last-row removed-last-row)
         should-virt_lines-include-first-line-removed? (and end-of-file-removed?
                                                            (< 0 start-row0))
@@ -177,10 +177,10 @@
         col0 start-col]
     {:virt_text ?first-line-chunk :virt_lines ?rest-line-chunks : row0 : col0}))
 
-(fn glow-removed-texts [bufnr
+(fn glow-removed-texts [buf
                         [start-row0 start-col]
                         [old-end-row-offset old-end-col-offset]]
-  (let [{: virt_text : virt_lines : row0 : col0} (compose-chunks bufnr
+  (let [{: virt_text : virt_lines : row0 : col0} (compose-chunks buf
                                                                  [start-row0
                                                                   start-col]
                                                                  [old-end-row-offset
@@ -190,15 +190,15 @@
                       : virt_text
                       : virt_lines
                       :virt_text_pos :overlay}]
-    (-> #(when (vim.api.nvim_buf_is_valid bufnr)
+    (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! bufnr [start-row0 start-col])
-           (vim.api.nvim_buf_set_extmark bufnr namespace row0 col0 extmark-opts)
-           (clear-highlights bufnr cache.config.removed.duration))
+           (dismiss-deprecated-highlights! buf [start-row0 start-col])
+           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
+           (clear-highlights buf cache.config.removed.duration))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
-              bufnr
+              buf
               _changedtick
               start-row0
               start-col
@@ -209,22 +209,22 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  (when (. cache.buffer->detach bufnr)
-    (tset cache.buffer->detach bufnr nil)
+  (when (. cache.buffer->detach buf)
+    (tset cache.buffer->detach buf nil)
     ;; NOTE: Return a truthy value to detach.
     true)
-  (when (vim.api.nvim_buf_is_valid bufnr)
+  (when (vim.api.nvim_buf_is_valid buf)
     (if (or (<= old-end-row-offset new-end-row-offset)
             (and (= 0 old-end-row-offset new-end-row-offset)
                  (<= old-end-col-offset new-end-col-offset)))
-        (when (cache.config.added.filter bufnr)
-          (->> #(glow-added-texts bufnr [start-row0 start-col]
+        (when (cache.config.added.filter buf)
+          (->> #(glow-added-texts buf [start-row0 start-col]
                                   [new-end-row-offset new-end-col-offset])
-               (reserve-highlight! bufnr)))
-        (when (cache.config.removed.filter bufnr)
-          (->> #(glow-removed-texts bufnr [start-row0 start-col]
+               (reserve-highlight! buf)))
+        (when (cache.config.removed.filter buf)
+          (->> #(glow-removed-texts buf [start-row0 start-col]
                                     [old-end-row-offset old-end-col-offset])
-               (reserve-highlight! bufnr))))
+               (reserve-highlight! buf))))
     ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
     nil))
 
