@@ -196,9 +196,9 @@
     ;; NOTE: Return a truthy value to detach.
     true)
   (when (vim.api.nvim_buf_is_valid bufnr)
-    (if (or (< old-end-row-offset new-end-row-offset)
+    (if (or (<= old-end-row-offset new-end-row-offset)
             (and (= 0 old-end-row-offset new-end-row-offset)
-                 (< old-end-col-offset new-end-col-offset)))
+                 (<= old-end-col-offset new-end-col-offset)))
         (when (cache.config.added.filter bufnr)
           (glow-added-texts bufnr [start-row0 start-col]
                             [new-end-row-offset new-end-col-offset]))

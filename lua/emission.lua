@@ -193,7 +193,7 @@ local function on_bytes(_string_bytes, bufnr, _changedtick, start_row0, start_co
   else
   end
   if vim.api.nvim_buf_is_valid(bufnr) then
-    if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset < new_end_col_offset))) then
+    if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(bufnr) then
         return glow_added_texts(bufnr, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
       else
