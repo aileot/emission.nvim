@@ -25,7 +25,7 @@ LUA_SPECS:=$(FNL_SPECS:%.fnl=%.lua)
 FNL_SRC_DIR=fnl
 
 FNL_SRC:=$(wildcard $(FNL_SRC_DIR)/*.fnl)
-# FNL_SRC+=$(wildcard $(FNL_SRC_DIR)/*/*.fnl)
+FNL_SRC+=$(wildcard $(FNL_SRC_DIR)/*/*.fnl)
 FNL_SRC:=$(filter-out %/macros.fnl,$(FNL_SRC))
 LUA_RES:=$(FNL_SRC:$(FNL_SRC_DIR)/%.fnl=lua/%.lua)
 
