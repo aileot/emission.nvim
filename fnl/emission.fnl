@@ -40,8 +40,7 @@
 (fn cache-last-texts [buf]
   (let [now (vim.uv.now)]
     (when (or (not= buf cache.attached-buffer)
-              (< cache.config.highlight_delay
-                 (- now cache.last-recache-time)))
+              (< cache.config.highlight_delay (- now cache.last-recache-time)))
       ;; NOTE: highlight_delay for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
@@ -82,8 +81,8 @@
   (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid buf)
-                              (vim.api.nvim_buf_clear_namespace buf namespace
-                                                                0 -1)))
+                              (vim.api.nvim_buf_clear_namespace buf namespace 0
+                                                                -1)))
                           (vim.schedule))))
 
 (fn reserve-highlight! [buf callback]
