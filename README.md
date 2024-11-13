@@ -5,13 +5,13 @@ A generalized fork of
 rewritten in Fennel with
 [antifennel](https://git.sr.ht/~technomancy/antifennel).
 
-Highlight added/removed texts in current buffer as well as undo/redo.
+## Features
 
-Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
+- Highlights for added/removed texts in current buffer.
+- Free from keymap conflicts.
+
+NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 `undo`/`redo`, but only `added`/`removed`.
-
-_However, **no need** to worry about keymap conflicts anymore for the
-highlighting features!_
 
 ## Demo
 
