@@ -83,9 +83,9 @@
                                   (cb)))))
                           (vim.schedule))))
 
-(fn glow-added-texts [buf
-                      [start-row0 start-col]
-                      [new-end-row-offset new-end-col-offset]]
+(fn highlight-added-texts! [buf
+                            [start-row0 start-col]
+                            [new-end-row-offset new-end-col-offset]]
   (let [hl-group cache.hl-group.added
         num-lines (vim.api.nvim_buf_line_count buf)
         end-row (+ start-row0 new-end-row-offset)
@@ -158,9 +158,9 @@
         col0 start-col]
     {:virt_text ?first-line-chunk :virt_lines ?rest-line-chunks : row0 : col0}))
 
-(fn glow-removed-texts [buf
-                        [start-row0 start-col]
-                        [old-end-row-offset old-end-col-offset]]
+(fn highlight-removed-texts! [buf
+                              [start-row0 start-col]
+                              [old-end-row-offset old-end-col-offset]]
   (let [{: virt_text : virt_lines : row0 : col0} (compose-chunks buf
                                                                  [start-row0
                                                                   start-col]
@@ -198,12 +198,13 @@
             (and (= 0 old-end-row-offset new-end-row-offset)
                  (<= old-end-col-offset new-end-col-offset)))
         (when (cache.config.added.filter buf)
-          (->> #(glow-added-texts buf [start-row0 start-col]
-                                  [new-end-row-offset new-end-col-offset])
+          (->> #(highlight-added-texts! buf [start-row0 start-col]
+                                        [new-end-row-offset new-end-col-offset])
                (reserve-highlight! buf)))
         (when (cache.config.removed.filter buf)
-          (->> #(glow-removed-texts buf [start-row0 start-col]
-                                    [old-end-row-offset old-end-col-offset])
+          (->> #(highlight-removed-texts! buf [start-row0 start-col]
+                                          [old-end-row-offset
+                                           old-end-col-offset])
                (reserve-highlight! buf))))
     ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
     nil))

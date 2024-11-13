@@ -65,7 +65,7 @@ local function reserve_highlight_21(buf, callback)
   end
   return cache.timer:start(cache.config.highlight_delay, 0, _9_)
 end
-local function glow_added_texts(buf, _12_, _13_)
+local function highlight_added_texts_21(buf, _12_, _13_)
   local start_row0 = _12_[1]
   local start_col = _12_[2]
   local new_end_row_offset = _13_[1]
@@ -164,7 +164,7 @@ local function compose_chunks(buf, _17_, _18_)
   local col0 = start_col
   return {virt_text = _3ffirst_line_chunk, virt_lines = _3frest_line_chunks, row0 = row0, col0 = col0}
 end
-local function glow_removed_texts(buf, _28_, _29_)
+local function highlight_removed_texts_21(buf, _28_, _29_)
   local start_row0 = _28_[1]
   local start_col = _28_[2]
   local old_end_row_offset = _29_[1]
@@ -195,7 +195,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
     if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(buf) then
         local function _34_()
-          return glow_added_texts(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+          return highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
         end
         reserve_highlight_21(buf, _34_)
       else
@@ -203,7 +203,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
     else
       if cache.config.removed.filter(buf) then
         local function _36_()
-          return glow_removed_texts(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+          return highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
         end
         reserve_highlight_21(buf, _36_)
       else
