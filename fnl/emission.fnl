@@ -60,6 +60,9 @@
       (vim.cmd "silent! . foldopen!"))))
 
 (fn clear-highlights! [buf duration]
+  "Clear highlights in `buf` after `duration` in milliseconds.
+  @param buf number
+  @param duration number milliseconds"
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
