@@ -60,7 +60,7 @@ require("emission").setup({
     -- The same options as `added` are available.
     -- Note that the default values might be different from `added` ones.
     priority = 100,
-    duration = 300,
+    duration = 400,
     hl_map = { default = true, fg = "#dcd7ba", bg = "#672d2d" },
     filter = function(bufnr) end,
   },

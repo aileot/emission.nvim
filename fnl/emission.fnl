@@ -11,7 +11,7 @@
                        :removed {:hl_map {:default true
                                           :fg "#dcd7ba"
                                           :bg "#672d2d"}
-                                 :duration 300
+                                 :duration 400
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
               :pending-highlights (Stack.new)
