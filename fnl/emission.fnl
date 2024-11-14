@@ -59,7 +59,10 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
-(fn clear-highlights [buf duration]
+(fn clear-highlights! [buf duration]
+  "Clear highlights in `buf` after `duration` in milliseconds.
+  @param buf number
+  @param duration number milliseconds"
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
@@ -98,7 +101,6 @@
            (open-folds-at-cursor!)
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col])
-           (clear-highlights buf cache.config.added.duration)
            (cache-last-texts buf))
         (vim.schedule))))
 
@@ -173,8 +175,7 @@
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
-           (clear-highlights buf cache.config.removed.duration))
+           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
@@ -198,13 +199,18 @@
             (and (= 0 old-end-row-offset new-end-row-offset)
                  (<= old-end-col-offset new-end-col-offset)))
         (when (cache.config.added.filter buf)
-          (->> #(highlight-added-texts! buf [start-row0 start-col]
-                                        [new-end-row-offset new-end-col-offset])
+          (->> (fn []
+                 (highlight-added-texts! buf [start-row0 start-col]
+                                         [new-end-row-offset
+                                          new-end-col-offset])
+                 (clear-highlights! buf cache.config.added.duration))
                (reserve-highlight! buf)))
         (when (cache.config.removed.filter buf)
-          (->> #(highlight-removed-texts! buf [start-row0 start-col]
-                                          [old-end-row-offset
-                                           old-end-col-offset])
+          (->> (fn []
+                 (highlight-removed-texts! buf [start-row0 start-col]
+                                           [old-end-row-offset
+                                            old-end-col-offset])
+                 (clear-highlights! buf cache.config.removed.duration))
                (reserve-highlight! buf))))
     ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
     nil))

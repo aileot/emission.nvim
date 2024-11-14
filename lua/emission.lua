@@ -33,7 +33,7 @@ local function open_folds_at_cursor_21()
     return nil
   end
 end
-local function clear_highlights(buf, duration)
+local function clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
   local function _6_()
     local function _7_()
@@ -83,7 +83,6 @@ local function highlight_added_texts_21(buf, _12_, _13_)
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       vim_2fhl.range(buf, namespace, hl_group, {start_row0, start_col}, {end_row, end_col})
-      clear_highlights(buf, cache.config.added.duration)
       return cache_last_texts(buf)
     else
       return nil
@@ -178,8 +177,7 @@ local function highlight_removed_texts_21(buf, _28_, _29_)
   local function _31_()
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
-      vim.api.nvim_buf_set_extmark(buf, namespace, row0, col0, extmark_opts)
-      return clear_highlights(buf, cache.config.removed.duration)
+      return vim.api.nvim_buf_set_extmark(buf, namespace, row0, col0, extmark_opts)
     else
       return nil
     end
@@ -195,7 +193,8 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
     if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(buf) then
         local function _34_()
-          return highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+          highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+          return clear_highlights_21(buf, cache.config.added.duration)
         end
         reserve_highlight_21(buf, _34_)
       else
@@ -203,7 +202,8 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
     else
       if cache.config.removed.filter(buf) then
         local function _36_()
-          return highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+          highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+          return clear_highlights_21(buf, cache.config.removed.duration)
         end
         reserve_highlight_21(buf, _36_)
       else
