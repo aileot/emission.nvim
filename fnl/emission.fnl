@@ -207,13 +207,13 @@
                  (set extmark-opts.virt_lines nil)
                  (vim.api.nvim_buf_set_extmark buf namespace row0 col0
                                                extmark-opts)
-                 (let [new-end-row-offset (length virt_lines)]
-                   (when (< 0 new-end-row-offset)
-                     (for [offset 1 new-end-row-offset]
-                       (set extmark-opts.virt_text (. virt_lines offset))
-                       (vim.api.nvim_buf_set_extmark buf namespace
-                                                     (+ row0 offset) 0
-                                                     extmark-opts)))))
+                 (case (and virt_lines (length virt_lines))
+                   (where new-end-row-offset (< 0 new-end-row-offset))
+                   (for [offset 1 new-end-row-offset]
+                     (set extmark-opts.virt_text (. virt_lines offset))
+                     (vim.api.nvim_buf_set_extmark buf namespace
+                                                   (+ row0 offset) 0
+                                                   extmark-opts))))
                (vim.api.nvim_buf_set_extmark buf namespace row0 col0
                                              extmark-opts)))
         (vim.schedule))))

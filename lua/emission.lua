@@ -202,8 +202,14 @@ local function highlight_removed_texts_21(buf, _32_, _33_)
       if (row0 == start_row0) then
         extmark_opts.virt_lines = nil
         vim.api.nvim_buf_set_extmark(buf, namespace, row0, col0, extmark_opts)
-        local new_end_row_offset = #virt_lines
-        if (0 < new_end_row_offset) then
+        local _36_ = (virt_lines and #virt_lines)
+        local and_37_ = (nil ~= _36_)
+        if and_37_ then
+          local new_end_row_offset = _36_
+          and_37_ = (0 < new_end_row_offset)
+        end
+        if and_37_ then
+          local new_end_row_offset = _36_
           for offset = 1, new_end_row_offset do
             extmark_opts.virt_text = virt_lines[offset]
             vim.api.nvim_buf_set_extmark(buf, namespace, (row0 + offset), 0, extmark_opts)
@@ -229,20 +235,20 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
   if vim.api.nvim_buf_is_valid(buf) then
     if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(buf) then
-        local function _40_()
+        local function _43_()
           highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
           return clear_highlights_21(buf, cache.config.added.duration)
         end
-        reserve_highlight_21(buf, _40_)
+        reserve_highlight_21(buf, _43_)
       else
       end
     else
       if cache.config.removed.filter(buf) then
-        local function _42_()
+        local function _45_()
           highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
           return clear_highlights_21(buf, cache.config.removed.duration)
         end
-        reserve_highlight_21(buf, _42_)
+        reserve_highlight_21(buf, _45_)
       else
       end
     end
@@ -260,7 +266,7 @@ local function attach_buffer_21(buf)
   return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
 end
 local function request_to_attach_buffer_21(buf)
-  local function _46_()
+  local function _49_()
     if (vim.api.nvim_buf_is_valid(buf) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
       return attach_buffer_21(buf)
@@ -268,7 +274,7 @@ local function request_to_attach_buffer_21(buf)
       return nil
     end
   end
-  vim.defer_fn(_46_, cache.config.attach_delay)
+  vim.defer_fn(_49_, cache.config.attach_delay)
   return nil
 end
 local function request_to_detach_buffer_21(buf)
@@ -286,13 +292,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   attach_buffer_21(vim.api.nvim_get_current_buf())
   assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
-  local function _49_(_241)
+  local function _52_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _49_})
-  local function _50_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _52_})
+  local function _53_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _50_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _53_})
 end
 return {setup = setup}
