@@ -233,7 +233,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
   else
   end
   if vim.api.nvim_buf_is_valid(buf) then
-    if ((old_end_row_offset <= new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
+    if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
       if cache.config.added.filter(buf) then
         local function _43_()
           highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
