@@ -59,6 +59,23 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
+(fn dismiss-deprecated-highlight! [buf [start-row0 start-col]]
+  "Dismiss highlights at the same position."
+  (match cache.last-editing-position
+    [start-row0 start-col]
+    ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
+    ;; the highlights over lines to the exactness with specifying the range.
+    (vim.api.nvim_buf_clear_namespace buf namespace 0 -1)
+    _
+    false)
+  (set cache.last-editing-position [start-row0 start-col]))
+
+(fn dismiss-deprecated-highlights! [buf [start-row0 start-col]]
+  "Dismiss highlights at the same position."
+  ;; TODO: (Low priority) Iterate over the changes considering the option
+  ;; value continuous_editing_time.
+  (dismiss-deprecated-highlight! buf [start-row0 start-col]))
+
 (fn clear-highlights! [buf duration]
   "Clear highlights in `buf` after `duration` in milliseconds.
   @param buf number
@@ -99,6 +116,7 @@
                         (length)))]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
+           (dismiss-deprecated-highlights! buf [start-row0 start-col])
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col])
            (cache-last-texts buf))
@@ -175,11 +193,18 @@
         extmark-opts {:hl_eol true
                       :strict false
                       : virt_text
-                      : virt_lines
+                      ;; : virt_lines
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts))
+           (dismiss-deprecated-highlights! buf [start-row0 start-col])
+           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
+           (let [new-end-row-offset (length virt_lines)]
+             (when (< 0 new-end-row-offset)
+               (for [offset 1 new-end-row-offset]
+                 (set extmark-opts.virt_text (. virt_lines offset))
+                 (vim.api.nvim_buf_set_extmark buf namespace (+ row0 offset) 0
+                                               extmark-opts)))))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
