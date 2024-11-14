@@ -5,7 +5,7 @@ local function _2_()
 end
 local function _3_()
 end
-cache = {config = {attach_delay = 100, excluded_filetypes = {}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, duration = 400, filter = _3_}}, timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
+cache = {config = {attach_delay = 100, excluded_filetypes = {}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 400, filter = _3_}}, timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["last-texts"] = nil}
 local namespace = vim.api.nvim_create_namespace("emission")
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
@@ -98,11 +98,12 @@ local function highlight_added_texts_21(buf, _16_, _17_)
   else
     end_col = #vim.api.nvim_buf_get_lines(buf, -2, -1, false)[1]
   end
+  local hl_opts = {priority = cache.config.added.priority}
   local function _19_()
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col})
-      vim_2fhl.range(buf, namespace, hl_group, {start_row0, start_col}, {end_row, end_col})
+      vim_2fhl.range(buf, namespace, hl_group, {start_row0, start_col}, {end_row, end_col}, hl_opts)
       return cache_last_texts(buf)
     else
       return nil
@@ -193,7 +194,7 @@ local function highlight_removed_texts_21(buf, _32_, _33_)
   local virt_lines = _let_34_["virt_lines"]
   local row0 = _let_34_["row0"]
   local col0 = _let_34_["col0"]
-  local extmark_opts = {hl_eol = true, virt_text = virt_text, virt_lines = virt_lines, virt_text_pos = "overlay", strict = false}
+  local extmark_opts = {hl_eol = true, virt_text = virt_text, virt_lines = virt_lines, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _35_()
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()

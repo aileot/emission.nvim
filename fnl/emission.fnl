@@ -6,11 +6,13 @@
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
                                         :bg "#2d4f67"}
+                               :priority 102
                                :duration 400
                                :filter (fn [])}
                        :removed {:hl_map {:default true
                                           :fg "#dcd7ba"
                                           :bg "#672d2d"}
+                                 :priority 101
                                  :duration 400
                                  :filter (fn [])}}
               :timer (vim.uv.new_timer)
@@ -113,12 +115,13 @@
                     (+ start-col new-end-col-offset)
                     (-> (vim.api.nvim_buf_get_lines buf -2 -1 false)
                         (. 1)
-                        (length)))]
+                        (length)))
+        hl-opts {:priority cache.config.added.priority}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col])
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
-                         [end-row end-col])
+                         [end-row end-col] hl-opts)
            (cache-last-texts buf))
         (vim.schedule))))
 
@@ -194,6 +197,7 @@
                       :strict false
                       : virt_text
                       : virt_lines
+                      :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)

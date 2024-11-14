@@ -47,7 +47,7 @@ require("emission").setup({
     -- "oil",
   },
   added = {
-    priority = 100,
+    priority = 102,
     duration = 400, -- milliseconds
     -- The same options for `nvim_set_hl()` at `{val}` is available.
     -- NOTE: With "default" key set to `true`, you can arrange the highlight
@@ -59,7 +59,7 @@ require("emission").setup({
   removed = {
     -- The same options as `added` are available.
     -- Note that the default values might be different from `added` ones.
-    priority = 100,
+    priority = 101,
     duration = 400,
     hl_map = { default = true, fg = "#dcd7ba", bg = "#672d2d" },
     filter = function(bufnr) end,
