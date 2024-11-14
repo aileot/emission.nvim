@@ -125,7 +125,7 @@ local function compose_chunks(buf, _17_, _18_)
     _3fmiddle_removed_lines = nil
   end
   local _3flast_removed_line
-  if (0 < old_end_row_offset) then
+  if ((0 < old_end_row_offset) and (0 < old_end_col_offset)) then
     _3flast_removed_line = last_texts[removed_last_row]:sub(1, old_end_col_offset)
   else
     _3flast_removed_line = nil

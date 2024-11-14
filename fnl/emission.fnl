@@ -138,7 +138,11 @@
         ?middle-removed-lines (when (< 1 old-end-row-offset)
                                 (vim.list_slice last-texts (inc start-row)
                                                 removed-last-row))
-        ?last-removed-line (when (< 0 old-end-row-offset)
+        ?last-removed-line (when (and (< 0 old-end-row-offset)
+                                      ;; NOTE: When col-offset is 0, the last
+                                      ;; row is only composed by a `\n`, which
+                                      ;; should not be counted.
+                                      (< 0 old-end-col-offset))
                              (-> (. last-texts removed-last-row)
                                  (: :sub 1 old-end-col-offset)))
         ?first-line-chunk (when-not should-virt_lines-include-first-line-removed?
