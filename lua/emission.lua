@@ -67,6 +67,7 @@ local function clear_highlights_21(buf, duration)
   return cache.timer:start(duration, 0, _10_)
 end
 local function reserve_highlight_21(buf, callback)
+  assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local function _13_()
     local function _14_()

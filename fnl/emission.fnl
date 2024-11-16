@@ -95,6 +95,8 @@
   during a highlight delay.
   @param buf number
   @param callback function"
+  (assert (= :function (type callback))
+          (.. "expected function, got " (type callback)))
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
