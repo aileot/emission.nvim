@@ -234,6 +234,8 @@
               _new-end-byte-offset]
   (if (. cache.buffer->detach buf) ;
       (do
+        ;; Make sure to clear highlights on the detached buffer.
+        (clear-highlights! buf 0)
         (tset cache.buffer->detach buf nil)
         ;; NOTE: Return a truthy value to detach.
         true) ;
