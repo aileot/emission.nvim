@@ -230,32 +230,34 @@ local function highlight_removed_texts_21(buf, _32_, _33_)
 end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][buf] then
+    clear_highlights_21(buf, 0)
     cache["buffer->detach"][buf] = nil
+    return true
   else
-  end
-  if vim.api.nvim_buf_is_valid(buf) then
-    if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
-      if cache.config.added.filter(buf) then
-        local function _43_()
-          highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
-          return clear_highlights_21(buf, cache.config.added.duration)
+    if vim.api.nvim_buf_is_valid(buf) then
+      if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
+        if cache.config.added.filter(buf) then
+          local function _42_()
+            highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+            return clear_highlights_21(buf, cache.config.added.duration)
+          end
+          reserve_highlight_21(buf, _42_)
+        else
         end
-        reserve_highlight_21(buf, _43_)
       else
+        if cache.config.removed.filter(buf) then
+          local function _44_()
+            highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+            return clear_highlights_21(buf, cache.config.removed.duration)
+          end
+          reserve_highlight_21(buf, _44_)
+        else
+        end
       end
+      return nil
     else
-      if cache.config.removed.filter(buf) then
-        local function _45_()
-          highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
-          return clear_highlights_21(buf, cache.config.removed.duration)
-        end
-        reserve_highlight_21(buf, _45_)
-      else
-      end
+      return nil
     end
-    return nil
-  else
-    return nil
   end
 end
 local function excluded_buffer_3f(buf)
