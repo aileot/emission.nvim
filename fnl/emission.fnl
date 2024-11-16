@@ -95,6 +95,8 @@
   during a highlight delay.
   @param buf number
   @param callback function"
+  (assert (= :function (type callback))
+          (.. "expected function, got " (type callback)))
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
@@ -230,30 +232,35 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  (when (. cache.buffer->detach buf)
-    (tset cache.buffer->detach buf nil)
-    ;; NOTE: Return a truthy value to detach.
-    true)
-  (when (vim.api.nvim_buf_is_valid buf)
-    (if (or (< old-end-row-offset new-end-row-offset)
-            (and (= 0 old-end-row-offset new-end-row-offset)
-                 (<= old-end-col-offset new-end-col-offset)))
-        (when (cache.config.added.filter buf)
-          (->> (fn []
-                 (highlight-added-texts! buf [start-row0 start-col]
-                                         [new-end-row-offset
-                                          new-end-col-offset])
-                 (clear-highlights! buf cache.config.added.duration))
-               (reserve-highlight! buf)))
-        (when (cache.config.removed.filter buf)
-          (->> (fn []
-                 (highlight-removed-texts! buf [start-row0 start-col]
-                                           [old-end-row-offset
-                                            old-end-col-offset])
-                 (clear-highlights! buf cache.config.removed.duration))
-               (reserve-highlight! buf))))
-    ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
-    nil))
+  (if (. cache.buffer->detach buf) ;
+      (do
+        ;; Make sure to clear highlights on the detached buffer.
+        (clear-highlights! buf 0)
+        (tset cache.buffer->detach buf nil)
+        ;; NOTE: Return a truthy value to detach.
+        true) ;
+      ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
+      ;; check to detach should only be managed by `buffer->detach` value.
+      (when (vim.api.nvim_buf_is_valid buf)
+        (if (or (< old-end-row-offset new-end-row-offset)
+                (and (= 0 old-end-row-offset new-end-row-offset)
+                     (<= old-end-col-offset new-end-col-offset)))
+            (when (cache.config.added.filter buf)
+              (->> (fn []
+                     (highlight-added-texts! buf [start-row0 start-col]
+                                             [new-end-row-offset
+                                              new-end-col-offset])
+                     (clear-highlights! buf cache.config.added.duration))
+                   (reserve-highlight! buf)))
+            (when (cache.config.removed.filter buf)
+              (->> (fn []
+                     (highlight-removed-texts! buf [start-row0 start-col]
+                                               [old-end-row-offset
+                                                old-end-col-offset])
+                     (clear-highlights! buf cache.config.removed.duration))
+                   (reserve-highlight! buf))))
+        ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
+        nil)))
 
 (fn excluded-buffer? [buf]
   (vim.list_contains cache.config.excluded_filetypes ;
