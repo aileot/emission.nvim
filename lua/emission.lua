@@ -130,7 +130,8 @@ local function compose_chunks(buf, _21_, _22_)
   local removed_last_row = (start_row + old_end_row_offset_2a)
   local current_last_row = vim.api.nvim_buf_line_count(buf)
   local end_of_file_removed_3f = (current_last_row < removed_last_row)
-  local should_virt_lines_include_first_line_removed_3f = (end_of_file_removed_3f and (0 < start_row0))
+  local first_line_removed_3f = (0 < start_row0)
+  local should_virt_lines_include_first_line_removed_3f = (end_of_file_removed_3f and first_line_removed_3f)
   local first_removed_line
   local function _24_()
     if (0 == old_end_row_offset) then
