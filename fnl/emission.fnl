@@ -149,9 +149,9 @@
         removed-end-row (+ start-row old-end-row-offset*)
         new-end-row (vim.api.nvim_buf_line_count buf)
         end-of-file-removed? (< new-end-row removed-end-row)
-        first-line-removed? (< 0 start-row0)
-        should-virt_lines-include-first-line-removed? (and first-line-removed?
-                                                           end-of-file-removed?)
+        first-line-removed? (= 0 start-row0)
+        can-virt_text-display-first-line-removed? (or (not first-line-removed?)
+                                                      (not end-of-file-removed?))
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. old-texts start-row)
@@ -170,7 +170,7 @@
                                       (< 0 old-end-col-offset))
                              (-> (. old-texts removed-end-row)
                                  (: :sub 1 old-end-col-offset)))
-        ?first-line-chunk (when-not should-virt_lines-include-first-line-removed?
+        ?first-line-chunk (when-not can-virt_text-display-first-line-removed?
                             [[first-removed-line hl-group]])
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
@@ -180,12 +180,12 @@
                                      (vim.tbl_map #[[$ hl-group]])))
                               ?last-removed-line
                               [[[?last-removed-line hl-group]]])
-        _ (when (and should-virt_lines-include-first-line-removed?
+        _ (when (and can-virt_text-display-first-line-removed?
                      ?rest-line-chunks)
             (table.insert ?rest-line-chunks 1 [[first-removed-line hl-group]]))
-        row0 (if should-virt_lines-include-first-line-removed?
-                 (dec start-row0)
-                 start-row0)
+        row0 (if can-virt_text-display-first-line-removed?
+                 start-row0
+                 (dec start-row0))
         removed-end-row (+ start-row old-end-row-offset*)
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
                                             (< removed-end-row new-end-row)

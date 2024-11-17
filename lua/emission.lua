@@ -132,8 +132,8 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local removed_end_row = (start_row + old_end_row_offset_2a)
   local new_end_row = vim.api.nvim_buf_line_count(buf)
   local end_of_file_removed_3f = (new_end_row < removed_end_row)
-  local first_line_removed_3f = (0 < start_row0)
-  local should_virt_lines_include_first_line_removed_3f = (first_line_removed_3f and end_of_file_removed_3f)
+  local first_line_removed_3f = (0 == start_row0)
+  local can_virt_text_display_first_line_removed_3f = (not first_line_removed_3f or not end_of_file_removed_3f)
   local first_removed_line
   local function _24_()
     if (0 == old_end_row_offset) then
@@ -156,7 +156,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     _3flast_removed_line = nil
   end
   local _3ffirst_line_chunk
-  if not should_virt_lines_include_first_line_removed_3f then
+  if not can_virt_text_display_first_line_removed_3f then
     _3ffirst_line_chunk = {{first_removed_line, hl_group}}
   else
     _3ffirst_line_chunk = nil
@@ -174,16 +174,16 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     _3frest_line_chunks = nil
   end
   local _
-  if (should_virt_lines_include_first_line_removed_3f and _3frest_line_chunks) then
+  if (can_virt_text_display_first_line_removed_3f and _3frest_line_chunks) then
     _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hl_group}})
   else
     _ = nil
   end
   local row0
-  if should_virt_lines_include_first_line_removed_3f then
-    row0 = dec(start_row0)
-  else
+  if can_virt_text_display_first_line_removed_3f then
     row0 = start_row0
+  else
+    row0 = dec(start_row0)
   end
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
   local _3frest_chunks, _3fexceeded_chunks = nil, nil
