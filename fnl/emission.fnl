@@ -188,7 +188,6 @@
                  start-row0)
         col0 start-col0
         removed-end-row (+ start-row old-end-row-offset*)
-        virt_text ?first-line-chunk
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
                                             (< removed-end-row new-end-row)
                                             (values ?rest-line-chunks nil)
@@ -204,7 +203,7 @@
                                                           (vim.list_slice (inc offset))))))
         extmark-opts {:hl_eol true
                       :strict false
-                      : virt_text
+                      :virt_text ?first-line-chunk
                       :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
     (-> #(when (buf-has-cursor? buf)

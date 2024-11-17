@@ -187,7 +187,6 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   end
   local col0 = start_col0
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
-  local virt_text = _3ffirst_line_chunk
   local _3frest_chunks, _3fexceeded_chunks = nil, nil
   if (nil == _3frest_line_chunks) then
     _3frest_chunks, _3fexceeded_chunks = nil
@@ -199,7 +198,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     local offset = ((old_end_row_offset_2a + new_end_row) - removed_end_row0)
     _3frest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
-  local extmark_opts = {hl_eol = true, virt_text = virt_text, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
+  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _33_()
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
