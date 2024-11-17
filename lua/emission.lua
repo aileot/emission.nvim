@@ -269,7 +269,8 @@ local function request_to_attach_buffer_21(buf)
       cache["attached-buffer"] = buf
       cache["buffer->detach"][buf] = nil
       cache_last_texts(buf)
-      return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+      return assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
     else
       return nil
     end
@@ -291,7 +292,6 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buffer_21(vim.api.nvim_get_current_buf())
-  assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
   local function _52_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end

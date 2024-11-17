@@ -280,7 +280,8 @@
          (set cache.attached-buffer buf)
          (tset cache.buffer->detach buf nil)
          (cache-last-texts buf)
-         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
+         (assert cache.last-texts "Failed to cache lines on attaching to buffer"))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
@@ -299,7 +300,6 @@
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
     (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
     (request-to-attach-buffer! (vim.api.nvim_get_current_buf))
-    (assert cache.last-texts "Failed to cache lines on attaching to buffer")
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buffer! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
