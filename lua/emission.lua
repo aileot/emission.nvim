@@ -263,16 +263,13 @@ end
 local function excluded_buffer_3f(buf)
   return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
-local function attach_buffer_21(buf)
-  cache["buffer->detach"][buf] = nil
-  cache_last_texts(buf)
-  return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
-end
 local function request_to_attach_buffer_21(buf)
   local function _49_()
     if (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
-      return attach_buffer_21(buf)
+      cache["buffer->detach"][buf] = nil
+      cache_last_texts(buf)
+      return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
     else
       return nil
     end

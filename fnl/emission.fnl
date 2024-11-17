@@ -266,13 +266,6 @@
   (vim.list_contains cache.config.excluded_filetypes ;
                      (. vim.bo buf :filetype)))
 
-(fn attach-buffer! [buf]
-  "Attach to `buf`. This function should not be called directly other than
-  `request-to-attach-buffer!`."
-  (tset cache.buffer->detach buf nil)
-  (cache-last-texts buf)
-  (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
-
 (fn request-to-attach-buffer! [buf]
   ;; NOTE: The option `attach_delay` helps avoid the following issues:
   ;; 1. Unexpected attaching to buffers before the filetype of a buffer is not
@@ -285,7 +278,9 @@
                   (= buf (vim.api.nvim_win_get_buf 0))
                   (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
-         (attach-buffer! buf))
+         (tset cache.buffer->detach buf nil)
+         (cache-last-texts buf)
+         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
