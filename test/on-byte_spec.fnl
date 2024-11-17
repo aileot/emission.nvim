@@ -52,4 +52,6 @@
     (each-scenario #(assert.has_no_error #(feedkeys! :s)))
     (each-scenario #(assert.has_no_error #(feedkeys! :>G)))
     (each-scenario #(assert.has_no_error #(feedkeys! "<<")))
+    (each-scenario #(assert.has_no_error #(vim.cmd "1d_")))
+    (each-scenario #(assert.has_no_error #(vim.cmd "$d_")))
     (each-scenario #(assert.has_no_error #(vim.cmd "%d_")))))
