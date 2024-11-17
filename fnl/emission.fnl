@@ -281,7 +281,8 @@
          (tset cache.buffer->detach buf nil)
          (cache-last-texts buf)
          (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-         (assert cache.last-texts "Failed to cache lines on attaching to buffer"))
+         (assert cache.last-texts
+                 "Failed to cache lines on attaching to buffer"))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
