@@ -282,6 +282,7 @@
   ;;    BufEnter events like sequential editing with `:cdo`.
   ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
   (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
+                  (= buf (vim.api.nvim_win_get_buf 0))
                   (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
          (attach-buffer! buf))

@@ -270,7 +270,7 @@ local function attach_buffer_21(buf)
 end
 local function request_to_attach_buffer_21(buf)
   local function _49_()
-    if (vim.api.nvim_buf_is_valid(buf) and not excluded_buffer_3f(buf)) then
+    if (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
       return attach_buffer_21(buf)
     else
