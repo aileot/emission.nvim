@@ -15,6 +15,7 @@
                                  :priority 101
                                  :duration 400
                                  :filter (fn [])}}
+              :namespace (vim.api.nvim_create_namespace :emission)
               :timer (vim.uv.new_timer)
               :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
@@ -24,8 +25,6 @@
               :buffer->detach {}
               :last-recache-time 0
               :old-texts nil})
-
-(local namespace (vim.api.nvim_create_namespace :emission))
 
 (local vim/hl (or vim.hl vim.highlight))
 
@@ -67,7 +66,7 @@
     [start-row0 start-col]
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
     ;; the highlights over lines to the exactness with specifying the range.
-    (vim.api.nvim_buf_clear_namespace buf namespace 0 -1)
+    (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
     _
     false)
   (set cache.last-editing-position [start-row0 start-col]))
@@ -86,8 +85,9 @@
   (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid buf)
-                              (vim.api.nvim_buf_clear_namespace buf namespace 0
-                                                                -1)))
+                              (vim.api.nvim_buf_clear_namespace buf
+                                                                cache.namespace
+                                                                0 -1)))
                           (vim.schedule))))
 
 (fn reserve-highlight! [buf callback]
@@ -122,7 +122,7 @@
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col])
-           (vim/hl.range buf namespace hl-group [start-row0 start-col]
+           (vim/hl.range buf cache.namespace hl-group [start-row0 start-col]
                          [end-row end-col] hl-opts)
            (cache-old-texts buf))
         (vim.schedule))))
@@ -204,18 +204,19 @@
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col])
-           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
+           (vim.api.nvim_buf_set_extmark buf cache.namespace row0 col0
+                                         extmark-opts)
            (when ?rest-chunks
              (each [offset chunk (ipairs ?rest-chunks)]
                (set extmark-opts.virt_text chunk)
-               (vim.api.nvim_buf_set_extmark buf namespace (+ row0 offset) 0
-                                             extmark-opts)))
+               (vim.api.nvim_buf_set_extmark buf cache.namespace
+                                             (+ row0 offset) 0 extmark-opts)))
            (when ?exceeded-chunks
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines ?exceeded-chunks)
              (let [new-end-row0 (dec new-end-row)
                    row0-for-pseudo-virt_text (dec new-end-row0)]
-               (vim.api.nvim_buf_set_extmark buf namespace
+               (vim.api.nvim_buf_set_extmark buf cache.namespace
                                              row0-for-pseudo-virt_text 0
                                              extmark-opts))))
         (vim.schedule))))

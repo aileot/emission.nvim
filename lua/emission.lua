@@ -5,8 +5,7 @@ local function _2_()
 end
 local function _3_()
 end
-cache = {config = {attach_delay = 100, excluded_filetypes = {}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 400, filter = _3_}}, timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
-local namespace = vim.api.nvim_create_namespace("emission")
+cache = {config = {attach_delay = 100, excluded_filetypes = {}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 400, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 400, filter = _3_}}, namespace = vim.api.nvim_create_namespace("emission"), timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
@@ -39,7 +38,7 @@ local function dismiss_deprecated_highlight_21(buf, _6_)
   do
     local _7_ = cache["last-editing-position"]
     if ((_G.type(_7_) == "table") and (_7_[1] == start_row0) and (_7_[2] == start_col)) then
-      vim.api.nvim_buf_clear_namespace(buf, namespace, 0, -1)
+      vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
     else
       local _ = _7_
     end
@@ -57,7 +56,7 @@ local function clear_highlights_21(buf, duration)
   local function _10_()
     local function _11_()
       if vim.api.nvim_buf_is_valid(buf) then
-        return vim.api.nvim_buf_clear_namespace(buf, namespace, 0, -1)
+        return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
       else
         return nil
       end
@@ -104,7 +103,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col})
-      vim_2fhl.range(buf, namespace, hl_group, {start_row0, start_col}, {end_row, end_col}, hl_opts)
+      vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col}, {end_row, end_col}, hl_opts)
       return cache_old_texts(buf)
     else
       return nil
@@ -202,11 +201,11 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col})
-      vim.api.nvim_buf_set_extmark(buf, namespace, row0, col0, extmark_opts)
+      vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, col0, extmark_opts)
       if _3frest_chunks then
         for offset, chunk in ipairs(_3frest_chunks) do
           extmark_opts.virt_text = chunk
-          vim.api.nvim_buf_set_extmark(buf, namespace, (row0 + offset), 0, extmark_opts)
+          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (row0 + offset), 0, extmark_opts)
         end
       else
       end
@@ -215,7 +214,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         extmark_opts.virt_lines = _3fexceeded_chunks
         local new_end_row0 = dec(new_end_row)
         local row0_for_pseudo_virt_text = dec(new_end_row0)
-        return vim.api.nvim_buf_set_extmark(buf, namespace, row0_for_pseudo_virt_text, 0, extmark_opts)
+        return vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0_for_pseudo_virt_text, 0, extmark_opts)
       else
         return nil
       end
