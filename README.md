@@ -18,6 +18,10 @@ NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 <!-- TODO: Replace demo with asciinema -->
 ![recording](https://github.com/tzachar/highlight-undo.nvim/assets/4946827/81b85a3b-b563-4e97-b4e1-7a48d0d2f912)
 
+## Requirements
+
+- Neovim >= 0.10.2
+
 ## Installation
 
 Install the plugin with your favorite plugin-manger.
