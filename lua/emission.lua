@@ -185,7 +185,6 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   else
     row0 = start_row0
   end
-  local col0 = start_col0
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
   local _3frest_chunks, _3fexceeded_chunks = nil, nil
   if (nil == _3frest_line_chunks) then
@@ -203,7 +202,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
-      vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, col0, extmark_opts)
+      vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, start_col0, extmark_opts)
       if _3frest_chunks then
         for offset, chunk in ipairs(_3frest_chunks) do
           extmark_opts.virt_text = chunk

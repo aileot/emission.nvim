@@ -186,7 +186,6 @@
         row0 (if should-virt_lines-include-first-line-removed?
                  (dec start-row0)
                  start-row0)
-        col0 start-col0
         removed-end-row (+ start-row old-end-row-offset*)
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
                                             (< removed-end-row new-end-row)
@@ -209,7 +208,7 @@
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
-           (vim.api.nvim_buf_set_extmark buf cache.namespace row0 col0
+           (vim.api.nvim_buf_set_extmark buf cache.namespace row0 start-col0
                                          extmark-opts)
            (when ?rest-chunks
              (each [offset chunk (ipairs ?rest-chunks)]
