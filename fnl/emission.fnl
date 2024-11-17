@@ -266,13 +266,6 @@
   (vim.list_contains cache.config.excluded_filetypes ;
                      (. vim.bo buf :filetype)))
 
-(fn attach-buffer! [buf]
-  "Attach to `buf`. This function should not be called directly other than
-  `request-to-attach-buffer!`."
-  (tset cache.buffer->detach buf nil)
-  (cache-last-texts buf)
-  (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
-
 (fn request-to-attach-buffer! [buf]
   ;; NOTE: The option `attach_delay` helps avoid the following issues:
   ;; 1. Unexpected attaching to buffers before the filetype of a buffer is not
@@ -282,9 +275,13 @@
   ;;    BufEnter events like sequential editing with `:cdo`.
   ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
   (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
+                  (= buf (vim.api.nvim_win_get_buf 0))
                   (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
-         (attach-buffer! buf))
+         (tset cache.buffer->detach buf nil)
+         (cache-last-texts buf)
+         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
+         (assert cache.last-texts "Failed to cache lines on attaching to buffer"))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
@@ -302,8 +299,7 @@
     ;; id, `vim.api.nvim_get_hl` is additionally required.
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
     (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
-    (attach-buffer! (vim.api.nvim_get_current_buf))
-    (assert cache.last-texts "Failed to cache lines on attaching to buffer")
+    (request-to-attach-buffer! (vim.api.nvim_get_current_buf))
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buffer! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave

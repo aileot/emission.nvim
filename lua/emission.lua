@@ -263,16 +263,14 @@ end
 local function excluded_buffer_3f(buf)
   return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
-local function attach_buffer_21(buf)
-  cache["buffer->detach"][buf] = nil
-  cache_last_texts(buf)
-  return vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
-end
 local function request_to_attach_buffer_21(buf)
   local function _49_()
-    if (vim.api.nvim_buf_is_valid(buf) and not excluded_buffer_3f(buf)) then
+    if (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
-      return attach_buffer_21(buf)
+      cache["buffer->detach"][buf] = nil
+      cache_last_texts(buf)
+      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
+      return assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
     else
       return nil
     end
@@ -293,8 +291,7 @@ local function setup(opts)
   cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
-  attach_buffer_21(vim.api.nvim_get_current_buf())
-  assert(cache["last-texts"], "Failed to cache lines on attaching to buffer")
+  request_to_attach_buffer_21(vim.api.nvim_get_current_buf())
   local function _52_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
