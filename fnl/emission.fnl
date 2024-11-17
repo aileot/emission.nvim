@@ -60,22 +60,22 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
-(fn dismiss-deprecated-highlight! [buf [start-row0 start-col]]
+(fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
   "Dismiss highlights at the same position."
   (match cache.last-editing-position
-    [start-row0 start-col]
+    [start-row0 start-col0]
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
     ;; the highlights over lines to the exactness with specifying the range.
     (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
     _
     false)
-  (set cache.last-editing-position [start-row0 start-col]))
+  (set cache.last-editing-position [start-row0 start-col0]))
 
-(fn dismiss-deprecated-highlights! [buf [start-row0 start-col]]
+(fn dismiss-deprecated-highlights! [buf [start-row0 start-col0]]
   "Dismiss highlights at the same position."
   ;; TODO: (Low priority) Iterate over the changes considering the option
   ;; value continuous_editing_time.
-  (dismiss-deprecated-highlight! buf [start-row0 start-col]))
+  (dismiss-deprecated-highlight! buf [start-row0 start-col0]))
 
 (fn clear-highlights! [buf duration]
   "Clear highlights in `buf` after `duration` in milliseconds.
@@ -108,27 +108,27 @@
                           (vim.schedule))))
 
 (fn highlight-added-texts! [buf
-                            [start-row0 start-col]
+                            [start-row0 start-col0]
                             [new-end-row-offset new-end-col-offset]]
   (let [hl-group cache.hl-group.added
         num-lines (vim.api.nvim_buf_line_count buf)
         end-row (+ start-row0 new-end-row-offset)
         end-col (if (< end-row num-lines)
-                    (+ start-col new-end-col-offset)
+                    (+ start-col0 new-end-col-offset)
                     (-> (vim.api.nvim_buf_get_lines buf -2 -1 false)
                         (. 1)
                         (length)))
         hl-opts {:priority cache.config.added.priority}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! buf [start-row0 start-col])
-           (vim/hl.range buf cache.namespace hl-group [start-row0 start-col]
+           (dismiss-deprecated-highlights! buf [start-row0 start-col0])
+           (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
                          [end-row end-col] hl-opts)
            (cache-old-texts buf))
         (vim.schedule))))
 
 (fn highlight-removed-texts! [buf
-                              [start-row0 start-col]
+                              [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
   (let [hl-group cache.hl-group.removed
         old-texts (assert cache.old-texts
@@ -149,9 +149,9 @@
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. old-texts start-row)
-                               (: :sub (inc start-col)
+                               (: :sub (inc start-col0)
                                   (when (= 0 old-end-row-offset)
-                                    (+ start-col old-end-col-offset))))
+                                    (+ start-col0 old-end-col-offset))))
         ;; NOTE: The rest ?middle-removed-lines and ?last-removed-line will
         ;; compose `virt_lines`.
         ?middle-removed-lines (when (< 1 old-end-row-offset)
@@ -180,7 +180,7 @@
         row0 (if should-virt_lines-include-first-line-removed?
                  (dec start-row0)
                  start-row0)
-        col0 start-col
+        col0 start-col0
         removed-end-row (+ start-row old-end-row-offset*)
         virt_text ?first-line-chunk
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
@@ -203,7 +203,7 @@
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
-           (dismiss-deprecated-highlights! buf [start-row0 start-col])
+           (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (vim.api.nvim_buf_set_extmark buf cache.namespace row0 col0
                                          extmark-opts)
            (when ?rest-chunks
@@ -225,7 +225,7 @@
               buf
               _changedtick
               start-row0
-              start-col
+              start-col0
               _byte-offset
               old-end-row-offset
               old-end-col-offset
@@ -248,14 +248,14 @@
                      (<= old-end-col-offset new-end-col-offset)))
             (when (cache.config.added.filter buf)
               (->> (fn []
-                     (highlight-added-texts! buf [start-row0 start-col]
+                     (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
                      (clear-highlights! buf cache.config.added.duration))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
               (->> (fn []
-                     (highlight-removed-texts! buf [start-row0 start-col]
+                     (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
                      (clear-highlights! buf cache.config.removed.duration))

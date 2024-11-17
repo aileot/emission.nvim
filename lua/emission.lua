@@ -34,22 +34,22 @@ local function open_folds_at_cursor_21()
 end
 local function dismiss_deprecated_highlight_21(buf, _6_)
   local start_row0 = _6_[1]
-  local start_col = _6_[2]
+  local start_col0 = _6_[2]
   do
     local _7_ = cache["last-editing-position"]
-    if ((_G.type(_7_) == "table") and (_7_[1] == start_row0) and (_7_[2] == start_col)) then
+    if ((_G.type(_7_) == "table") and (_7_[1] == start_row0) and (_7_[2] == start_col0)) then
       vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
     else
       local _ = _7_
     end
   end
-  cache["last-editing-position"] = {start_row0, start_col}
+  cache["last-editing-position"] = {start_row0, start_col0}
   return nil
 end
 local function dismiss_deprecated_highlights_21(buf, _9_)
   local start_row0 = _9_[1]
-  local start_col = _9_[2]
-  return dismiss_deprecated_highlight_21(buf, {start_row0, start_col})
+  local start_col0 = _9_[2]
+  return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
 end
 local function clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
@@ -86,7 +86,7 @@ local function reserve_highlight_21(buf, callback)
 end
 local function highlight_added_texts_21(buf, _16_, _17_)
   local start_row0 = _16_[1]
-  local start_col = _16_[2]
+  local start_col0 = _16_[2]
   local new_end_row_offset = _17_[1]
   local new_end_col_offset = _17_[2]
   local hl_group = cache["hl-group"].added
@@ -94,7 +94,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
   local end_row = (start_row0 + new_end_row_offset)
   local end_col
   if (end_row < num_lines) then
-    end_col = (start_col + new_end_col_offset)
+    end_col = (start_col0 + new_end_col_offset)
   else
     end_col = #vim.api.nvim_buf_get_lines(buf, -2, -1, false)[1]
   end
@@ -102,8 +102,8 @@ local function highlight_added_texts_21(buf, _16_, _17_)
   local function _19_()
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
-      dismiss_deprecated_highlights_21(buf, {start_row0, start_col})
-      vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col}, {end_row, end_col}, hl_opts)
+      dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
+      vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
       return cache_old_texts(buf)
     else
       return nil
@@ -113,7 +113,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
 end
 local function highlight_removed_texts_21(buf, _21_, _22_)
   local start_row0 = _21_[1]
-  local start_col = _21_[2]
+  local start_col0 = _21_[2]
   local old_end_row_offset = _22_[1]
   local old_end_col_offset = _22_[2]
   local hl_group = cache["hl-group"].removed
@@ -134,12 +134,12 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local first_removed_line
   local function _24_()
     if (0 == old_end_row_offset) then
-      return (start_col + old_end_col_offset)
+      return (start_col0 + old_end_col_offset)
     else
       return nil
     end
   end
-  first_removed_line = old_texts[start_row]:sub(inc(start_col), _24_())
+  first_removed_line = old_texts[start_row]:sub(inc(start_col0), _24_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
     _3fmiddle_removed_lines = vim.list_slice(old_texts, inc(start_row), removed_end_row)
@@ -182,7 +182,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   else
     row0 = start_row0
   end
-  local col0 = start_col
+  local col0 = start_col0
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
   local virt_text = _3ffirst_line_chunk
   local _3frest_chunks, _3fexceeded_chunks = nil, nil
@@ -200,7 +200,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local function _33_()
     if vim.api.nvim_buf_is_valid(buf) then
       open_folds_at_cursor_21()
-      dismiss_deprecated_highlights_21(buf, {start_row0, start_col})
+      dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, col0, extmark_opts)
       if _3frest_chunks then
         for offset, chunk in ipairs(_3frest_chunks) do
@@ -224,7 +224,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   end
   return vim.schedule(_33_)
 end
-local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
+local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][buf] then
     clear_highlights_21(buf, 0)
     cache["buffer->detach"][buf] = nil
@@ -234,7 +234,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
       if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
         if cache.config.added.filter(buf) then
           local function _37_()
-            highlight_added_texts_21(buf, {start_row0, start_col}, {new_end_row_offset, new_end_col_offset})
+            highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
             return clear_highlights_21(buf, cache.config.added.duration)
           end
           reserve_highlight_21(buf, _37_)
@@ -243,7 +243,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col,
       else
         if cache.config.removed.filter(buf) then
           local function _39_()
-            highlight_removed_texts_21(buf, {start_row0, start_col}, {old_end_row_offset, old_end_col_offset})
+            highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
             return clear_highlights_21(buf, cache.config.removed.duration)
           end
           reserve_highlight_21(buf, _39_)
