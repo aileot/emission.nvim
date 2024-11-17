@@ -149,8 +149,8 @@
         current-last-row (vim.api.nvim_buf_line_count buf)
         end-of-file-removed? (< current-last-row removed-last-row)
         first-line-removed? (< 0 start-row0)
-        should-virt_lines-include-first-line-removed? (and end-of-file-removed?
-                                                           first-line-removed?)
+        should-virt_lines-include-first-line-removed? (and first-line-removed?
+                                                           end-of-file-removed?)
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. last-texts start-row)
