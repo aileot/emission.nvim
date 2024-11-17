@@ -303,7 +303,7 @@
     ;; id, `vim.api.nvim_get_hl` is additionally required.
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
     (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
-    (attach-buffer! (vim.api.nvim_get_current_buf))
+    (request-to-attach-buffer! (vim.api.nvim_get_current_buf))
     (assert cache.last-texts "Failed to cache lines on attaching to buffer")
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buffer! $.buf)})
