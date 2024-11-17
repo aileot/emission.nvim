@@ -23,7 +23,7 @@
               :attached-buffer nil
               :buffer->detach {}
               :last-recache-time 0
-              :last-texts nil})
+              :old-texts nil})
 
 (local namespace (vim.api.nvim_create_namespace :emission))
 
@@ -39,14 +39,14 @@
 (fn dec [x]
   (- x 1))
 
-(fn cache-last-texts [buf]
+(fn cache-old-texts [buf]
   (let [now (vim.uv.now)]
     (when (or (not= buf cache.attached-buffer)
               (< cache.config.highlight_delay (- now cache.last-recache-time)))
       ;; NOTE: highlight_delay for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
-      (set cache.last-texts ;
+      (set cache.old-texts ;
            (vim.api.nvim_buf_get_lines buf 0 -1 false))
       (set cache.attached-buffer buf))))
 
@@ -124,15 +124,15 @@
            (dismiss-deprecated-highlights! buf [start-row0 start-col])
            (vim/hl.range buf namespace hl-group [start-row0 start-col]
                          [end-row end-col] hl-opts)
-           (cache-last-texts buf))
+           (cache-old-texts buf))
         (vim.schedule))))
 
 (fn highlight-removed-texts! [buf
                               [start-row0 start-col]
                               [old-end-row-offset old-end-col-offset]]
   (let [hl-group cache.hl-group.removed
-        last-texts (assert cache.last-texts
-                           "expected string[], got `nil `or `false`")
+        old-texts (assert cache.old-texts
+                          "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
         ends-with-newline? (= 0 old-end-col-offset)
         old-end-row-offset* (if ends-with-newline?
@@ -140,29 +140,29 @@
                                 ;; an extra offset.
                                 (dec old-end-row-offset)
                                 old-end-row-offset)
-        removed-last-row (+ start-row old-end-row-offset*)
-        current-last-row (vim.api.nvim_buf_line_count buf)
-        end-of-file-removed? (< current-last-row removed-last-row)
+        removed-end-row (+ start-row old-end-row-offset*)
+        new-end-row (vim.api.nvim_buf_line_count buf)
+        end-of-file-removed? (< new-end-row removed-end-row)
         first-line-removed? (< 0 start-row0)
         should-virt_lines-include-first-line-removed? (and first-line-removed?
                                                            end-of-file-removed?)
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
-        first-removed-line (-> (. last-texts start-row)
+        first-removed-line (-> (. old-texts start-row)
                                (: :sub (inc start-col)
                                   (when (= 0 old-end-row-offset)
                                     (+ start-col old-end-col-offset))))
         ;; NOTE: The rest ?middle-removed-lines and ?last-removed-line will
         ;; compose `virt_lines`.
         ?middle-removed-lines (when (< 1 old-end-row-offset)
-                                (vim.list_slice last-texts (inc start-row)
-                                                removed-last-row))
+                                (vim.list_slice old-texts (inc start-row)
+                                                removed-end-row))
         ?last-removed-line (when (and (< 0 old-end-row-offset)
                                       ;; NOTE: When col-offset is 0, the last
                                       ;; row is only composed by a `\n`, which
                                       ;; should not be counted.
                                       (< 0 old-end-col-offset))
-                             (-> (. last-texts removed-last-row)
+                             (-> (. old-texts removed-end-row)
                                  (: :sub 1 old-end-col-offset)))
         ?first-line-chunk (when-not should-virt_lines-include-first-line-removed?
                             [[first-removed-line hl-group]])
@@ -181,18 +181,16 @@
                  (dec start-row0)
                  start-row0)
         col0 start-col
-        removed-last-row (+ start-row old-end-row-offset*)
+        removed-end-row (+ start-row old-end-row-offset*)
         virt_text ?first-line-chunk
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
-                                            (< removed-last-row
-                                               current-last-row)
+                                            (< removed-end-row new-end-row)
                                             (values ?rest-line-chunks nil)
-                                            (= removed-last-row
-                                               current-last-row)
+                                            (= removed-end-row new-end-row)
                                             (values nil ?rest-line-chunks)
                                             (let [offset (-> old-end-row-offset*
-                                                             (+ current-last-row)
-                                                             (- removed-last-row))]
+                                                             (+ new-end-row)
+                                                             (- removed-end-row))]
                                               (values (-> ?rest-line-chunks
                                                           (vim.list_slice 1
                                                                           offset))
@@ -215,9 +213,11 @@
            (when ?exceeded-chunks
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines ?exceeded-chunks)
-             (let [current-last-row0 (dec current-last-row)
-                   row0 (dec current-last-row0)]
-               (vim.api.nvim_buf_set_extmark buf namespace row0 0 extmark-opts))))
+             (let [new-end-row0 (dec new-end-row)
+                   row0-for-pseudo-virt_text (dec new-end-row0)]
+               (vim.api.nvim_buf_set_extmark buf namespace
+                                             row0-for-pseudo-virt_text 0
+                                             extmark-opts))))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
@@ -279,10 +279,9 @@
                   (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
          (tset cache.buffer->detach buf nil)
-         (cache-last-texts buf)
+         (cache-old-texts buf)
          (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-         (assert cache.last-texts
-                 "Failed to cache lines on attaching to buffer"))
+         (assert cache.old-texts "Failed to cache lines on attaching to buffer"))
       (vim.defer_fn cache.config.attach_delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
