@@ -181,32 +181,43 @@
                  (dec start-row0)
                  start-row0)
         col0 start-col
+        removed-last-row (+ start-row old-end-row-offset*)
         virt_text ?first-line-chunk
-        virt_lines ?rest-line-chunks
+        (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
+                                            (< removed-last-row
+                                               current-last-row)
+                                            (values ?rest-line-chunks nil)
+                                            (= removed-last-row
+                                               current-last-row)
+                                            (values nil ?rest-line-chunks)
+                                            (let [offset (-> old-end-row-offset*
+                                                             (+ current-last-row)
+                                                             (- removed-last-row))]
+                                              (values (-> ?rest-line-chunks
+                                                          (vim.list_slice 1
+                                                                          offset))
+                                                      (-> ?rest-line-chunks
+                                                          (vim.list_slice (inc offset))))))
         extmark-opts {:hl_eol true
                       :strict false
                       : virt_text
-                      : virt_lines
                       :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
     (-> #(when (vim.api.nvim_buf_is_valid buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col])
-           ;; FIXME: Leave virt_lines to be out of the actual buffer lines.
-           (if (= row0 start-row0)
-               (do
-                 (set extmark-opts.virt_lines nil)
-                 (vim.api.nvim_buf_set_extmark buf namespace row0 col0
-                                               extmark-opts)
-                 (case (and virt_lines (length virt_lines))
-                   (where new-end-row-offset (< 0 new-end-row-offset))
-                   (for [offset 1 new-end-row-offset]
-                     (set extmark-opts.virt_text (. virt_lines offset))
-                     (vim.api.nvim_buf_set_extmark buf namespace
-                                                   (+ row0 offset) 0
-                                                   extmark-opts))))
-               (vim.api.nvim_buf_set_extmark buf namespace row0 col0
+           (vim.api.nvim_buf_set_extmark buf namespace row0 col0 extmark-opts)
+           (when ?rest-chunks
+             (each [offset chunk (ipairs ?rest-chunks)]
+               (set extmark-opts.virt_text chunk)
+               (vim.api.nvim_buf_set_extmark buf namespace (+ row0 offset) 0
                                              extmark-opts)))
+           (when ?exceeded-chunks
+             (set extmark-opts.virt_text nil)
+             (set extmark-opts.virt_lines ?exceeded-chunks)
+             (let [current-last-row0 (dec current-last-row)
+                   row0 (dec current-last-row0)]
+               (vim.api.nvim_buf_set_extmark buf namespace row0 0 extmark-opts))))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
