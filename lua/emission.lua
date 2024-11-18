@@ -191,9 +191,9 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         table.insert(rest_chunks, 1, _3ffirst_line_chunk)
       end
       if next(rest_chunks) then
-        for offset, chunk in ipairs(rest_chunks) do
+        for i, chunk in ipairs(rest_chunks) do
           extmark_opts.virt_text = chunk
-          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + offset), 0, extmark_opts)
+          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + i), 0, extmark_opts)
         end
       else
       end

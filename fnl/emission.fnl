@@ -209,11 +209,10 @@
                ;; make sure rest-chunks is not nil, but a sequence.
                (table.insert rest-chunks 1 ?first-line-chunk))
            (when (next rest-chunks)
-             (each [offset chunk (ipairs rest-chunks)]
+             (each [i chunk (ipairs rest-chunks)]
                (set extmark-opts.virt_text chunk)
                (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             (+ start-row0 offset) 0
-                                             extmark-opts)))
+                                             (+ start-row0 i) 0 extmark-opts)))
            (when ?exceeded-chunks
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines ?exceeded-chunks)
