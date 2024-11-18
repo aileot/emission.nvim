@@ -58,7 +58,7 @@ local function clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
   local function _10_()
     local function _11_()
-      if vim.api.nvim_buf_is_valid(buf) then
+      if buf_has_cursor_3f(buf) then
         return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
       else
         return nil
@@ -73,7 +73,7 @@ local function reserve_highlight_21(buf, callback)
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local function _13_()
     local function _14_()
-      if ((buf == cache["attached-buffer"]) and vim.api.nvim_buf_is_valid(buf)) then
+      if ((buf == cache["attached-buffer"]) and buf_has_cursor_3f(buf)) then
         while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
           local cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
           cb()
@@ -103,7 +103,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
   end
   local hl_opts = {priority = cache.config.added.priority}
   local function _19_()
-    if vim.api.nvim_buf_is_valid(buf) then
+    if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
@@ -201,7 +201,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   end
   local extmark_opts = {hl_eol = true, virt_text = virt_text, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _33_()
-    if vim.api.nvim_buf_is_valid(buf) then
+    if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, col0, extmark_opts)
@@ -233,7 +233,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     cache["buffer->detach"][buf] = nil
     return true
   else
-    if vim.api.nvim_buf_is_valid(buf) then
+    if buf_has_cursor_3f(buf) then
       if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
         if cache.config.added.filter(buf) then
           local function _37_()

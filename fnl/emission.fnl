@@ -90,7 +90,7 @@
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
-                            (when (vim.api.nvim_buf_is_valid buf)
+                            (when (buf-has-cursor? buf)
                               (vim.api.nvim_buf_clear_namespace buf
                                                                 cache.namespace
                                                                 0 -1)))
@@ -107,7 +107,7 @@
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
                             (when (and (= buf cache.attached-buffer)
-                                       (vim.api.nvim_buf_is_valid buf))
+                                       (buf-has-cursor? buf))
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
                                   (cb)))))
@@ -125,7 +125,7 @@
                         (. 1)
                         (length)))
         hl-opts {:priority cache.config.added.priority}]
-    (-> #(when (vim.api.nvim_buf_is_valid buf)
+    (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
@@ -207,7 +207,7 @@
                       : virt_text
                       :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
-    (-> #(when (vim.api.nvim_buf_is_valid buf)
+    (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (vim.api.nvim_buf_set_extmark buf cache.namespace row0 col0
@@ -248,7 +248,7 @@
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buffer->detach` value.
-      (when (vim.api.nvim_buf_is_valid buf)
+      (when (buf-has-cursor? buf)
         (if (or (< old-end-row-offset new-end-row-offset)
                 (and (= 0 old-end-row-offset new-end-row-offset)
                      (<= old-end-col-offset new-end-col-offset)))
