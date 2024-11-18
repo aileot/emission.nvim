@@ -170,8 +170,7 @@
                                       (< 0 old-end-col-offset))
                              (-> (. old-texts removed-end-row)
                                  (: :sub 1 old-end-col-offset)))
-        ?first-line-chunk (when-not can-virt_text-display-first-line-removed?
-                            [[first-removed-line hl-group]])
+        ?first-line-chunk [[first-removed-line hl-group]]
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
                                 (table.insert ?middle-removed-lines
@@ -180,12 +179,6 @@
                                      (vim.tbl_map #[[$ hl-group]])))
                               ?last-removed-line
                               [[[?last-removed-line hl-group]]])
-        _ (when (and can-virt_text-display-first-line-removed?
-                     ?rest-line-chunks)
-            (table.insert ?rest-line-chunks 1 [[first-removed-line hl-group]]))
-        row0 (if can-virt_text-display-first-line-removed?
-                 start-row0
-                 (dec start-row0))
         removed-end-row (+ start-row old-end-row-offset*)
         (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
                                             (< removed-end-row new-end-row)
@@ -208,13 +201,16 @@
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
-           (vim.api.nvim_buf_set_extmark buf cache.namespace row0 start-col0
-                                         extmark-opts)
+           (if can-virt_text-display-first-line-removed?
+               (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
+                                             start-col0 extmark-opts)
+               (table.insert ?rest-chunks 1 ?first-line-chunk))
            (when ?rest-chunks
              (each [offset chunk (ipairs ?rest-chunks)]
                (set extmark-opts.virt_text chunk)
                (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             (+ row0 offset) 0 extmark-opts)))
+                                             (+ start-row0 offset) 0
+                                             extmark-opts)))
            (when ?exceeded-chunks
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines ?exceeded-chunks)
