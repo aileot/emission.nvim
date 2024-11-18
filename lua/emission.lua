@@ -169,14 +169,14 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     _3frest_line_chunks = nil
   end
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
-  local rest_chunks, _3fexceeded_chunks = nil, nil
+  local fitted_chunks, exceeded_chunks = nil, nil
   if (nil == _3frest_line_chunks) then
-    rest_chunks, _3fexceeded_chunks = {}, nil
+    fitted_chunks, exceeded_chunks = {}, {}
   elseif (removed_end_row0 < new_end_row) then
-    rest_chunks, _3fexceeded_chunks = _3frest_line_chunks, nil
+    fitted_chunks, exceeded_chunks = _3frest_line_chunks, {}
   else
     local offset = (new_end_row - start_row)
-    rest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
+    fitted_chunks, exceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
   local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _30_()
@@ -185,19 +185,21 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       if can_virt_text_display_first_line_removed_3f then
         vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
+      elseif next(fitted_chunks) then
+        table.insert(fitted_chunks, 1, _3ffirst_line_chunk)
       else
-        table.insert(rest_chunks, 1, _3ffirst_line_chunk)
+        table.insert(exceeded_chunks, 1, _3ffirst_line_chunk)
       end
-      if next(rest_chunks) then
-        for i, chunk in ipairs(rest_chunks) do
+      if next(fitted_chunks) then
+        for i, chunk in ipairs(fitted_chunks) do
           extmark_opts.virt_text = chunk
           vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + i), 0, extmark_opts)
         end
       else
       end
-      if _3fexceeded_chunks then
+      if next(exceeded_chunks) then
         extmark_opts.virt_text = nil
-        extmark_opts.virt_lines = _3fexceeded_chunks
+        extmark_opts.virt_lines = exceeded_chunks
         local new_end_row0 = dec(new_end_row)
         local row0_for_pseudo_virt_text = dec(new_end_row0)
         return vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0_for_pseudo_virt_text, 0, extmark_opts)
