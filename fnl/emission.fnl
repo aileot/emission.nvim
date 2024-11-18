@@ -180,19 +180,20 @@
                               ?last-removed-line
                               [[[?last-removed-line hl-group]]])
         removed-end-row (+ start-row old-end-row-offset*)
-        (?rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks) nil
-                                            (< removed-end-row new-end-row)
-                                            (values ?rest-line-chunks nil)
-                                            (= removed-end-row new-end-row)
-                                            (values nil ?rest-line-chunks)
-                                            (let [offset (-> old-end-row-offset*
-                                                             (+ new-end-row)
-                                                             (- removed-end-row))]
-                                              (values (-> ?rest-line-chunks
-                                                          (vim.list_slice 1
-                                                                          offset))
-                                                      (-> ?rest-line-chunks
-                                                          (vim.list_slice (inc offset))))))
+        (rest-chunks ?exceeded-chunks) (if (= nil ?rest-line-chunks)
+                                           (values [] nil)
+                                           (< removed-end-row new-end-row)
+                                           (values ?rest-line-chunks nil)
+                                           (= removed-end-row new-end-row)
+                                           (values [] ?rest-line-chunks)
+                                           (let [offset (-> old-end-row-offset*
+                                                            (+ new-end-row)
+                                                            (- removed-end-row))]
+                                             (values (-> ?rest-line-chunks
+                                                         (vim.list_slice 1
+                                                                         offset))
+                                                     (-> ?rest-line-chunks
+                                                         (vim.list_slice (inc offset))))))
         extmark-opts {:hl_eol true
                       :strict false
                       :virt_text ?first-line-chunk
@@ -204,9 +205,11 @@
            (if can-virt_text-display-first-line-removed?
                (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
                                              start-col0 extmark-opts)
-               (table.insert ?rest-chunks 1 ?first-line-chunk))
-           (when ?rest-chunks
-             (each [offset chunk (ipairs ?rest-chunks)]
+               ;; NOTE: To insert first chunk here with few manipulations,
+               ;; make sure rest-chunks is not nil, but a sequence.
+               (table.insert rest-chunks 1 ?first-line-chunk))
+           (when (next rest-chunks)
+             (each [offset chunk (ipairs rest-chunks)]
                (set extmark-opts.virt_text chunk)
                (vim.api.nvim_buf_set_extmark buf cache.namespace
                                              (+ start-row0 offset) 0

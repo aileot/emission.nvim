@@ -169,16 +169,16 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     _3frest_line_chunks = nil
   end
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
-  local _3frest_chunks, _3fexceeded_chunks = nil, nil
+  local rest_chunks, _3fexceeded_chunks = nil, nil
   if (nil == _3frest_line_chunks) then
-    _3frest_chunks, _3fexceeded_chunks = nil
+    rest_chunks, _3fexceeded_chunks = {}, nil
   elseif (removed_end_row0 < new_end_row) then
-    _3frest_chunks, _3fexceeded_chunks = _3frest_line_chunks, nil
+    rest_chunks, _3fexceeded_chunks = _3frest_line_chunks, nil
   elseif (removed_end_row0 == new_end_row) then
-    _3frest_chunks, _3fexceeded_chunks = nil, _3frest_line_chunks
+    rest_chunks, _3fexceeded_chunks = {}, _3frest_line_chunks
   else
     local offset = ((old_end_row_offset_2a + new_end_row) - removed_end_row0)
-    _3frest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
+    rest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
   local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _30_()
@@ -188,10 +188,10 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
       if can_virt_text_display_first_line_removed_3f then
         vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
       else
-        table.insert(_3frest_chunks, 1, _3ffirst_line_chunk)
+        table.insert(rest_chunks, 1, _3ffirst_line_chunk)
       end
-      if _3frest_chunks then
-        for offset, chunk in ipairs(_3frest_chunks) do
+      if next(rest_chunks) then
+        for offset, chunk in ipairs(rest_chunks) do
           extmark_opts.virt_text = chunk
           vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + offset), 0, extmark_opts)
         end
