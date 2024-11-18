@@ -174,10 +174,8 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
     rest_chunks, _3fexceeded_chunks = {}, nil
   elseif (removed_end_row0 < new_end_row) then
     rest_chunks, _3fexceeded_chunks = _3frest_line_chunks, nil
-  elseif (removed_end_row0 == new_end_row) then
-    rest_chunks, _3fexceeded_chunks = {}, _3frest_line_chunks
   else
-    local offset = ((old_end_row_offset_2a + new_end_row) - removed_end_row0)
+    local offset = (new_end_row - start_row)
     rest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
   local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}

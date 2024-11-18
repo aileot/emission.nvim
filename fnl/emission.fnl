@@ -184,11 +184,8 @@
                                            (values [] nil)
                                            (< removed-end-row new-end-row)
                                            (values ?rest-line-chunks nil)
-                                           (= removed-end-row new-end-row)
-                                           (values [] ?rest-line-chunks)
-                                           (let [offset (-> old-end-row-offset*
-                                                            (+ new-end-row)
-                                                            (- removed-end-row))]
+                                           (let [offset (- new-end-row
+                                                           start-row)]
                                              (values (-> ?rest-line-chunks
                                                          (vim.list_slice 1
                                                                          offset))
