@@ -132,8 +132,8 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local removed_end_row = (start_row + old_end_row_offset_2a)
   local new_end_row = vim.api.nvim_buf_line_count(buf)
   local end_of_file_removed_3f = (new_end_row < removed_end_row)
-  local first_line_removed_3f = (0 < start_row0)
-  local should_virt_lines_include_first_line_removed_3f = (first_line_removed_3f and end_of_file_removed_3f)
+  local first_buf_line_removed_3f = (0 == start_row0)
+  local can_virt_text_display_first_line_removed_3f = (not first_buf_line_removed_3f or not end_of_file_removed_3f)
   local first_removed_line
   local function _24_()
     if (0 == old_end_row_offset) then
@@ -155,66 +155,51 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   else
     _3flast_removed_line = nil
   end
-  local _3ffirst_line_chunk
-  if not should_virt_lines_include_first_line_removed_3f then
-    _3ffirst_line_chunk = {{first_removed_line, hl_group}}
-  else
-    _3ffirst_line_chunk = nil
-  end
+  local _3ffirst_line_chunk = {{first_removed_line, hl_group}}
   local _3frest_line_chunks
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-    local function _28_(_241)
+    local function _27_(_241)
       return {{_241, hl_group}}
     end
-    _3frest_line_chunks = vim.tbl_map(_28_, _3fmiddle_removed_lines)
+    _3frest_line_chunks = vim.tbl_map(_27_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
     _3frest_line_chunks = nil
   end
-  local _
-  if (should_virt_lines_include_first_line_removed_3f and _3frest_line_chunks) then
-    _ = table.insert(_3frest_line_chunks, 1, {{first_removed_line, hl_group}})
-  else
-    _ = nil
-  end
-  local row0
-  if should_virt_lines_include_first_line_removed_3f then
-    row0 = dec(start_row0)
-  else
-    row0 = start_row0
-  end
-  local col0 = start_col0
   local removed_end_row0 = (start_row + old_end_row_offset_2a)
-  local virt_text = _3ffirst_line_chunk
-  local _3frest_chunks, _3fexceeded_chunks = nil, nil
+  local fitted_chunks, exceeded_chunks = nil, nil
   if (nil == _3frest_line_chunks) then
-    _3frest_chunks, _3fexceeded_chunks = nil
+    fitted_chunks, exceeded_chunks = {}, {}
   elseif (removed_end_row0 < new_end_row) then
-    _3frest_chunks, _3fexceeded_chunks = _3frest_line_chunks, nil
-  elseif (removed_end_row0 == new_end_row) then
-    _3frest_chunks, _3fexceeded_chunks = nil, _3frest_line_chunks
+    fitted_chunks, exceeded_chunks = _3frest_line_chunks, {}
   else
-    local offset = ((old_end_row_offset_2a + new_end_row) - removed_end_row0)
-    _3frest_chunks, _3fexceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
+    local offset = (new_end_row - start_row)
+    fitted_chunks, exceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
-  local extmark_opts = {hl_eol = true, virt_text = virt_text, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
-  local function _33_()
+  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
+  local function _30_()
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
-      vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, col0, extmark_opts)
-      if _3frest_chunks then
-        for offset, chunk in ipairs(_3frest_chunks) do
+      if can_virt_text_display_first_line_removed_3f then
+        vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
+      elseif next(fitted_chunks) then
+        table.insert(fitted_chunks, 1, _3ffirst_line_chunk)
+      else
+        table.insert(exceeded_chunks, 1, _3ffirst_line_chunk)
+      end
+      if next(fitted_chunks) then
+        for i, chunk in ipairs(fitted_chunks) do
           extmark_opts.virt_text = chunk
-          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (row0 + offset), 0, extmark_opts)
+          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + i), 0, extmark_opts)
         end
       else
       end
-      if _3fexceeded_chunks then
+      if next(exceeded_chunks) then
         extmark_opts.virt_text = nil
-        extmark_opts.virt_lines = _3fexceeded_chunks
+        extmark_opts.virt_lines = exceeded_chunks
         local new_end_row0 = dec(new_end_row)
         local row0_for_pseudo_virt_text = dec(new_end_row0)
         return vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0_for_pseudo_virt_text, 0, extmark_opts)
@@ -225,7 +210,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
       return nil
     end
   end
-  return vim.schedule(_33_)
+  return vim.schedule(_30_)
 end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, _old_end_byte_offset, new_end_row_offset, new_end_col_offset, _new_end_byte_offset)
   if cache["buffer->detach"][buf] then
@@ -236,20 +221,20 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     if buf_has_cursor_3f(buf) then
       if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
         if cache.config.added.filter(buf) then
-          local function _37_()
+          local function _35_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
             return clear_highlights_21(buf, cache.config.added.duration)
           end
-          reserve_highlight_21(buf, _37_)
+          reserve_highlight_21(buf, _35_)
         else
         end
       else
         if cache.config.removed.filter(buf) then
-          local function _39_()
+          local function _37_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
             return clear_highlights_21(buf, cache.config.removed.duration)
           end
-          reserve_highlight_21(buf, _39_)
+          reserve_highlight_21(buf, _37_)
         else
         end
       end
@@ -263,7 +248,7 @@ local function excluded_buffer_3f(buf)
   return vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype)
 end
 local function request_to_attach_buffer_21(buf)
-  local function _44_()
+  local function _42_()
     if (buf_has_cursor_3f(buf) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
       cache["buffer->detach"][buf] = nil
@@ -274,7 +259,7 @@ local function request_to_attach_buffer_21(buf)
       return nil
     end
   end
-  vim.defer_fn(_44_, cache.config.attach_delay)
+  vim.defer_fn(_42_, cache.config.attach_delay)
   return nil
 end
 local function request_to_detach_buffer_21(buf)
@@ -291,13 +276,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buffer_21(vim.api.nvim_get_current_buf())
-  local function _47_(_241)
+  local function _45_(_241)
     return request_to_attach_buffer_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _47_})
-  local function _48_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _45_})
+  local function _46_(_241)
     return request_to_detach_buffer_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _48_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
 end
 return {setup = setup}
