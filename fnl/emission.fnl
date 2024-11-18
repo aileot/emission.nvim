@@ -38,6 +38,12 @@
 (fn dec [x]
   (- x 1))
 
+(fn buf-has-cursor? [buf]
+  ;; NOTE: Typically avoid atttaching to scratch buffers created in background
+  ;; by some plugins.
+  (and (vim.api.nvim_buf_is_valid buf) ;
+       (= buf (vim.api.nvim_win_get_buf 0))))
+
 (fn cache-old-texts [buf]
   (let [now (vim.uv.now)]
     (when (or (not= buf cache.attached-buffer)
@@ -275,8 +281,7 @@
   ;; 2. Extra attaching attempts to a series of buffers with rapid firing
   ;;    BufEnter events like sequential editing with `:cdo`.
   ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
-  (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
-                  (= buf (vim.api.nvim_win_get_buf 0))
+  (-> #(when (and (buf-has-cursor? buf) ;
                   (not (excluded-buffer? buf)))
          (set cache.attached-buffer buf)
          (tset cache.buffer->detach buf nil)

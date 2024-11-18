@@ -13,6 +13,9 @@ end
 local function dec(x)
   return (x - 1)
 end
+local function buf_has_cursor_3f(buf)
+  return (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)))
+end
 local function cache_old_texts(buf)
   local now = vim.uv.now()
   if ((buf ~= cache["attached-buffer"]) or (cache.config.highlight_delay < (now - cache["last-recache-time"]))) then
@@ -261,7 +264,7 @@ local function excluded_buffer_3f(buf)
 end
 local function request_to_attach_buffer_21(buf)
   local function _44_()
-    if (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)) and not excluded_buffer_3f(buf)) then
+    if (buf_has_cursor_3f(buf) and not excluded_buffer_3f(buf)) then
       cache["attached-buffer"] = buf
       cache["buffer->detach"][buf] = nil
       cache_old_texts(buf)
