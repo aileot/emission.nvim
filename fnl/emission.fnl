@@ -149,8 +149,8 @@
         removed-end-row (+ start-row old-end-row-offset*)
         new-end-row (vim.api.nvim_buf_line_count buf)
         end-of-file-removed? (< new-end-row removed-end-row)
-        first-line-removed? (= 0 start-row0)
-        can-virt_text-display-first-line-removed? (or (not first-line-removed?)
+        first-buf-line-removed? (= 0 start-row0)
+        can-virt_text-display-first-line-removed? (or (not first-buf-line-removed?)
                                                       (not end-of-file-removed?))
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
