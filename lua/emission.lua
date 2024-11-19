@@ -131,9 +131,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   end
   local removed_end_row = (start_row + old_end_row_offset_2a)
   local new_end_row = vim.api.nvim_buf_line_count(buf)
-  local end_of_file_removed_3f = (new_end_row < removed_end_row)
-  local first_buf_line_removed_3f = (0 == start_row0)
-  local can_virt_text_display_first_line_removed_3f = (not first_buf_line_removed_3f or not end_of_file_removed_3f)
+  local can_virt_text_display_first_line_removed_3f = (start_row0 < new_end_row)
   local first_removed_line
   local function _24_()
     if (0 == old_end_row_offset) then
@@ -201,8 +199,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         extmark_opts.virt_text = nil
         extmark_opts.virt_lines = exceeded_chunks
         local new_end_row0 = dec(new_end_row)
-        local row0_for_pseudo_virt_text = dec(new_end_row0)
-        return vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0_for_pseudo_virt_text, 0, extmark_opts)
+        return vim.api.nvim_buf_set_extmark(buf, cache.namespace, new_end_row0, 0, extmark_opts)
       else
         return nil
       end

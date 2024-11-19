@@ -148,10 +148,7 @@
                                 old-end-row-offset)
         removed-end-row (+ start-row old-end-row-offset*)
         new-end-row (vim.api.nvim_buf_line_count buf)
-        end-of-file-removed? (< new-end-row removed-end-row)
-        first-buf-line-removed? (= 0 start-row0)
-        can-virt_text-display-first-line-removed? (or (not first-buf-line-removed?)
-                                                      (not end-of-file-removed?))
+        can-virt_text-display-first-line-removed? (< start-row0 new-end-row)
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. old-texts start-row)
@@ -215,10 +212,9 @@
            (when (next exceeded-chunks)
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines exceeded-chunks)
-             (let [new-end-row0 (dec new-end-row)
-                   row0-for-pseudo-virt_text (dec new-end-row0)]
+             (let [new-end-row0 (dec new-end-row)]
                (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             row0-for-pseudo-virt_text 0
+                                             new-end-row0 0
                                              extmark-opts))))
         (vim.schedule))))
 
