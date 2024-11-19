@@ -7,13 +7,13 @@
                                         :fg "#dcd7ba"
                                         :bg "#2d4f67"}
                                :priority 102
-                               :duration 400
+                               :duration 300
                                :filter (fn [])}
                        :removed {:hl_map {:default true
                                           :fg "#dcd7ba"
                                           :bg "#672d2d"}
                                  :priority 101
-                                 :duration 400
+                                 :duration 300
                                  :filter (fn [])}}
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer (vim.uv.new_timer)
