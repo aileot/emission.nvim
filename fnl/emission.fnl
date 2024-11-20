@@ -25,8 +25,8 @@
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
               :last-editing-position [0 0]
-              :attached-buffer nil
-              :buffer->detach {}
+              :attached-buf nil
+              :buf->detach {}
               :last-recache-time 0
               :old-texts nil})
 
@@ -43,21 +43,21 @@
   (- x 1))
 
 (fn buf-has-cursor? [buf]
-  ;; NOTE: Typically avoid atttaching to scratch buffers created in background
+  ;; NOTE: Typically avoid atttaching to scratch bufs created in background
   ;; by some plugins.
   (and (vim.api.nvim_buf_is_valid buf) ;
        (= buf (vim.api.nvim_win_get_buf 0))))
 
 (fn cache-old-texts [buf]
   (let [now (vim.uv.now)]
-    (when (or (not= buf cache.attached-buffer)
+    (when (or (not= buf cache.attached-buf)
               (< cache.config.highlight_delay (- now cache.last-recache-time)))
       ;; NOTE: highlight_delay for multi-line editing which sequentially
       ;; calls `on_bytes` line by line like `:substitute`.
       (set cache.last-recache-time now)
       (set cache.old-texts ;
            (vim.api.nvim_buf_get_lines buf 0 -1 false))
-      (set cache.attached-buffer buf))))
+      (set cache.attached-buf buf))))
 
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -110,7 +110,7 @@
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
-                            (when (and (= buf cache.attached-buffer)
+                            (when (and (= buf cache.attached-buf)
                                        (buf-has-cursor? buf))
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
@@ -233,15 +233,15 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  (if (. cache.buffer->detach buf) ;
+  (if (. cache.buf->detach buf) ;
       (do
-        ;; Make sure to clear highlights on the detached buffer.
+        ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
-        (tset cache.buffer->detach buf nil)
+        (tset cache.buf->detach buf nil)
         ;; NOTE: Return a truthy value to detach.
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
-      ;; check to detach should only be managed by `buffer->detach` value.
+      ;; check to detach should only be managed by `buf->detach` value.
       (when (buf-has-cursor? buf)
         (if (or (< old-end-row-offset new-end-row-offset)
                 (and (= 0 old-end-row-offset new-end-row-offset)
@@ -263,27 +263,27 @@
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
 
-(fn excluded-buffer? [buf]
+(fn excluded-buf? [buf]
   (or (vim.list_contains cache.config.attach.excluded_buftypes
                          (. vim.bo buf :buftype))
       (vim.list_contains cache.config.attach.excluded_filetypes
                          (. vim.bo buf :filetype))))
 
-(fn request-to-attach-buffer! [buf]
+(fn request-to-attach-buf! [buf]
   ;; NOTE: The option `attach.delay` helps avoid the following issues:
-  ;; 1. Unexpected attaching to buffers before the filetype of a buffer is not
+  ;; 1. Unexpected attaching to bufs before the filetype of a buf is not
   ;;    determined; the event fired order of FileType and BufEnter is not
   ;;    guaranteed.
-  ;; 2. Extra attaching attempts to a series of buffers with rapid firing
+  ;; 2. Extra attaching attempts to a series of bufs with rapid firing
   ;;    BufEnter events like sequential editing with `:cdo`.
-  ;; 3. Extra attaching attempts to scratch buffers created in background by
+  ;; 3. Extra attaching attempts to scratch bufs created in background by
   ;;    such plugins as formatters, linters, and completions, though they
   ;;    should be efficiently excluded by `excluded_buftypes`.
-  ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
+  ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
   (-> #(when (and (buf-has-cursor? buf) ;
-                  (not (excluded-buffer? buf)))
-         (set cache.attached-buffer buf)
-         (tset cache.buffer->detach buf nil)
+                  (not (excluded-buf? buf)))
+         (set cache.attached-buf buf)
+         (tset cache.buf->detach buf nil)
          (cache-old-texts buf)
          (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
          (assert cache.old-texts "Failed to cache lines on attaching to buffer"))
@@ -292,10 +292,10 @@
   ;; deletion with any future updates.
   nil)
 
-(fn request-to-detach-buffer! [buf]
-  ;; NOTE: On neovim 0.10.2, there is no function to detach buffer directly.
-  (when-not (= buf cache.attached-buffer)
-    (tset cache.buffer->detach buf true)))
+(fn request-to-detach-buf! [buf]
+  ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
+  (when-not (= buf cache.attached-buf)
+    (tset cache.buf->detach buf true)))
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
@@ -304,10 +304,10 @@
     ;; id, `vim.api.nvim_get_hl` is additionally required.
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
     (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
-    (request-to-attach-buffer! (vim.api.nvim_get_current_buf))
+    (request-to-attach-buf! (vim.api.nvim_get_current_buf))
     (vim.api.nvim_create_autocmd :BufEnter
-      {:group id :callback #(request-to-attach-buffer! $.buf)})
+      {:group id :callback #(request-to-attach-buf! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
-      {:group id :callback #(request-to-detach-buffer! $.buf)})))
+      {:group id :callback #(request-to-detach-buf! $.buf)})))
 
 {: setup}
