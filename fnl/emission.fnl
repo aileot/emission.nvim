@@ -213,9 +213,8 @@
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines exceeded-chunks)
              (let [new-end-row0 (dec new-end-row)]
-               (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             new-end-row0 0
-                                             extmark-opts))))
+               (vim.api.nvim_buf_set_extmark buf cache.namespace ;
+                                             new-end-row0 0 extmark-opts))))
         (vim.schedule))))
 
 (fn on-bytes [_string-bytes
