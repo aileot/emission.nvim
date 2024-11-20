@@ -2,6 +2,7 @@
 
 (local cache {:config {:attach_delay 100
                        :excluded_filetypes []
+                       :excluded_buftypes [:help :nofile :terminal :prompt]
                        :highlight_delay 10
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
@@ -260,8 +261,10 @@
         nil)))
 
 (fn excluded-buffer? [buf]
-  (vim.list_contains cache.config.excluded_filetypes ;
-                     (. vim.bo buf :filetype)))
+  (or (vim.list_contains cache.config.excluded_buftypes ;
+                         (. vim.bo buf :buftype))
+      (vim.list_contains cache.config.excluded_filetypes ;
+                         (. vim.bo buf :filetype))))
 
 (fn request-to-attach-buffer! [buf]
   ;; NOTE: The option `attach_delay` helps avoid the following issues:
@@ -270,6 +273,9 @@
   ;;    guaranteed.
   ;; 2. Extra attaching attempts to a series of buffers with rapid firing
   ;;    BufEnter events like sequential editing with `:cdo`.
+  ;; 3. Extra attaching attempts to scratch buffers created in background by
+  ;;    such plugins as formatters, linters, and completions, though they
+  ;;    should be efficiently excluded by `excluded_buftypes`.
   ;; Therefore, `excluded-buffer?` check must be included in `vim.defer_fn`.
   (-> #(when (and (buf-has-cursor? buf) ;
                   (not (excluded-buffer? buf)))
