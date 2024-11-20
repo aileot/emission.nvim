@@ -90,7 +90,7 @@
   (set cache.last-duration duration)
   (cache.timer:start duration 0
                      #(-> (fn []
-                            (when (buf-has-cursor? buf)
+                            (when (vim.api.nvim_buf_is_valid buf)
                               (vim.api.nvim_buf_clear_namespace buf
                                                                 cache.namespace
                                                                 0 -1)))

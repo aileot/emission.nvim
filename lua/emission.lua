@@ -58,7 +58,7 @@ local function clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
   local function _10_()
     local function _11_()
-      if buf_has_cursor_3f(buf) then
+      if vim.api.nvim_buf_is_valid(buf) then
         return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
       else
         return nil
