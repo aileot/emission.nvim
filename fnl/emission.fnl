@@ -1,8 +1,11 @@
 (local {: Stack} (require :emission.utils))
 
-(local cache {:config {:attach_delay 100
-                       :excluded_filetypes []
-                       :excluded_buftypes [:help :nofile :terminal :prompt]
+(local cache {:config {:attach {:delay 100
+                                :excluded_filetypes []
+                                :excluded_buftypes [:help
+                                                    :nofile
+                                                    :terminal
+                                                    :prompt]}
                        :highlight_delay 10
                        :added {:hl_map {:default true
                                         :fg "#dcd7ba"
@@ -261,13 +264,13 @@
         nil)))
 
 (fn excluded-buffer? [buf]
-  (or (vim.list_contains cache.config.excluded_buftypes ;
+  (or (vim.list_contains cache.config.attach.excluded_buftypes
                          (. vim.bo buf :buftype))
-      (vim.list_contains cache.config.excluded_filetypes ;
+      (vim.list_contains cache.config.attach.excluded_filetypes
                          (. vim.bo buf :filetype))))
 
 (fn request-to-attach-buffer! [buf]
-  ;; NOTE: The option `attach_delay` helps avoid the following issues:
+  ;; NOTE: The option `attach.delay` helps avoid the following issues:
   ;; 1. Unexpected attaching to buffers before the filetype of a buffer is not
   ;;    determined; the event fired order of FileType and BufEnter is not
   ;;    guaranteed.
@@ -284,7 +287,7 @@
          (cache-old-texts buf)
          (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
          (assert cache.old-texts "Failed to cache lines on attaching to buffer"))
-      (vim.defer_fn cache.config.attach_delay))
+      (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)

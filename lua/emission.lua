@@ -5,7 +5,7 @@ local function _2_()
 end
 local function _3_()
 end
-cache = {config = {attach_delay = 100, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 300, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 300, filter = _3_}}, namespace = vim.api.nvim_create_namespace("emission"), timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
+cache = {config = {attach = {delay = 100, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 300, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 300, filter = _3_}}, namespace = vim.api.nvim_create_namespace("emission"), timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buffer"] = nil, ["buffer->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
@@ -242,7 +242,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
   end
 end
 local function excluded_buffer_3f(buf)
-  return (vim.list_contains(cache.config.excluded_buftypes, vim.bo[buf].buftype) or vim.list_contains(cache.config.excluded_filetypes, vim.bo[buf].filetype))
+  return (vim.list_contains(cache.config.attach.excluded_buftypes, vim.bo[buf].buftype) or vim.list_contains(cache.config.attach.excluded_filetypes, vim.bo[buf].filetype))
 end
 local function request_to_attach_buffer_21(buf)
   local function _42_()
@@ -256,7 +256,7 @@ local function request_to_attach_buffer_21(buf)
       return nil
     end
   end
-  vim.defer_fn(_42_, cache.config.attach_delay)
+  vim.defer_fn(_42_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buffer_21(buf)
