@@ -1,9 +1,12 @@
 (local {: Stack} (require :emission.utils))
+(local {: set-debug-config! : debug-config : trace! : debug!}
+       (require :emission.logger))
 
 (local uv (or vim.uv vim.loop))
 
 (local default-config ;
-       {:attach {:delay 100
+       {:debug debug-config
+        :attach {:delay 100
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         ;; NOTE: Should the option be exposed to users?
@@ -50,10 +53,12 @@
        (= buf (vim.api.nvim_win_get_buf 0))))
 
 (fn cache-old-texts [buf]
+  (debug! "attempt to cache texts" buf)
   (tset cache.buf->old-texts buf ;
         (vim.api.nvim_buf_get_lines buf 0 -1 false))
   (assert (. cache.buf->old-texts buf)
-          "Failed to cache lines on attaching to buffer"))
+          "Failed to cache lines on attaching to buffer")
+  (debug! "cached texts" buf))
 
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -72,7 +77,11 @@
     [start-row0 start-col0]
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
     ;; the highlights over lines to the exactness with specifying the range.
-    (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
+    (do
+      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {start-row0: %d, start-col0: %d}"
+                 :format start-row0 start-col0) ;
+              buf)
+      (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
     _
     false)
   (set cache.last-editing-position [start-row0 start-col0]))
@@ -91,6 +100,7 @@
   (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid buf)
+                              (debug! "clearing namespace after duration" buf)
                               (vim.api.nvim_buf_clear_namespace buf
                                                                 cache.namespace
                                                                 0 -1)))
@@ -101,6 +111,7 @@
   during a highlight delay.
   @param buf number
   @param callback function"
+  (debug! "reserving new highlights" buf)
   (assert (= :function (type callback))
           (.. "expected function, got " (type callback)))
   (cache.pending-highlights:push! callback)
@@ -108,6 +119,10 @@
                      #(-> (fn []
                             (when (and (not (. cache.buf->detach? buf))
                                        (buf-has-cursor? buf))
+                              (debug! (: "executing a series of pending %d highlight(s)"
+                                         :format
+                                         (length (cache.pending-highlights:get)))
+                                      buf)
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
                                   (cb)))))
@@ -128,9 +143,11 @@
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
+           (debug! (: "highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"
+                      :format start-row0 start-col0 end-row end-col)
+                   buf)
            (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
-                         [end-row end-col] hl-opts)
-           (cache-old-texts buf))
+                         [end-row end-col] hl-opts))
         (vim.schedule))))
 
 (fn extend-chunk-to-win-width! [chunk]
@@ -143,6 +160,9 @@
 (fn highlight-removed-texts! [buf
                               [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
+  (debug! (: "highlighting `removed` range {row: %d, col: %d} by the offsets {row: %d, col: %d}"
+             :format start-row0 start-col0 old-end-row-offset old-end-col-offset)
+          buf)
   (let [hl-group cache.hl-group.removed
         old-texts (assert (. cache.buf->old-texts buf)
                           "expected string[], got `nil `or `false`")
@@ -211,6 +231,9 @@
                           ;; When the text is removed in the middle of the
                           ;; line.
                           ?first-line-chunk))
+                 (debug! (: "set `virt_text` for first line at {start-row0: %d, start-col0: %d}"
+                            :format start-row0 start-col0)
+                         buf)
                  (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
                                                start-col0 extmark-opts))
                ;; NOTE: To insert first chunk here with few manipulations,
@@ -220,14 +243,19 @@
                (table.insert exceeded-chunks 1 ?first-line-chunk))
            (when (next fitted-chunks)
              (each [i chunk (ipairs fitted-chunks)]
-               (set extmark-opts.virt_text (extend-chunk-to-win-width! chunk))
-               (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             (+ start-row0 i) 0 extmark-opts)))
+               (let [row0 (+ start-row0 i)]
+                 (set extmark-opts.virt_text (extend-chunk-to-win-width! chunk))
+                 (debug! (: "set `virt_text` for `fitted-chunk` at the row %d"
+                            :format row0))
+                 (vim.api.nvim_buf_set_extmark buf cache.namespace ;
+                                               row0 0 extmark-opts))))
            (when (next exceeded-chunks)
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines
                   (vim.tbl_map extend-chunk-to-win-width! exceeded-chunks))
              (let [new-end-row0 (dec new-end-row)]
+               (debug! (: "set `virt_lines` for `exceeded-chunks` at the row %d"
+                          :format new-end-row0))
                (vim.api.nvim_buf_set_extmark buf cache.namespace ;
                                              new-end-row0 0 extmark-opts))))
         (vim.schedule))))
@@ -249,6 +277,7 @@
         ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
         (tset cache.buf->detach? buf nil)
+        (debug! "detached from buf" buf)
         ;; NOTE: Return a truthy value to detach.
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
@@ -258,18 +287,22 @@
                 (and (= 0 old-end-row-offset new-end-row-offset)
                      (<= old-end-col-offset new-end-col-offset)))
             (when (cache.config.added.filter buf)
+              (debug! "reserving `added` highlights" buf)
               (->> (fn []
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (clear-highlights! buf cache.config.added.duration))
+                     (clear-highlights! buf cache.config.added.duration)
+                     (cache-old-texts buf))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
+              (debug! "reserving `removed` highlights" buf)
               (->> (fn []
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (clear-highlights! buf cache.config.removed.duration))
+                     (clear-highlights! buf cache.config.removed.duration)
+                     (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
@@ -291,22 +324,29 @@
   ;;    such plugins as formatters, linters, and completions, though they
   ;;    should be efficiently excluded by `excluded_buftypes`.
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
-  (-> #(when (and (buf-has-cursor? buf) ;
-                  (not (excluded-buf? buf)))
-         (cache-old-texts buf)
-         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
+  (debug! "requested to attach buf" buf)
+  (-> #(if (and (buf-has-cursor? buf) ;
+                (not (excluded-buf? buf)))
+           (do
+             (cache-old-texts buf)
+             (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
+             (debug! "attached to buf" buf))
+           (debug! "the buf did not meet the requirements to be attached" buf))
       (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)
 
 (fn request-to-detach-buf! [buf]
+  (debug! "requested to detach buf" buf)
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
   (tset cache.buf->detach? buf true))
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
+    (set-debug-config! cache.config.debug)
+    (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
     ;; id, `vim.api.nvim_get_hl` is additionally required.
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
