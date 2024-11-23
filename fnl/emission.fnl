@@ -9,14 +9,14 @@
         :added {:priority 102
                 :duration 300
                 :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
-                :filter (fn [])}
+                :filter #true}
         :removed {:priority 101
                   :duration 300
                   :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
                            :bg "#672d2d"}
-                  :filter (fn [])}})
+                  :filter #true}})
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
