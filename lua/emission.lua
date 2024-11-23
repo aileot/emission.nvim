@@ -1,7 +1,9 @@
 local _local_1_ = require("emission.utils")
 local Stack = _local_1_["Stack"]
 local _local_2_ = require("emission.logger")
+local set_debug_config_21 = _local_2_["set-debug-config!"]
 local debug_config = _local_2_["debug-config"]
+local trace_21 = _local_2_["trace!"]
 local debug_21 = _local_2_["debug!"]
 local uv = (vim.uv or vim.loop)
 local default_config
@@ -278,6 +280,8 @@ end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
+  set_debug_config_21(cache.config.debug)
+  trace_21(("merged config: " .. vim.inspect(cache.config)))
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())

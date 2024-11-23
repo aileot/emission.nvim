@@ -1,5 +1,5 @@
 (local {: Stack} (require :emission.utils))
-(local {: debug-config : debug!} (require :emission.logger))
+(local {: set-debug-config! : debug-config : trace! : debug!} (require :emission.logger))
 
 (local uv (or vim.uv vim.loop))
 
@@ -316,6 +316,8 @@
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
+    (set-debug-config! cache.config.debug)
+    (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
     ;; id, `vim.api.nvim_get_hl` is additionally required.
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
