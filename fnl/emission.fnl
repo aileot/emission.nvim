@@ -306,11 +306,13 @@
   ;;    should be efficiently excluded by `excluded_buftypes`.
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
   (debug! "requested to attach buf")
-  (-> #(when (and (buf-has-cursor? buf) ;
-                  (not (excluded-buf? buf)))
-         (cache-old-texts buf)
-         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-         (debug! "attached buf"))
+  (-> #(if (and (buf-has-cursor? buf) ;
+                (not (excluded-buf? buf)))
+           (do
+             (cache-old-texts buf)
+             (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
+             (debug! "attached buf"))
+           (debug! "the buf did not meet the requirements to be attached"))
       (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.

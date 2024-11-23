@@ -271,7 +271,7 @@ local function request_to_attach_buf_21(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
       return debug_21("attached buf")
     else
-      return nil
+      return debug_21("the buf did not meet the requirements to be attached")
     end
   end
   vim.defer_fn(_43_, cache.config.attach.delay)
