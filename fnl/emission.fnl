@@ -133,6 +133,13 @@
            (cache-old-texts buf))
         (vim.schedule))))
 
+(fn extend-chunk-to-win-width! [chunk]
+  "Extend `chunk` to conceal actual texts under highlights."
+  (let [max-col (vim.api.nvim_win_get_width 0)
+        blank-chunk [(string.rep " " max-col)]]
+    (table.insert chunk blank-chunk)
+    chunk))
+
 (fn highlight-removed-texts! [buf
                               [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
@@ -197,7 +204,13 @@
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (if can-virt_text-display-first-line-removed?
                (do
-                 (set extmark-opts.virt_text ?first-line-chunk)
+                 (set extmark-opts.virt_text
+                      (if (or (next fitted-chunks) (next exceeded-chunks))
+                          ;; When the text is removed to the end of the line.
+                          (extend-chunk-to-win-width! ?first-line-chunk)
+                          ;; When the text is removed in the middle of the
+                          ;; line.
+                          ?first-line-chunk))
                  (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
                                                start-col0 extmark-opts))
                ;; NOTE: To insert first chunk here with few manipulations,
@@ -207,12 +220,13 @@
                (table.insert exceeded-chunks 1 ?first-line-chunk))
            (when (next fitted-chunks)
              (each [i chunk (ipairs fitted-chunks)]
-               (set extmark-opts.virt_text chunk)
+               (set extmark-opts.virt_text (extend-chunk-to-win-width! chunk))
                (vim.api.nvim_buf_set_extmark buf cache.namespace
                                              (+ start-row0 i) 0 extmark-opts)))
            (when (next exceeded-chunks)
              (set extmark-opts.virt_text nil)
-             (set extmark-opts.virt_lines exceeded-chunks)
+             (set extmark-opts.virt_lines
+                  (vim.tbl_map extend-chunk-to-win-width! exceeded-chunks))
              (let [new-end-row0 (dec new-end-row)]
                (vim.api.nvim_buf_set_extmark buf cache.namespace ;
                                              new-end-row0 0 extmark-opts))))
