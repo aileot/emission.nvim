@@ -150,6 +150,6 @@ to adapt the color to your favorite colorscheme.
 
 [antifennel]: https://git.sr.ht/~technomancy/antifennel
 [denops.vim]: https://github.com/vim-denops/denops.vim
-[folke/lazy.nvim]: https://github/folke/lazy.nvim
+[folke/lazy.nvim]: https://github.com/folke/lazy.nvim
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
