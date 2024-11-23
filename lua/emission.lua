@@ -61,6 +61,7 @@ local function clear_highlights_21(buf, duration)
   local function _10_()
     local function _11_()
       if vim.api.nvim_buf_is_valid(buf) then
+        debug_21("clearing namespace after duration", buf)
         return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
       else
         return nil

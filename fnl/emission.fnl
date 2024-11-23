@@ -94,6 +94,7 @@
   (cache.timer:start duration 0
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid buf)
+                              (debug! "clearing namespace after duration" buf)
                               (vim.api.nvim_buf_clear_namespace buf
                                                                 cache.namespace
                                                                 0 -1)))
