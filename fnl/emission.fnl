@@ -1,26 +1,23 @@
 (local {: Stack} (require :emission.utils))
 
-(local cache {:config {:attach {:delay 100
-                                :excluded_filetypes []
-                                :excluded_buftypes [:help
-                                                    :nofile
-                                                    :terminal
-                                                    :prompt]}
-                       :highlight_delay 10
-                       :added {:hl_map {:default true
-                                        :bold true
-                                        :fg "#dcd7ba"
-                                        :bg "#2d4f67"}
-                               :priority 102
-                               :duration 300
-                               :filter (fn [])}
-                       :removed {:hl_map {:default true
-                                          :bold true
-                                          :fg "#dcd7ba"
-                                          :bg "#672d2d"}
-                                 :priority 101
-                                 :duration 300
-                                 :filter (fn [])}}
+(local default-config ;
+       {:attach {:delay 100
+                 :excluded_filetypes []
+                 :excluded_buftypes [:help :nofile :terminal :prompt]}
+        :highlight_delay 10
+        :added {:hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
+                :priority 101
+                :duration 300
+                :filter (fn [])}
+        :removed {:hl_map {:default true
+                           :bold true
+                           :fg "#dcd7ba"
+                           :bg "#672d2d"}
+                  :priority 101
+                  :duration 300
+                  :filter (fn [])}})
+
+(local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer (vim.uv.new_timer)
               :pending-highlights (Stack.new)
