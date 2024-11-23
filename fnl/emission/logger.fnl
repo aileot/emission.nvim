@@ -14,8 +14,10 @@
 (fn log-msg! [msg log-level]
   (when (and debug-config.enabled ;
              (<= debug-config.level log-level))
-    (let [msg (: "[%s] %s" :format plugin-name msg)]
-      (-> #(debug-config.notifier msg log-level {:title plugin-name})
+    (let [new-msg (: "[%s] %s @ buf=%d, bufname=%s" :format plugin-name msg
+                     (vim.api.nvim_get_current_buf)
+                     (vim.api.nvim_buf_get_name 0))]
+      (-> #(debug-config.notifier new-msg log-level {:title plugin-name})
           (vim.schedule)))))
 
 (fn trace! [msg]

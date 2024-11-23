@@ -12,9 +12,9 @@ local function set_debug_config_21(opts)
 end
 local function log_msg_21(msg, log_level)
   if (debug_config.enabled and (debug_config.level <= log_level)) then
-    local msg0 = ("[%s] %s"):format(plugin_name, msg)
+    local new_msg = ("[%s] %s @ buf=%d, bufname=%s"):format(plugin_name, msg, vim.api.nvim_get_current_buf(), vim.api.nvim_buf_get_name(0))
     local function _2_()
-      return debug_config.notifier(msg0, log_level, {title = plugin_name})
+      return debug_config.notifier(new_msg, log_level, {title = plugin_name})
     end
     return vim.schedule(_2_)
   else
