@@ -114,8 +114,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       debug_21(("highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"):format(start_row0, start_col0, end_row, end_col), buf)
-      vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
-      return cache_old_texts(buf)
+      return vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
     else
       return nil
     end
@@ -242,7 +241,8 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `added` highlights", buf)
           local function _36_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
-            return clear_highlights_21(buf, cache.config.added.duration)
+            clear_highlights_21(buf, cache.config.added.duration)
+            return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _36_)
         else
@@ -252,7 +252,8 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `removed` highlights", buf)
           local function _38_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
-            return clear_highlights_21(buf, cache.config.removed.duration)
+            clear_highlights_21(buf, cache.config.removed.duration)
+            return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _38_)
         else

@@ -143,8 +143,7 @@
                       :format start-row0 start-col0 end-row end-col)
                    buf)
            (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
-                         [end-row end-col] hl-opts)
-           (cache-old-texts buf))
+                         [end-row end-col] hl-opts))
         (vim.schedule))))
 
 (fn extend-chunk-to-win-width! [chunk]
@@ -281,7 +280,8 @@
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (clear-highlights! buf cache.config.added.duration))
+                     (clear-highlights! buf cache.config.added.duration)
+                     (cache-old-texts buf))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
               (debug! "reserving `removed` highlights" buf)
@@ -289,7 +289,8 @@
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (clear-highlights! buf cache.config.removed.duration))
+                     (clear-highlights! buf cache.config.removed.duration)
+                     (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
