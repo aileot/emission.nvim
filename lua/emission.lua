@@ -1,4 +1,4 @@
-local _local_1_ = require("emission.utils")
+local _local_1_ = require("emission.utils.stack")
 local Stack = _local_1_["Stack"]
 local _local_2_ = require("emission.logger")
 local set_debug_config_21 = _local_2_["set-debug-config!"]

@@ -1,4 +1,4 @@
-(local {: Stack} (require :emission.utils))
+(local {: Stack} (require :emission.utils.stack))
 (local {: set-debug-config! : debug-config : trace! : debug!}
        (require :emission.logger))
 
