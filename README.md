@@ -16,6 +16,7 @@ NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 ## Demo
 
 <!-- TODO: Replace demo with asciinema -->
+
 ![recording](https://github.com/tzachar/highlight-undo.nvim/assets/4946827/81b85a3b-b563-4e97-b4e1-7a48d0d2f912)
 
 ## Requirements
@@ -41,32 +42,51 @@ The default settings:
 
 ```lua
 require("emission").setup({
-  attach_delay = 100, -- Useful to avoid extra attaching in simultaneous editing.
-  min_recache_interval = 50,
-  -- NOTE: For performance reason, it is recommended to use this `excluded_filetypes` option
-  -- to exclude specific filetype buffers.
-  excluded_filetypes = {
-    -- NOTE: Nothing is excluded by default. Add any as you need.
-    -- "lazy",
-    -- "oil",
+  attach = {
+    -- Useful to avoid extra attaching attempts in simultaneous buffer editing such as `:bufdo` or `:cdo`.
+    delay = 100,
+    excluded_filetypes = {
+      -- NOTE: Nothing is excluded by default. Add any as you need.
+      -- "lazy",
+    },
+    excluded_buftypes = {
+      "help",
+      "nofile",
+      "terminal",
+      "prompt"
+    },
   },
   added = {
     priority = 102,
-    duration = 400, -- milliseconds
+    duration = 300, -- milliseconds
     -- The same options for `nvim_set_hl()` at `{val}` is available.
     -- NOTE: With "default" key set to `true`, you can arrange the highlight
     -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
     -- respectively, based on your colorscheme.
-    hl_map = { default = true, fg = "#dcd7ba", bg = "#2d4f67" },
-    filter = function(bufnr) end, -- See below for examples.
+    hl_map = {
+      default = true,
+      bold = true,
+      fg = "#dcd7ba",
+      bg = "#2d4f67",
+    },
+    filter = function(buf)
+      return true
+    end, -- See below for examples.
   },
+  -- The same options as `added` are available.
+  -- Note that the default values might be different from `added` ones.
   removed = {
-    -- The same options as `added` are available.
-    -- Note that the default values might be different from `added` ones.
     priority = 101,
-    duration = 400,
-    hl_map = { default = true, fg = "#dcd7ba", bg = "#672d2d" },
-    filter = function(bufnr) end,
+    duration = 300,
+    hl_map = {
+      default = true,
+      bold = true,
+      fg = "#dcd7ba",
+      bg = "#672d2d",
+    },
+    filter = function(buf)
+      return true
+    end,
   },
 })
 ```
@@ -78,7 +98,7 @@ Additionally, it will never highlight during recorded macro execution.
 
 ```lua
 ---@param buf number attached buffer handle
----@return boolean true to highlight, false to ignore
+---@return boolean Return false or nil to ignore; otherwise, highlight texts
 local filter = function(buf)
   if not vim.api.nvim_get_mode().mode:find("n") then
     return false
@@ -90,13 +110,13 @@ local filter = function(buf)
 end
 
 require("emission").setup({
-  ...
+  -- Set other options...
   added = {
-    ...
+    -- Set other options for `added`...
     filter = filter,
   },
   removed = {
-    ...
+    -- Set other options for `removed`...
     filter = filter,
   },
 })
