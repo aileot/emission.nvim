@@ -103,9 +103,9 @@
   during a highlight delay.
   @param buf number
   @param callback function"
+  (debug! "reserving new highlights" buf)
   (assert (= :function (type callback))
           (.. "expected function, got " (type callback)))
-  (debug! "reserve highlighting" buf)
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
@@ -265,6 +265,7 @@
                 (and (= 0 old-end-row-offset new-end-row-offset)
                      (<= old-end-col-offset new-end-col-offset)))
             (when (cache.config.added.filter buf)
+              (debug! "reserving `added` highlights" buf)
               (->> (fn []
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
@@ -272,6 +273,7 @@
                      (clear-highlights! buf cache.config.added.duration))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
+              (debug! "reserving `removed` highlights" buf)
               (->> (fn []
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset

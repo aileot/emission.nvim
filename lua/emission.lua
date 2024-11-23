@@ -69,8 +69,8 @@ local function clear_highlights_21(buf, duration)
   return cache.timer:start(duration, 0, _10_)
 end
 local function reserve_highlight_21(buf, callback)
+  debug_21("reserving new highlights", buf)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
-  debug_21("reserve highlighting", buf)
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local function _13_()
     local function _14_()
@@ -231,6 +231,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     if buf_has_cursor_3f(buf) then
       if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
         if cache.config.added.filter(buf) then
+          debug_21("reserving `added` highlights", buf)
           local function _36_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
             return clear_highlights_21(buf, cache.config.added.duration)
@@ -240,6 +241,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
         end
       else
         if cache.config.removed.filter(buf) then
+          debug_21("reserving `removed` highlights", buf)
           local function _38_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
             return clear_highlights_21(buf, cache.config.removed.duration)
