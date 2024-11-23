@@ -190,15 +190,16 @@
                                                           (vim.list_slice (inc offset))))))
         extmark-opts {:hl_eol true
                       :strict false
-                      :virt_text ?first-line-chunk
                       :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (if can-virt_text-display-first-line-removed?
-               (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
-                                             start-col0 extmark-opts)
+               (do
+                 (set extmark-opts.virt_text ?first-line-chunk)
+                 (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
+                                               start-col0 extmark-opts))
                ;; NOTE: To insert first chunk here with few manipulations,
                ;; make sure rest-chunks is not nil, but a sequence.
                (next fitted-chunks)

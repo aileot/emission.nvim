@@ -169,12 +169,13 @@ local function highlight_removed_texts_21(buf, _20_, _21_)
     local offset = (new_end_row - start_row)
     fitted_chunks, exceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
-  local extmark_opts = {hl_eol = true, virt_text = _3ffirst_line_chunk, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
+  local extmark_opts = {hl_eol = true, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _29_()
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       if can_virt_text_display_first_line_removed_3f then
+        extmark_opts.virt_text = _3ffirst_line_chunk
         vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
       elseif next(fitted_chunks) then
         table.insert(fitted_chunks, 1, _3ffirst_line_chunk)
