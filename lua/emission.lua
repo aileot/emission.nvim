@@ -131,6 +131,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local start_col0 = _21_[2]
   local old_end_row_offset = _22_[1]
   local old_end_col_offset = _22_[2]
+  debug_21(("highlighting `removed` range {row: %d, col: %d} by the offsets {row: %d, col: %d}"):format(start_row0, start_col0, old_end_row_offset, old_end_col_offset), buf)
   local hl_group = cache["hl-group"].removed
   local old_texts = assert(cache["buf->old-texts"][buf], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)

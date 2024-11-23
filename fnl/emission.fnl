@@ -155,6 +155,9 @@
 (fn highlight-removed-texts! [buf
                               [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
+  (debug! (: "highlighting `removed` range {row: %d, col: %d} by the offsets {row: %d, col: %d}"
+             :format start-row0 start-col0 old-end-row-offset old-end-col-offset)
+          buf)
   (let [hl-group cache.hl-group.removed
         old-texts (assert (. cache.buf->old-texts buf)
                           "expected string[], got `nil `or `false`")
