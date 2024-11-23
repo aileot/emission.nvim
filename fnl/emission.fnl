@@ -1,9 +1,11 @@
 (local {: Stack} (require :emission.utils))
+(local {: debug-config : debug!} (require :emission.logger))
 
 (local uv (or vim.uv vim.loop))
 
 (local default-config ;
-       {:attach {:delay 100
+       {:debug debug-config
+        :attach {:delay 100
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         ;; NOTE: Should the option be exposed to users?
