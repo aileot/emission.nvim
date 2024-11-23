@@ -27,10 +27,9 @@
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
               :last-editing-position [0 0]
-              :attached-buf nil
-              :buf->detach {}
+              :buf->detach? {}
               :last-recache-time 0
-              :old-texts nil})
+              :buf->old-texts {}})
 
 (local vim/hl (or vim.hl vim.highlight))
 
@@ -51,15 +50,10 @@
        (= buf (vim.api.nvim_win_get_buf 0))))
 
 (fn cache-old-texts [buf]
-  (let [now (vim.uv.now)]
-    (when (or (not= buf cache.attached-buf)
-              (< cache.config.highlight_delay (- now cache.last-recache-time)))
-      ;; NOTE: highlight_delay for multi-line editing which sequentially
-      ;; calls `on_bytes` line by line like `:substitute`.
-      (set cache.last-recache-time now)
-      (set cache.old-texts ;
-           (vim.api.nvim_buf_get_lines buf 0 -1 false))
-      (set cache.attached-buf buf))))
+  (tset cache.buf->old-texts buf ;
+        (vim.api.nvim_buf_get_lines buf 0 -1 false))
+  (assert (. cache.buf->old-texts buf)
+          "Failed to cache lines on attaching to buffer"))
 
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
@@ -112,7 +106,7 @@
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
-                            (when (and (= buf cache.attached-buf)
+                            (when (and (not (. cache.buf->detach? buf))
                                        (buf-has-cursor? buf))
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
@@ -143,7 +137,7 @@
                               [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
   (let [hl-group cache.hl-group.removed
-        old-texts (assert cache.old-texts
+        old-texts (assert (. cache.buf->old-texts buf)
                           "expected string[], got `nil `or `false`")
         start-row (inc start-row0)
         ends-with-newline? (= 0 old-end-col-offset)
@@ -235,11 +229,11 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  (if (. cache.buf->detach buf) ;
+  (if (. cache.buf->detach? buf) ;
       (do
         ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
-        (tset cache.buf->detach buf nil)
+        (tset cache.buf->detach? buf nil)
         ;; NOTE: Return a truthy value to detach.
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
@@ -284,11 +278,8 @@
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
   (-> #(when (and (buf-has-cursor? buf) ;
                   (not (excluded-buf? buf)))
-         (set cache.attached-buf buf)
-         (tset cache.buf->detach buf nil)
          (cache-old-texts buf)
-         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-         (assert cache.old-texts "Failed to cache lines on attaching to buffer"))
+         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
       (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
@@ -296,8 +287,7 @@
 
 (fn request-to-detach-buf! [buf]
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
-  (when-not (= buf cache.attached-buf)
-    (tset cache.buf->detach buf true)))
+  (tset cache.buf->detach? buf true))
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
