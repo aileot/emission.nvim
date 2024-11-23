@@ -229,7 +229,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
   if cache["buf->detach?"][buf] then
     clear_highlights_21(buf, 0)
     cache["buf->detach?"][buf] = nil
-    debug_21("detached from buf")
+    debug_21("detached from buf", buf)
     return true
   else
     if buf_has_cursor_3f(buf) then
@@ -264,21 +264,21 @@ local function excluded_buf_3f(buf)
   return (vim.list_contains(cache.config.attach.excluded_buftypes, vim.bo[buf].buftype) or vim.list_contains(cache.config.attach.excluded_filetypes, vim.bo[buf].filetype))
 end
 local function request_to_attach_buf_21(buf)
-  debug_21("requested to attach buf")
+  debug_21("requested to attach buf", buf)
   local function _43_()
     if (buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
-      return debug_21("attached buf")
+      return debug_21("attached to buf", buf)
     else
-      return debug_21("the buf did not meet the requirements to be attached")
+      return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
   vim.defer_fn(_43_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
-  debug_21("requested to detach buf")
+  debug_21("requested to detach buf", buf)
   cache["buf->detach?"][buf] = true
   return nil
 end

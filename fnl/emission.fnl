@@ -260,7 +260,7 @@
         ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
         (tset cache.buf->detach? buf nil)
-        (debug! "detached from buf")
+        (debug! "detached from buf" buf)
         ;; NOTE: Return a truthy value to detach.
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
@@ -305,21 +305,21 @@
   ;;    such plugins as formatters, linters, and completions, though they
   ;;    should be efficiently excluded by `excluded_buftypes`.
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
-  (debug! "requested to attach buf")
+  (debug! "requested to attach buf" buf)
   (-> #(if (and (buf-has-cursor? buf) ;
                 (not (excluded-buf? buf)))
            (do
              (cache-old-texts buf)
              (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-             (debug! "attached buf"))
-           (debug! "the buf did not meet the requirements to be attached"))
+             (debug! "attached to buf" buf))
+           (debug! "the buf did not meet the requirements to be attached" buf))
       (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
   nil)
 
 (fn request-to-detach-buf! [buf]
-  (debug! "requested to detach buf")
+  (debug! "requested to detach buf" buf)
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
   (tset cache.buf->detach? buf true))
 
