@@ -135,6 +135,9 @@
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
+           (debug! (: "highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"
+                      :format start-row0 start-col0 end-row end-col)
+                   buf)
            (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
                          [end-row end-col] hl-opts)
            (cache-old-texts buf))

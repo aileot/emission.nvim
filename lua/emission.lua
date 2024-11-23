@@ -110,6 +110,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
+      debug_21(("highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"):format(start_row0, start_col0, end_row, end_col), buf)
       vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
       return cache_old_texts(buf)
     else
