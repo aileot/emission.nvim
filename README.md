@@ -3,12 +3,13 @@
 A generalized fork of
 [tzachar/highlight-undo.nvim]
 rewritten in Fennel with
-[antifennel](https://git.sr.ht/~technomancy/antifennel).
+[antifennel].
 
 ## Features
 
-- Highlights for added/removed texts in current buffer.
-- Free from keymap conflicts.
+- Highlights for **added** texts
+- Highlights for **removed** texts
+- **No** keymap conflicts
 
 NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 `undo`/`redo`, but only `added`/`removed`.
@@ -27,7 +28,7 @@ NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 
 Install the plugin with your favorite plugin-manger.
 
-With [folke/lazy.nvim](https://github/folke/lazy.nvim),
+With [folke/lazy.nvim],
 
 ```lua
   {
@@ -148,6 +149,8 @@ to adapt the color to your favorite colorscheme.
 - [yuki-yano/highlight-undo.nvim]
   works on [denops.vim].
 
+[antifennel]: https://git.sr.ht/~technomancy/antifennel
+[denops.vim]: https://github.com/vim-denops/denops.vim
+[folke/lazy.nvim]: https://github.com/folke/lazy.nvim
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
-[denops.vim]: https://github.com/vim-denops/denops.vim
