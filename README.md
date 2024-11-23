@@ -148,8 +148,8 @@ to adapt the color to your favorite colorscheme.
 - [yuki-yano/highlight-undo.nvim]
   works on [denops.vim].
 
-[tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
-[yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
+[antifennel]: https://git.sr.ht/~technomancy/antifennel
 [denops.vim]: https://github.com/vim-denops/denops.vim
 [folke/lazy.nvim]: https://github/folke/lazy.nvim
-[antifennel]: https://git.sr.ht/~technomancy/antifennel
+[tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
+[yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
