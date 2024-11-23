@@ -3,7 +3,7 @@
 A generalized fork of
 [tzachar/highlight-undo.nvim]
 rewritten in Fennel with
-[antifennel](https://git.sr.ht/~technomancy/antifennel).
+[antifennel].
 
 ## Features
 
@@ -27,7 +27,7 @@ NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 
 Install the plugin with your favorite plugin-manger.
 
-With [folke/lazy.nvim](https://github/folke/lazy.nvim),
+With [folke/lazy.nvim],
 
 ```lua
   {
@@ -151,3 +151,5 @@ to adapt the color to your favorite colorscheme.
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
 [denops.vim]: https://github.com/vim-denops/denops.vim
+[folke/lazy.nvim]: https://github/folke/lazy.nvim
+[antifennel]: https://git.sr.ht/~technomancy/antifennel
