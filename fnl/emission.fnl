@@ -53,10 +53,12 @@
        (= buf (vim.api.nvim_win_get_buf 0))))
 
 (fn cache-old-texts [buf]
+  (debug! "attempt to cache texts" buf)
   (tset cache.buf->old-texts buf ;
         (vim.api.nvim_buf_get_lines buf 0 -1 false))
   (assert (. cache.buf->old-texts buf)
-          "Failed to cache lines on attaching to buffer"))
+          "Failed to cache lines on attaching to buffer")
+  (debug! "cached texts" buf))
 
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]

@@ -26,8 +26,10 @@ local function buf_has_cursor_3f(buf)
   return (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)))
 end
 local function cache_old_texts(buf)
+  debug_21("attempt to cache texts", buf)
   cache["buf->old-texts"][buf] = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-  return assert(cache["buf->old-texts"][buf], "Failed to cache lines on attaching to buffer")
+  assert(cache["buf->old-texts"][buf], "Failed to cache lines on attaching to buffer")
+  return debug_21("cached texts", buf)
 end
 local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
