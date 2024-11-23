@@ -27,8 +27,7 @@
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
               :last-editing-position [0 0]
-              :attached-buf nil
-              :buf->detach {}
+              :buf->detach? {}
               :last-recache-time 0
               :buf->old-texts {}})
 
@@ -107,7 +106,7 @@
   (cache.pending-highlights:push! callback)
   (cache.timer:start cache.config.highlight_delay 0
                      #(-> (fn []
-                            (when (and (= buf cache.attached-buf)
+                            (when (and (not (. cache.buf->detach? buf))
                                        (buf-has-cursor? buf))
                               (while (not (cache.pending-highlights:empty?))
                                 (let [cb (cache.pending-highlights:pop!)]
@@ -230,11 +229,11 @@
               new-end-row-offset
               new-end-col-offset
               _new-end-byte-offset]
-  (if (. cache.buf->detach buf) ;
+  (if (. cache.buf->detach? buf) ;
       (do
         ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
-        (tset cache.buf->detach buf nil)
+        (tset cache.buf->detach? buf nil)
         ;; NOTE: Return a truthy value to detach.
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
@@ -279,11 +278,8 @@
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
   (-> #(when (and (buf-has-cursor? buf) ;
                   (not (excluded-buf? buf)))
-         (set cache.attached-buf buf)
-         (tset cache.buf->detach buf nil)
          (cache-old-texts buf)
-         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
-         (assert cache.old-texts "Failed to cache lines on attaching to buffer"))
+         (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes}))
       (vim.defer_fn cache.config.attach.delay))
   ;; HACK: Keep the `nil` to make sure to resist autocmd
   ;; deletion with any future updates.
@@ -291,8 +287,7 @@
 
 (fn request-to-detach-buf! [buf]
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
-  (when-not (= buf cache.attached-buf)
-    (tset cache.buf->detach buf true)))
+  (tset cache.buf->detach? buf true))
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
