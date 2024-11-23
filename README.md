@@ -32,6 +32,7 @@ With [folke/lazy.nvim](https://github/folke/lazy.nvim),
 ```lua
   {
     "aileot/emission.nvim",
+    event = "VeryLazy",
     opts = {},
   },
 ```
