@@ -77,7 +77,11 @@
     [start-row0 start-col0]
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
     ;; the highlights over lines to the exactness with specifying the range.
-    (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
+    (do
+      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {start-row0: %d, start-col0: %d}"
+                 :format start-row0 start-col0) ;
+              buf)
+      (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
     _
     false)
   (set cache.last-editing-position [start-row0 start-col0]))

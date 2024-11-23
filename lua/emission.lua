@@ -45,6 +45,7 @@ local function dismiss_deprecated_highlight_21(buf, _6_)
   do
     local _7_ = cache["last-editing-position"]
     if ((_G.type(_7_) == "table") and (_7_[1] == start_row0) and (_7_[2] == start_col0)) then
+      debug_21(("dismissing all the buf highlights due to the duplicated positioning {start-row0: %d, start-col0: %d}"):format(start_row0, start_col0), buf)
       vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
     else
       local _ = _7_
