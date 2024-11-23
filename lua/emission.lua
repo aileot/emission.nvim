@@ -66,10 +66,12 @@ local function clear_highlights_21(buf, duration)
 end
 local function reserve_highlight_21(buf, callback)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
+  debug_21("reserve highlighting", buf)
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local function _12_()
     local function _13_()
       if (not cache["buf->detach?"][buf] and buf_has_cursor_3f(buf)) then
+        debug_21(("executing a series of pending %d highlight(s)"):format(#cache["pending-highlights"]:get()), buf)
         while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
           local cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
           cb()
