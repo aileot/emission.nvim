@@ -1,7 +1,7 @@
 # ✨ emission.nvim
 
 A generalized fork of
-[tzachar/highlight-undo.nvim](https://github.com/tzachar/highlight-undo.nvim)
+[tzachar/highlight-undo.nvim]
 rewritten in Fennel with
 [antifennel](https://git.sr.ht/~technomancy/antifennel).
 
