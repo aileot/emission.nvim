@@ -7,8 +7,9 @@ rewritten in Fennel with
 
 ## Features
 
-- Highlights for added/removed texts in current buffer.
-- Free from keymap conflicts.
+- Highlights for **added** texts
+- Highlights for **removed** texts
+- **No** keymap conflicts
 
 NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 `undo`/`redo`, but only `added`/`removed`.
