@@ -1,5 +1,7 @@
 (local {: Stack} (require :emission.utils))
 
+(local uv (or vim.uv vim.loop))
+
 (local default-config ;
        {:attach {:delay 100
                  :excluded_filetypes []
@@ -20,7 +22,7 @@
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
-              :timer (vim.uv.new_timer)
+              :timer (uv.new_timer)
               :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-duration 0
