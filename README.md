@@ -139,3 +139,14 @@ As you can see in the `setup` snippet above, you can override the highlight
 using `removed.hl_map` field in `setup()`.
 You can also customize the highlight with `vim.api.nvim_set_hl()`
 to adapt the color to your favorite colorscheme.
+
+## Related Projects
+
+- [tzachar/highlight-undo.nvim]
+  highlights texts added by pre-registered mappings.
+- [yuki-yano/highlight-undo.nvim]
+  works on [denops.vim].
+
+[tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
+[yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
+[denops.vim]: https://github.com/vim-denops/denops.vim
