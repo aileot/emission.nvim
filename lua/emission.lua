@@ -5,7 +5,7 @@ local function _2_()
 end
 local function _3_()
 end
-cache = {config = {attach = {delay = 100, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight_delay = 10, added = {hl_map = {default = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 300, filter = _2_}, removed = {hl_map = {default = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 300, filter = _3_}}, namespace = vim.api.nvim_create_namespace("emission"), timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buf"] = nil, ["buf->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
+cache = {config = {attach = {delay = 100, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight_delay = 10, added = {hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}, priority = 102, duration = 300, filter = _2_}, removed = {hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}, priority = 101, duration = 300, filter = _3_}}, namespace = vim.api.nvim_create_namespace("emission"), timer = vim.uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["attached-buf"] = nil, ["buf->detach"] = {}, ["last-recache-time"] = 0, ["old-texts"] = nil}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)

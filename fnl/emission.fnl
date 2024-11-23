@@ -8,12 +8,14 @@
                                                     :prompt]}
                        :highlight_delay 10
                        :added {:hl_map {:default true
+                                        :bold true
                                         :fg "#dcd7ba"
                                         :bg "#2d4f67"}
                                :priority 102
                                :duration 300
                                :filter (fn [])}
                        :removed {:hl_map {:default true
+                                          :bold true
                                           :fg "#dcd7ba"
                                           :bg "#672d2d"}
                                  :priority 101
