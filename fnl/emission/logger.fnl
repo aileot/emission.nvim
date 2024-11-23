@@ -11,28 +11,30 @@
     (each [k v (pairs opts)]
       (tset debug-config k v))))
 
-(fn log-msg! [msg log-level]
+(fn log-msg! [msg log-level ?buf]
   (when (and debug-config.enabled ;
              (<= debug-config.level log-level))
-    (let [new-msg (: "[%s] %s @ buf=%d, bufname=%s" :format plugin-name msg
-                     (vim.api.nvim_get_current_buf)
-                     (vim.api.nvim_buf_get_name 0))]
+    (let [buf-info (if ?buf
+                       (: " @ buf=%d, bufname=%s" :format ?buf
+                          (vim.api.nvim_buf_get_name ?buf))
+                       "")
+          new-msg (: "[%s] %s%s" :format plugin-name msg buf-info)]
       (-> #(debug-config.notifier new-msg log-level {:title plugin-name})
           (vim.schedule)))))
 
-(fn trace! [msg]
-  (log-msg! msg vim.log.levels.TRACE))
+(fn trace! [msg ?buf]
+  (log-msg! msg vim.log.levels.TRACE ?buf))
 
-(fn debug! [msg]
-  (log-msg! msg vim.log.levels.DEBUG))
+(fn debug! [msg ?buf]
+  (log-msg! msg vim.log.levels.DEBUG ?buf))
 
-(fn info! [msg]
-  (log-msg! msg vim.log.levels.INFO))
+(fn info! [msg ?buf]
+  (log-msg! msg vim.log.levels.INFO ?buf))
 
-(fn warn! [msg]
-  (log-msg! msg vim.log.levels.WARN))
+(fn warn! [msg ?buf]
+  (log-msg! msg vim.log.levels.WARN ?buf))
 
-(fn error! [msg]
-  (log-msg! msg vim.log.levels.ERROR))
+(fn error! [msg ?buf]
+  (log-msg! msg vim.log.levels.ERROR ?buf))
 
 {: set-debug-config! : debug-config : trace! : info! : debug! : warn! : error!}
