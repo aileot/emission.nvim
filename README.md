@@ -22,7 +22,7 @@ NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 
 ## Requirements
 
-- Neovim >= 0.10.2
+- Neovim >= 0.9.5
 
 ## Installation
 
