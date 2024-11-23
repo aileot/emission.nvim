@@ -4,18 +4,19 @@
        {:attach {:delay 100
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
+        ;; NOTE: Should the option be exposed to users?
         :highlight_delay 10
-        :added {:hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
-                :priority 101
+        :added {:priority 102
                 :duration 300
-                :filter (fn [])}
-        :removed {:hl_map {:default true
+                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
+                :filter #true}
+        :removed {:priority 101
+                  :duration 300
+                  :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
                            :bg "#672d2d"}
-                  :priority 101
-                  :duration 300
-                  :filter (fn [])}})
+                  :filter #true}})
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
