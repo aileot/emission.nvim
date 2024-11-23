@@ -231,6 +231,9 @@
                           ;; When the text is removed in the middle of the
                           ;; line.
                           ?first-line-chunk))
+                 (debug! (: "set `virt_text` for first line at {start-row0: %d, start-col0: %d}"
+                            :format start-row0 start-col0)
+                         buf)
                  (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
                                                start-col0 extmark-opts))
                ;; NOTE: To insert first chunk here with few manipulations,
@@ -240,14 +243,19 @@
                (table.insert exceeded-chunks 1 ?first-line-chunk))
            (when (next fitted-chunks)
              (each [i chunk (ipairs fitted-chunks)]
-               (set extmark-opts.virt_text (extend-chunk-to-win-width! chunk))
-               (vim.api.nvim_buf_set_extmark buf cache.namespace
-                                             (+ start-row0 i) 0 extmark-opts)))
+               (let [row0 (+ start-row0 i)]
+                 (set extmark-opts.virt_text (extend-chunk-to-win-width! chunk))
+                 (debug! (: "set `virt_text` for `fitted-chunk` at the row %d"
+                            :format row0))
+                 (vim.api.nvim_buf_set_extmark buf cache.namespace ;
+                                               row0 0 extmark-opts))))
            (when (next exceeded-chunks)
              (set extmark-opts.virt_text nil)
              (set extmark-opts.virt_lines
                   (vim.tbl_map extend-chunk-to-win-width! exceeded-chunks))
              (let [new-end-row0 (dec new-end-row)]
+               (debug! (: "set `virt_lines` for `exceeded-chunks` at the row %d"
+                          :format new-end-row0))
                (vim.api.nvim_buf_set_extmark buf cache.namespace ;
                                              new-end-row0 0 extmark-opts))))
         (vim.schedule))))

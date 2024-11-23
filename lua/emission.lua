@@ -202,6 +202,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         else
           extmark_opts.virt_text = _3ffirst_line_chunk
         end
+        debug_21(("set `virt_text` for first line at {start-row0: %d, start-col0: %d}"):format(start_row0, start_col0), buf)
         vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
       elseif next(fitted_chunks) then
         table.insert(fitted_chunks, 1, _3ffirst_line_chunk)
@@ -210,8 +211,10 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
       end
       if next(fitted_chunks) then
         for i, chunk in ipairs(fitted_chunks) do
+          local row0 = (start_row0 + i)
           extmark_opts.virt_text = extend_chunk_to_win_width_21(chunk)
-          vim.api.nvim_buf_set_extmark(buf, cache.namespace, (start_row0 + i), 0, extmark_opts)
+          debug_21(("set `virt_text` for `fitted-chunk` at the row %d"):format(row0))
+          vim.api.nvim_buf_set_extmark(buf, cache.namespace, row0, 0, extmark_opts)
         end
       else
       end
@@ -219,6 +222,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         extmark_opts.virt_text = nil
         extmark_opts.virt_lines = vim.tbl_map(extend_chunk_to_win_width_21, exceeded_chunks)
         local new_end_row0 = dec(new_end_row)
+        debug_21(("set `virt_lines` for `exceeded-chunks` at the row %d"):format(new_end_row0))
         return vim.api.nvim_buf_set_extmark(buf, cache.namespace, new_end_row0, 0, extmark_opts)
       else
         return nil
