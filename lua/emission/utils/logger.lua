@@ -1,5 +1,5 @@
 local plugin_name = "emission"
-local debug_config = {enabled = vim.env.EMISSION_DEBUG, level = (vim.env.EMISSION_DEBUG_LEVEL or vim.log.levels.DEBUG), short_path = ("0" ~= vim.env.EMISSION_DEBUG_SHORT_PATH), notifier = vim.notify}
+local debug_config = {enabled = vim.env.EMISSION_DEBUG, level = tonumber((vim.env.EMISSION_DEBUG_LEVEL or vim.log.levels.DEBUG)), short_path = ("0" ~= vim.env.EMISSION_DEBUG_SHORT_PATH), notifier = vim.notify}
 local function set_debug_config_21(opts)
   if opts then
     for k, v in pairs(opts) do

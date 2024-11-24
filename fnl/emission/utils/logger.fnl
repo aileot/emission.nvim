@@ -3,8 +3,9 @@
 (local plugin-name :emission)
 
 (local debug-config {:enabled vim.env.EMISSION_DEBUG
-                     :level (or vim.env.EMISSION_DEBUG_LEVEL
-                                vim.log.levels.DEBUG)
+                     :level (-> (or vim.env.EMISSION_DEBUG_LEVEL
+                                    vim.log.levels.DEBUG)
+                                (tonumber))
                      :short_path (not= :0 vim.env.EMISSION_DEBUG_SHORT_PATH)
                      :notifier vim.notify})
 
