@@ -283,11 +283,11 @@
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buf->detach` value.
-      (when (buf-has-cursor? buf)
-        (if (and (or (< old-end-row-offset new-end-row-offset)
-                     (and (= 0 old-end-row-offset new-end-row-offset)
-                          (<= old-end-col-offset new-end-col-offset)))
+      (when (and (buf-has-cursor? buf) ;
                  (cache.config.highlight.filter buf))
+        (if (or (< old-end-row-offset new-end-row-offset)
+                (and (= 0 old-end-row-offset new-end-row-offset)
+                     (<= old-end-col-offset new-end-col-offset)))
             (do
               (debug! "reserving `added` highlights" buf)
               (->> (fn []

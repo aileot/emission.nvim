@@ -237,8 +237,8 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     debug_21("detached from buf", buf)
     return true
   else
-    if buf_has_cursor_3f(buf) then
-      if (((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) and cache.config.highlight.filter(buf)) then
+    if (buf_has_cursor_3f(buf) and cache.config.highlight.filter(buf)) then
+      if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
         debug_21("reserving `added` highlights", buf)
         local function _31_()
           highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
