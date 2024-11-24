@@ -11,6 +11,7 @@
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         ;; NOTE: Should the option be exposed to users?
         :highlight_delay 10
+        :highlight {:duration 300 :filter #true}
         :added {:priority 102
                 :duration 300
                 :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
