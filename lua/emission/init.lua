@@ -155,7 +155,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
       return nil
     end
   end
-  first_removed_line = old_texts[start_row]:sub(inc(start_col0), _24_())
+  first_removed_line = string.sub(old_texts[start_row], inc(start_col0), _24_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
     _3fmiddle_removed_lines = vim.list_slice(old_texts, inc(start_row), removed_end_row)
@@ -164,7 +164,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   end
   local _3flast_removed_line
   if ((0 < old_end_row_offset) and (0 < old_end_col_offset)) then
-    _3flast_removed_line = old_texts[removed_end_row]:sub(1, old_end_col_offset)
+    _3flast_removed_line = string.sub(old_texts[removed_end_row], 1, old_end_col_offset)
   else
     _3flast_removed_line = nil
   end

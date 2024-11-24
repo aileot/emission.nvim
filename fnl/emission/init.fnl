@@ -179,9 +179,9 @@
         ;; NOTE: first-removed-line will compose `virt_text` unless the EOF
         ;; is removed.
         first-removed-line (-> (. old-texts start-row)
-                               (: :sub (inc start-col0)
-                                  (when (= 0 old-end-row-offset)
-                                    (+ start-col0 old-end-col-offset))))
+                               (string.sub (inc start-col0)
+                                           (when (= 0 old-end-row-offset)
+                                             (+ start-col0 old-end-col-offset))))
         ;; NOTE: The rest ?middle-removed-lines and ?last-removed-line will
         ;; compose `virt_lines`.
         ?middle-removed-lines (when (< 1 old-end-row-offset)
@@ -193,7 +193,7 @@
                                       ;; should not be counted.
                                       (< 0 old-end-col-offset))
                              (-> (. old-texts removed-end-row)
-                                 (: :sub 1 old-end-col-offset)))
+                                 (string.sub 1 old-end-col-offset)))
         ?first-line-chunk [[first-removed-line hl-group]]
         ?rest-line-chunks (if ?middle-removed-lines
                               (do
