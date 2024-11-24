@@ -78,7 +78,7 @@
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
     ;; the highlights over lines to the exactness with specifying the range.
     (do
-      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {start-row0: %d, start-col0: %d}"
+      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"
                  :format start-row0 start-col0) ;
               buf)
       (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
@@ -143,7 +143,7 @@
     (-> #(when (buf-has-cursor? buf)
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
-           (debug! (: "highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"
+           (debug! (: "highlighting `added` range {row0: %d, col0: %d} to {row: %d, col: %d}"
                       :format start-row0 start-col0 end-row end-col)
                    buf)
            (vim/hl.range buf cache.namespace hl-group [start-row0 start-col0]
@@ -160,7 +160,7 @@
 (fn highlight-removed-texts! [buf
                               [start-row0 start-col0]
                               [old-end-row-offset old-end-col-offset]]
-  (debug! (: "highlighting `removed` range {row: %d, col: %d} by the offsets {row: %d, col: %d}"
+  (debug! (: "highlighting `removed` range {row0: %d, col0: %d} by the offsets {row: %d, col: %d}"
              :format start-row0 start-col0 old-end-row-offset old-end-col-offset)
           buf)
   (let [hl-group cache.hl-group.removed
@@ -231,7 +231,7 @@
                           ;; When the text is removed in the middle of the
                           ;; line.
                           ?first-line-chunk))
-                 (debug! (: "set `virt_text` for first line at {start-row0: %d, start-col0: %d}"
+                 (debug! (: "set `virt_text` for first line at {row0: %d, col0: %d}"
                             :format start-row0 start-col0)
                          buf)
                  (vim.api.nvim_buf_set_extmark buf cache.namespace start-row0
