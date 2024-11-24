@@ -2,8 +2,9 @@
 
 (local plugin-name :emission)
 
-(local debug-config {:enabled vim.env.DEBUG_EMISSION
-                     :level vim.log.levels.DEBUG
+(local debug-config {:enabled vim.env.EMISSION_DEBUG
+                     :level (or vim.env.EMISSION_DEBUG_LEVEL
+                                vim.log.levels.DEBUG)
                      :notifier vim.notify})
 
 (fn set-debug-config! [opts]
