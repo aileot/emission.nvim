@@ -13,11 +13,9 @@
         :highlight_delay 10
         :highlight {:duration 300 :filter #true}
         :added {:priority 102
-                :duration 300
                 :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
                 :filter #true}
         :removed {:priority 101
-                  :duration 300
                   :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
