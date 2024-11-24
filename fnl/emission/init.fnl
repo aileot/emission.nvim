@@ -13,14 +13,12 @@
         :highlight_delay 10
         :highlight {:duration 300 :filter #true}
         :added {:priority 102
-                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
-                :filter #true}
+                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}}
         :removed {:priority 101
                   :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
-                           :bg "#672d2d"}
-                  :filter #true}})
+                           :bg "#672d2d"}}})
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
