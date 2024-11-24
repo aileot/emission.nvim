@@ -119,7 +119,8 @@
                             buf)
                     (while (not (cache.pending-highlights:empty?))
                       (let [hl-cb (cache.pending-highlights:pop!)]
-                        (hl-cb))))]
+                        (hl-cb)))
+                    (cache-old-texts buf))]
     (cache.timer-to-highlight:start cache.config.highlight_delay 0
                                     #(vim.schedule timer-cb))))
 
@@ -289,8 +290,7 @@
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (request-to-clear-highlights! buf)
-                     (cache-old-texts buf))
+                     (request-to-clear-highlights! buf))
                    (request-to-highlight! buf)))
             (do
               (debug! "reserving `removed` highlights" buf)
@@ -298,8 +298,7 @@
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (request-to-clear-highlights! buf)
-                     (cache-old-texts buf))
+                     (request-to-clear-highlights! buf))
                    (request-to-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
