@@ -103,7 +103,7 @@
               (clear-highlights! buf))]
     (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
 
-(fn reserve-highlight! [buf callback]
+(fn request-to-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
   during a highlight delay.
   @param buf number
@@ -119,13 +119,16 @@
                             buf)
                     (while (not (cache.pending-highlights:empty?))
                       (let [hl-cb (cache.pending-highlights:pop!)]
-                        (hl-cb))))]
+                        (hl-cb)))
+                    (cache-old-texts buf))]
     (cache.timer-to-highlight:start cache.config.highlight_delay 0
                                     #(vim.schedule timer-cb))))
 
 (fn highlight-added-texts! [buf
-                            [start-row0 start-col0]
-                            [new-end-row-offset new-end-col-offset]]
+                            start-row0
+                            start-col0
+                            new-end-row-offset
+                            new-end-col-offset]
   (let [hl-group cache.hl-group.added
         num-lines (vim.api.nvim_buf_line_count buf)
         end-row (+ start-row0 new-end-row-offset)
@@ -153,8 +156,10 @@
     chunk))
 
 (fn highlight-removed-texts! [buf
-                              [start-row0 start-col0]
-                              [old-end-row-offset old-end-col-offset]]
+                              start-row0
+                              start-col0
+                              old-end-row-offset
+                              old-end-col-offset]
   (debug! (: "highlighting `removed` range {row0: %d, col0: %d} by the offsets {row: %d, col: %d}"
              :format start-row0 start-col0 old-end-row-offset old-end-col-offset)
           buf)
@@ -286,21 +291,19 @@
             (do
               (debug! "reserving `added` highlights" buf)
               (->> (fn []
-                     (highlight-added-texts! buf [start-row0 start-col0]
-                                             [new-end-row-offset
-                                              new-end-col-offset])
-                     (request-to-clear-highlights! buf)
-                     (cache-old-texts buf))
-                   (reserve-highlight! buf)))
+                     (highlight-added-texts! buf start-row0 start-col0
+                                             new-end-row-offset
+                                             new-end-col-offset)
+                     (request-to-clear-highlights! buf))
+                   (request-to-highlight! buf)))
             (do
               (debug! "reserving `removed` highlights" buf)
               (->> (fn []
-                     (highlight-removed-texts! buf [start-row0 start-col0]
-                                               [old-end-row-offset
-                                                old-end-col-offset])
-                     (request-to-clear-highlights! buf)
-                     (cache-old-texts buf))
-                   (reserve-highlight! buf))))
+                     (highlight-removed-texts! buf start-row0 start-col0
+                                               old-end-row-offset
+                                               old-end-col-offset)
+                     (request-to-clear-highlights! buf))
+                   (request-to-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
 
