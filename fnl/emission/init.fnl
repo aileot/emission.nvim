@@ -22,7 +22,8 @@
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
-              :timer (uv.new_timer)
+              :timer-to-highlight (uv.new_timer)
+              :timer-to-clear-highlight (uv.new_timer)
               :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-editing-position [0 0]
@@ -100,7 +101,7 @@
         cb #(when (vim.api.nvim_buf_is_valid buf)
               (debug! "clearing namespace after duration" buf)
               (clear-highlights! buf))]
-    (cache.timer:start duration 0 #(vim.schedule cb))))
+    (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
 
 (fn reserve-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
@@ -119,7 +120,8 @@
                     (while (not (cache.pending-highlights:empty?))
                       (let [hl-cb (cache.pending-highlights:pop!)]
                         (hl-cb))))]
-    (cache.timer:start cache.config.highlight_delay 0 #(vim.schedule timer-cb))))
+    (cache.timer-to-highlight:start cache.config.highlight_delay 0
+                                    #(vim.schedule timer-cb))))
 
 (fn highlight-added-texts! [buf
                             [start-row0 start-col0]
