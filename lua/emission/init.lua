@@ -76,7 +76,7 @@ local function request_to_clear_highlights_21(buf)
   end
   return cache["timer-to-clear-highlight"]:start(duration, 0, _11_)
 end
-local function reserve_highlight_21(buf, callback)
+local function request_to_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
@@ -253,7 +253,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           request_to_clear_highlights_21(buf)
           return cache_old_texts(buf)
         end
-        reserve_highlight_21(buf, _35_)
+        request_to_highlight_21(buf, _35_)
       else
         debug_21("reserving `removed` highlights", buf)
         local function _36_()
@@ -261,7 +261,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           request_to_clear_highlights_21(buf)
           return cache_old_texts(buf)
         end
-        reserve_highlight_21(buf, _36_)
+        request_to_highlight_21(buf, _36_)
       end
       return nil
     else

@@ -103,7 +103,7 @@
               (clear-highlights! buf))]
     (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
 
-(fn reserve-highlight! [buf callback]
+(fn request-to-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
   during a highlight delay.
   @param buf number
@@ -291,7 +291,7 @@
                                               new-end-col-offset])
                      (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
-                   (reserve-highlight! buf)))
+                   (request-to-highlight! buf)))
             (do
               (debug! "reserving `removed` highlights" buf)
               (->> (fn []
@@ -300,7 +300,7 @@
                                                 old-end-col-offset])
                      (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
-                   (reserve-highlight! buf))))
+                   (request-to-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
 
