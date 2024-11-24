@@ -111,18 +111,15 @@
   (assert (= :function (type callback))
           (.. "expected function, got " (type callback)))
   (cache.pending-highlights:push! callback)
-  (cache.timer:start cache.config.highlight_delay 0
-                     #(-> (fn []
-                            (when (and (not (. cache.buf->detach? buf))
-                                       (buf-has-cursor? buf))
-                              (debug! (: "executing a series of pending %d highlight(s)"
-                                         :format
-                                         (length (cache.pending-highlights:get)))
-                                      buf)
-                              (while (not (cache.pending-highlights:empty?))
-                                (let [cb (cache.pending-highlights:pop!)]
-                                  (cb)))))
-                          (vim.schedule))))
+  (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
+                             (buf-has-cursor? buf))
+                    (debug! (: "executing a series of pending %d highlight(s)"
+                               :format (length (cache.pending-highlights:get)))
+                            buf)
+                    (while (not (cache.pending-highlights:empty?))
+                      (let [hl-cb (cache.pending-highlights:pop!)]
+                        (hl-cb))))]
+    (cache.timer:start cache.config.highlight_delay 0 #(vim.schedule timer-cb))))
 
 (fn highlight-added-texts! [buf
                             [start-row0 start-col0]
