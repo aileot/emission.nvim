@@ -92,7 +92,12 @@
   ;; value continuous_editing_time.
   (dismiss-deprecated-highlight! buf [start-row0 start-col0]))
 
-(fn clear-highlights! [buf duration]
+(fn clear-highlights! [buf]
+  "Clear highlights in `buf` after `duration` in milliseconds.
+  @param buf number"
+  (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
+
+(fn request-to-clear-highlights! [buf duration]
   "Clear highlights in `buf` after `duration` in milliseconds.
   @param buf number
   @param duration number milliseconds"
@@ -101,9 +106,7 @@
                      #(-> (fn []
                             (when (vim.api.nvim_buf_is_valid buf)
                               (debug! "clearing namespace after duration" buf)
-                              (vim.api.nvim_buf_clear_namespace buf
-                                                                cache.namespace
-                                                                0 -1)))
+                              (clear-highlights! buf)))
                           (vim.schedule))))
 
 (fn reserve-highlight! [buf callback]
@@ -293,7 +296,8 @@
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (clear-highlights! buf cache.config.added.duration)
+                     (request-to-clear-highlights! buf
+                                                   cache.config.added.duration)
                      (cache-old-texts buf))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
@@ -302,7 +306,8 @@
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (clear-highlights! buf cache.config.removed.duration)
+                     (request-to-clear-highlights! buf
+                                                   cache.config.removed.duration)
                      (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
