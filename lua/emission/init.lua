@@ -17,7 +17,7 @@ local function _5_()
   return true
 end
 default_config = {debug = debug_config, attach = {delay = 100, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight_delay = 10, highlight = {duration = 300, filter = _3_}, added = {priority = 102, duration = 300, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}, filter = _4_}, removed = {priority = 101, duration = 300, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}, filter = _5_}}
-local cache = {config = vim.deepcopy(default_config), namespace = vim.api.nvim_create_namespace("emission"), timer = uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-duration"] = 0, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
+local cache = {config = vim.deepcopy(default_config), namespace = vim.api.nvim_create_namespace("emission"), timer = uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
@@ -67,7 +67,6 @@ local function clear_highlights_21(buf)
 end
 local function request_to_clear_highlights_21(buf)
   local duration = cache.config.highlight.duration
-  cache["last-duration"] = duration
   local cb
   local function _11_()
     if vim.api.nvim_buf_is_valid(buf) then

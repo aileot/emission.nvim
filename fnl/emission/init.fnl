@@ -29,7 +29,6 @@
               :timer (uv.new_timer)
               :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
-              :last-duration 0
               :last-editing-position [0 0]
               :buf->detach? {}
               :last-recache-time 0
@@ -101,12 +100,11 @@
 (fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
   @param buf number"
-  (let [duration cache.config.highlight.duration]
-    (set cache.last-duration duration)
-    (let [cb #(when (vim.api.nvim_buf_is_valid buf)
-                (debug! "clearing namespace after duration" buf)
-                (clear-highlights! buf))]
-      (cache.timer:start duration 0 #(vim.schedule cb)))))
+  (let [duration cache.config.highlight.duration
+        cb #(when (vim.api.nvim_buf_is_valid buf)
+              (debug! "clearing namespace after duration" buf)
+              (clear-highlights! buf))]
+    (cache.timer:start duration 0 #(vim.schedule cb))))
 
 (fn reserve-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
