@@ -59,20 +59,25 @@ local function dismiss_deprecated_highlights_21(buf, _9_)
   local start_col0 = _9_[2]
   return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
 end
-local function clear_highlights_21(buf, duration)
+local function clear_highlights_21(buf)
+  return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
+end
+local function request_to_clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
+  local cb
   local function _10_()
-    local function _11_()
-      if vim.api.nvim_buf_is_valid(buf) then
-        debug_21("clearing namespace after duration", buf)
-        return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
-      else
-        return nil
-      end
+    if vim.api.nvim_buf_is_valid(buf) then
+      debug_21("clearing namespace after duration", buf)
+      return clear_highlights_21(buf)
+    else
+      return nil
     end
-    return vim.schedule(_11_)
   end
-  return cache.timer:start(duration, 0, _10_)
+  cb = _10_
+  local function _12_()
+    return vim.schedule(cb)
+  end
+  return cache.timer:start(duration, 0, _12_)
 end
 local function reserve_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)
@@ -247,7 +252,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `added` highlights", buf)
           local function _36_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
-            clear_highlights_21(buf, cache.config.added.duration)
+            request_to_clear_highlights_21(buf, cache.config.added.duration)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _36_)
@@ -258,7 +263,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `removed` highlights", buf)
           local function _38_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
-            clear_highlights_21(buf, cache.config.removed.duration)
+            request_to_clear_highlights_21(buf, cache.config.removed.duration)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _38_)
