@@ -1,5 +1,5 @@
 local plugin_name = "emission"
-local debug_config = {enabled = vim.env.EMISSION_DEBUG, level = (vim.env.EMISSION_DEBUG_LEVEL or vim.log.levels.DEBUG), notifier = vim.notify}
+local debug_config = {enabled = vim.env.EMISSION_DEBUG, level = (vim.env.EMISSION_DEBUG_LEVEL or vim.log.levels.DEBUG), short_path = ("0" ~= vim.env.EMISSION_DEBUG_SHORT_PATH), notifier = vim.notify}
 local function set_debug_config_21(opts)
   if opts then
     for k, v in pairs(opts) do
@@ -14,15 +14,23 @@ local function log_msg_21(msg, log_level, _3fbuf)
   if (debug_config.enabled and (debug_config.level <= log_level)) then
     local buf_info
     if _3fbuf then
-      buf_info = (" @ buf=%d, bufname=%s"):format(_3fbuf, vim.api.nvim_buf_get_name(_3fbuf))
+      local buf_name = vim.api.nvim_buf_get_name(_3fbuf)
+      local function _2_()
+        if debug_config.short_path then
+          return vim.fn.pathshorten(buf_name)
+        else
+          return buf_name
+        end
+      end
+      buf_info = (" @ buf=%d, bufname=%s"):format(_3fbuf, _2_())
     else
       buf_info = ""
     end
     local new_msg = ("[%s] %s%s"):format(plugin_name, msg, buf_info)
-    local function _3_()
+    local function _4_()
       return debug_config.notifier(new_msg, log_level, {title = plugin_name})
     end
-    return vim.schedule(_3_)
+    return vim.schedule(_4_)
   else
     return nil
   end

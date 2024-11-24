@@ -5,6 +5,7 @@
 (local debug-config {:enabled vim.env.EMISSION_DEBUG
                      :level (or vim.env.EMISSION_DEBUG_LEVEL
                                 vim.log.levels.DEBUG)
+                     :short_path (not= :0 vim.env.EMISSION_DEBUG_SHORT_PATH)
                      :notifier vim.notify})
 
 (fn set-debug-config! [opts]
@@ -16,8 +17,11 @@
   (when (and debug-config.enabled ;
              (<= debug-config.level log-level))
     (let [buf-info (if ?buf
-                       (: " @ buf=%d, bufname=%s" :format ?buf
-                          (vim.api.nvim_buf_get_name ?buf))
+                       (let [buf-name (vim.api.nvim_buf_get_name ?buf)]
+                         (: " @ buf=%d, bufname=%s" :format ?buf
+                            (if debug-config.short_path
+                                (vim.fn.pathshorten buf-name)
+                                buf-name)))
                        "")
           new-msg (: "[%s] %s%s" :format plugin-name msg buf-info)]
       (-> #(debug-config.notifier new-msg log-level {:title plugin-name})
