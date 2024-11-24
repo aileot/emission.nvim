@@ -255,7 +255,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `added` highlights", buf)
           local function _37_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
-            request_to_clear_highlights_21(buf, cache.config.added.duration)
+            request_to_clear_highlights_21(buf, cache.config.highlight.duration)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _37_)
@@ -266,7 +266,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `removed` highlights", buf)
           local function _39_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
-            request_to_clear_highlights_21(buf, cache.config.removed.duration)
+            request_to_clear_highlights_21(buf, cache.config.highlight.duration)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _39_)

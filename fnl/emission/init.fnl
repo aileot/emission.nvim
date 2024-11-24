@@ -296,7 +296,7 @@
                                              [new-end-row-offset
                                               new-end-col-offset])
                      (request-to-clear-highlights! buf
-                                                   cache.config.added.duration)
+                                                   cache.config.highlight.duration)
                      (cache-old-texts buf))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
@@ -306,7 +306,7 @@
                                                [old-end-row-offset
                                                 old-end-col-offset])
                      (request-to-clear-highlights! buf
-                                                   cache.config.removed.duration)
+                                                   cache.config.highlight.duration)
                      (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
