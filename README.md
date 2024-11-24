@@ -102,10 +102,12 @@ Additionally, it will never highlight during recorded macro execution.
 ---@param buf number attached buffer handle
 ---@return boolean Return false or nil to ignore; otherwise, highlight texts
 local filter = function(buf)
-  if not vim.api.nvim_get_mode().mode:find("n") then
+  -- Do not highlight during executing macro.
+  if vim.fn.reg_executing() ~= "" then
     return false
   end
-  if vim.fn.reg_executing() ~= "" then
+  -- Do not highlight except in Normal mode.
+  if not vim.api.nvim_get_mode().mode:find("n") then
     return false
   end
   return true
