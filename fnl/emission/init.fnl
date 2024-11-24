@@ -166,7 +166,8 @@
   (let [hl-group cache.hl-group.removed
         old-texts (assert (. cache.buf->old-texts buf)
                           "expected string[], got `nil `or `false`")
-        start-row (inc start-row0)
+        old-end-row (length old-texts)
+        start-row (math.min (inc start-row0) old-end-row)
         ends-with-newline? (= 0 old-end-col-offset)
         old-end-row-offset* (if ends-with-newline?
                                 ;; NOTE: "\n" at the last line is counted as
