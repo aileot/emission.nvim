@@ -125,8 +125,10 @@
                                     #(vim.schedule timer-cb))))
 
 (fn highlight-added-texts! [buf
-                            [start-row0 start-col0]
-                            [new-end-row-offset new-end-col-offset]]
+                            start-row0
+                            start-col0
+                            new-end-row-offset
+                            new-end-col-offset]
   (let [hl-group cache.hl-group.added
         num-lines (vim.api.nvim_buf_line_count buf)
         end-row (+ start-row0 new-end-row-offset)
@@ -154,8 +156,10 @@
     chunk))
 
 (fn highlight-removed-texts! [buf
-                              [start-row0 start-col0]
-                              [old-end-row-offset old-end-col-offset]]
+                              start-row0
+                              start-col0
+                              old-end-row-offset
+                              old-end-col-offset]
   (debug! (: "highlighting `removed` range {row0: %d, col0: %d} by the offsets {row: %d, col: %d}"
              :format start-row0 start-col0 old-end-row-offset old-end-col-offset)
           buf)
@@ -287,17 +291,17 @@
             (do
               (debug! "reserving `added` highlights" buf)
               (->> (fn []
-                     (highlight-added-texts! buf [start-row0 start-col0]
-                                             [new-end-row-offset
-                                              new-end-col-offset])
+                     (highlight-added-texts! buf start-row0 start-col0
+                                             new-end-row-offset
+                                             new-end-col-offset)
                      (request-to-clear-highlights! buf))
                    (request-to-highlight! buf)))
             (do
               (debug! "reserving `removed` highlights" buf)
               (->> (fn []
-                     (highlight-removed-texts! buf [start-row0 start-col0]
-                                               [old-end-row-offset
-                                                old-end-col-offset])
+                     (highlight-removed-texts! buf start-row0 start-col0
+                                               old-end-row-offset
+                                               old-end-col-offset)
                      (request-to-clear-highlights! buf))
                    (request-to-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
