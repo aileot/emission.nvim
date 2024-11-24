@@ -45,7 +45,7 @@ local function dismiss_deprecated_highlight_21(buf, _6_)
   do
     local _7_ = cache["last-editing-position"]
     if ((_G.type(_7_) == "table") and (_7_[1] == start_row0) and (_7_[2] == start_col0)) then
-      debug_21(("dismissing all the buf highlights due to the duplicated positioning {start-row0: %d, start-col0: %d}"):format(start_row0, start_col0), buf)
+      debug_21(("dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
       vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
     else
       local _ = _7_
@@ -114,7 +114,7 @@ local function highlight_added_texts_21(buf, _16_, _17_)
     if buf_has_cursor_3f(buf) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
-      debug_21(("highlighting `added` range {row: %d, col: %d} to {row: %d, col: %d}"):format(start_row0, start_col0, end_row, end_col), buf)
+      debug_21(("highlighting `added` range {row0: %d, col0: %d} to {row: %d, col: %d}"):format(start_row0, start_col0, end_row, end_col), buf)
       return vim_2fhl.range(buf, cache.namespace, hl_group, {start_row0, start_col0}, {end_row, end_col}, hl_opts)
     else
       return nil
@@ -133,7 +133,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
   local start_col0 = _21_[2]
   local old_end_row_offset = _22_[1]
   local old_end_col_offset = _22_[2]
-  debug_21(("highlighting `removed` range {row: %d, col: %d} by the offsets {row: %d, col: %d}"):format(start_row0, start_col0, old_end_row_offset, old_end_col_offset), buf)
+  debug_21(("highlighting `removed` range {row0: %d, col0: %d} by the offsets {row: %d, col: %d}"):format(start_row0, start_col0, old_end_row_offset, old_end_col_offset), buf)
   local hl_group = cache["hl-group"].removed
   local old_texts = assert(cache["buf->old-texts"][buf], "expected string[], got `nil `or `false`")
   local start_row = inc(start_row0)
@@ -202,7 +202,7 @@ local function highlight_removed_texts_21(buf, _21_, _22_)
         else
           extmark_opts.virt_text = _3ffirst_line_chunk
         end
-        debug_21(("set `virt_text` for first line at {start-row0: %d, start-col0: %d}"):format(start_row0, start_col0), buf)
+        debug_21(("set `virt_text` for first line at {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
         vim.api.nvim_buf_set_extmark(buf, cache.namespace, start_row0, start_col0, extmark_opts)
       elseif next(fitted_chunks) then
         table.insert(fitted_chunks, 1, _3ffirst_line_chunk)
