@@ -58,9 +58,14 @@ require("emission").setup({
       "prompt"
     },
   },
+  highlight = {
+    duration = 300, -- milliseconds
+    filter = function(buf)
+      return true
+    end, -- See below for examples.
+  },
   added = {
     priority = 102,
-    duration = 300, -- milliseconds
     -- The same options for `nvim_set_hl()` at `{val}` is available.
     -- NOTE: With "default" key set to `true`, you can arrange the highlight
     -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
@@ -71,24 +76,17 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#2d4f67",
     },
-    filter = function(buf)
-      return true
-    end, -- See below for examples.
   },
   -- The same options as `added` are available.
   -- Note that the default values might be different from `added` ones.
   removed = {
     priority = 101,
-    duration = 300,
     hl_map = {
       default = true,
       bold = true,
       fg = "#dcd7ba",
       bg = "#672d2d",
     },
-    filter = function(buf)
-      return true
-    end,
   },
 })
 ```
@@ -115,12 +113,8 @@ end
 
 require("emission").setup({
   -- Set other options...
-  added = {
-    -- Set other options for `added`...
-    filter = filter,
-  },
-  removed = {
-    -- Set other options for `removed`...
+  highlight = {
+    -- Set other options at `highlight`...
     filter = filter,
   },
 })

@@ -11,24 +11,20 @@
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         ;; NOTE: Should the option be exposed to users?
         :highlight_delay 10
+        :highlight {:duration 300 :filter #true}
         :added {:priority 102
-                :duration 300
-                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
-                :filter #true}
+                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}}
         :removed {:priority 101
-                  :duration 300
                   :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
-                           :bg "#672d2d"}
-                  :filter #true}})
+                           :bg "#672d2d"}}})
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer (uv.new_timer)
               :pending-highlights (Stack.new)
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
-              :last-duration 0
               :last-editing-position [0 0]
               :buf->detach? {}
               :last-recache-time 0
@@ -97,12 +93,11 @@
   @param buf number"
   (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
 
-(fn request-to-clear-highlights! [buf duration]
+(fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
-  @param buf number
-  @param duration number milliseconds"
-  (set cache.last-duration duration)
-  (let [cb #(when (vim.api.nvim_buf_is_valid buf)
+  @param buf number"
+  (let [duration cache.config.highlight.duration
+        cb #(when (vim.api.nvim_buf_is_valid buf)
               (debug! "clearing namespace after duration" buf)
               (clear-highlights! buf))]
     (cache.timer:start duration 0 #(vim.schedule cb))))
@@ -285,27 +280,26 @@
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buf->detach` value.
       (when (buf-has-cursor? buf)
-        (if (or (< old-end-row-offset new-end-row-offset)
-                (and (= 0 old-end-row-offset new-end-row-offset)
-                     (<= old-end-col-offset new-end-col-offset)))
-            (when (cache.config.added.filter buf)
+        (if (and (or (< old-end-row-offset new-end-row-offset)
+                     (and (= 0 old-end-row-offset new-end-row-offset)
+                          (<= old-end-col-offset new-end-col-offset)))
+                 (cache.config.highlight.filter buf))
+            (do
               (debug! "reserving `added` highlights" buf)
               (->> (fn []
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (request-to-clear-highlights! buf
-                                                   cache.config.added.duration)
+                     (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
                    (reserve-highlight! buf)))
-            (when (cache.config.removed.filter buf)
+            (do
               (debug! "reserving `removed` highlights" buf)
               (->> (fn []
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (request-to-clear-highlights! buf
-                                                   cache.config.removed.duration)
+                     (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
