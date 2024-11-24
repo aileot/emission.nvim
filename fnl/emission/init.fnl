@@ -9,9 +9,10 @@
         :attach {:delay 100
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
-        ;; NOTE: Should the option be exposed to users?
-        :highlight_delay 10
-        :highlight {:duration 300 :filter #true}
+        :highlight {:duration 300
+                    :filter #true
+                    ;; NOTE: Should the option `delay` be exposed to users?
+                    :delay 10}
         :added {:priority 102
                 :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}}
         :removed {:priority 101
@@ -121,7 +122,7 @@
                       (let [hl-cb (cache.pending-highlights:pop!)]
                         (hl-cb)))
                     (cache-old-texts buf))]
-    (cache.timer-to-highlight:start cache.config.highlight_delay 0
+    (cache.timer-to-highlight:start cache.config.highlight.delay 0
                                     #(vim.schedule timer-cb))))
 
 (fn highlight-added-texts! [buf
@@ -285,25 +286,18 @@
       ;; check to detach should only be managed by `buf->detach` value.
       (when (and (buf-has-cursor? buf) ;
                  (cache.config.highlight.filter buf))
-        (if (or (< old-end-row-offset new-end-row-offset)
-                (and (= 0 old-end-row-offset new-end-row-offset)
-                     (<= old-end-col-offset new-end-col-offset)))
-            (do
-              (debug! "reserving `added` highlights" buf)
-              (->> (fn []
-                     (highlight-added-texts! buf start-row0 start-col0
-                                             new-end-row-offset
-                                             new-end-col-offset)
-                     (request-to-clear-highlights! buf))
-                   (request-to-highlight! buf)))
-            (do
-              (debug! "reserving `removed` highlights" buf)
-              (->> (fn []
-                     (highlight-removed-texts! buf start-row0 start-col0
-                                               old-end-row-offset
-                                               old-end-col-offset)
-                     (request-to-clear-highlights! buf))
-                   (request-to-highlight! buf))))
+        (let [highlight-texts! (if (or (< old-end-row-offset new-end-row-offset)
+                                       (and (= 0 old-end-row-offset
+                                               new-end-row-offset)
+                                            (<= old-end-col-offset
+                                                new-end-col-offset)))
+                                   highlight-added-texts!
+                                   highlight-removed-texts!)]
+          (->> (fn []
+                 (highlight-texts! buf start-row0 start-col0 old-end-row-offset
+                                   old-end-col-offset)
+                 (request-to-clear-highlights! buf))
+               (request-to-highlight! buf)))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
 
