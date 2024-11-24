@@ -65,7 +65,8 @@ end
 local function clear_highlights_21(buf)
   return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
 end
-local function request_to_clear_highlights_21(buf, duration)
+local function request_to_clear_highlights_21(buf)
+  local duration = cache.config.highlight.duration
   cache["last-duration"] = duration
   local cb
   local function _11_()
@@ -255,7 +256,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `added` highlights", buf)
           local function _37_()
             highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
-            request_to_clear_highlights_21(buf, cache.config.highlight.duration)
+            request_to_clear_highlights_21(buf)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _37_)
@@ -266,7 +267,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           debug_21("reserving `removed` highlights", buf)
           local function _39_()
             highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
-            request_to_clear_highlights_21(buf, cache.config.highlight.duration)
+            request_to_clear_highlights_21(buf)
             return cache_old_texts(buf)
           end
           reserve_highlight_21(buf, _39_)

@@ -98,15 +98,15 @@
   @param buf number"
   (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
 
-(fn request-to-clear-highlights! [buf duration]
+(fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
-  @param buf number
-  @param duration number milliseconds"
-  (set cache.last-duration duration)
-  (let [cb #(when (vim.api.nvim_buf_is_valid buf)
-              (debug! "clearing namespace after duration" buf)
-              (clear-highlights! buf))]
-    (cache.timer:start duration 0 #(vim.schedule cb))))
+  @param buf number"
+  (let [duration cache.config.highlight.duration]
+    (set cache.last-duration duration)
+    (let [cb #(when (vim.api.nvim_buf_is_valid buf)
+                (debug! "clearing namespace after duration" buf)
+                (clear-highlights! buf))]
+      (cache.timer:start duration 0 #(vim.schedule cb)))))
 
 (fn reserve-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
@@ -295,8 +295,7 @@
                      (highlight-added-texts! buf [start-row0 start-col0]
                                              [new-end-row-offset
                                               new-end-col-offset])
-                     (request-to-clear-highlights! buf
-                                                   cache.config.highlight.duration)
+                     (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
                    (reserve-highlight! buf)))
             (when (cache.config.removed.filter buf)
@@ -305,8 +304,7 @@
                      (highlight-removed-texts! buf [start-row0 start-col0]
                                                [old-end-row-offset
                                                 old-end-col-offset])
-                     (request-to-clear-highlights! buf
-                                                   cache.config.highlight.duration)
+                     (request-to-clear-highlights! buf)
                      (cache-old-texts buf))
                    (reserve-highlight! buf))))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
