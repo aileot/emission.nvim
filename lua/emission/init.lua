@@ -28,6 +28,22 @@ local function cache_old_texts(buf)
   assert(cache["buf->old-texts"][buf], "Failed to cache lines on attaching to buffer")
   return debug_21("cached texts", buf)
 end
+local function get_greedy_inline_diff(line1, line2)
+  local i = 1
+  local j = #line1
+  local k = #line2
+  while ((i <= j) and (i <= k) and (string.sub(line1, i, i) == string.sub(line2, i, i))) do
+    i = inc(i)
+  end
+  while ((i < j) and (i < k) and (string.sub(line1, j, j) == string.sub(line2, k, k))) do
+    j = dec(j)
+    k = dec(k)
+  end
+  local start_idx = i
+  local end_idx = math.max(j, k)
+  assert((start_idx <= end_idx), ("expected `start-idx <= end-idx`, got {start: %d, end: %d}"):format(start_idx, end_idx))
+  return start_idx, end_idx
+end
 local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
   if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
@@ -80,22 +96,24 @@ local function reserve_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
+  local timer_cb
   local function _12_()
-    local function _13_()
-      if (not cache["buf->detach?"][buf] and buf_has_cursor_3f(buf)) then
-        debug_21(("executing a series of pending %d highlight(s)"):format(#cache["pending-highlights"]:get()), buf)
-        while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
-          local cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
-          cb()
-        end
-        return nil
-      else
-        return nil
+    if (not cache["buf->detach?"][buf] and buf_has_cursor_3f(buf)) then
+      debug_21(("executing a series of pending %d highlight(s)"):format(#cache["pending-highlights"]:get()), buf)
+      while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
+        local hl_cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
+        hl_cb()
       end
+      return nil
+    else
+      return nil
     end
-    return vim.schedule(_13_)
   end
-  return cache.timer:start(cache.config.highlight_delay, 0, _12_)
+  timer_cb = _12_
+  local function _14_()
+    return vim.schedule(timer_cb)
+  end
+  return cache.timer:start(cache.config.highlight_delay, 0, _14_)
 end
 local function highlight_added_texts_21(buf, _15_, _16_)
   local start_row0 = _15_[1]
@@ -244,22 +262,44 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     return true
   else
     if buf_has_cursor_3f(buf) then
-      if (((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) and cache.config.highlight.filter(buf)) then
-        debug_21("reserving `added` highlights", buf)
+      if (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and cache.config.highlight.filter(buf)) then
         local function _35_()
-          highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
+          local start_row = inc(start_row0)
+          local old_line = cache["buf->old-texts"][buf][start_row]
+          local _let_36_ = vim.api.nvim_buf_get_lines(buf, start_row0, inc(start_row0), true)
+          local new_line = _let_36_[1]
+          local inline_start_idx, inline_end_idx = get_greedy_inline_diff(old_line, new_line)
+          local inline_offset = (inline_end_idx - inline_start_idx)
+          debug_21(("old-line: " .. old_line))
+          debug_21(("new-line: " .. new_line))
+          debug_21(("extract `inline-diff` from %d to %d"):format(inline_start_idx, inline_end_idx), buf, buf)
+          if (old_end_col_offset < new_end_col_offset) then
+            debug_21(("highlighting added `inline-diff`: \"%s\""):format(string.sub(new_line, inline_start_idx, inline_end_idx)))
+            highlight_added_texts_21(buf, {start_row0, dec(inline_start_idx)}, {0, inline_offset})
+          else
+            debug_21(("highlighting removed `inline-diff`: \"%s\""):format(string.sub(old_line, inline_start_idx, inline_end_idx)))
+            highlight_removed_texts_21(buf, {start_row0, dec(inline_start_idx)}, {0, inline_offset})
+          end
           request_to_clear_highlights_21(buf)
           return cache_old_texts(buf)
         end
         reserve_highlight_21(buf, _35_)
+      elseif ((old_end_row_offset < new_end_row_offset) and cache.config.highlight.filter(buf)) then
+        debug_21("reserving `added` highlights", buf)
+        local function _38_()
+          highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
+          request_to_clear_highlights_21(buf)
+          return cache_old_texts(buf)
+        end
+        reserve_highlight_21(buf, _38_)
       else
         debug_21("reserving `removed` highlights", buf)
-        local function _36_()
+        local function _39_()
           highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
           request_to_clear_highlights_21(buf)
           return cache_old_texts(buf)
         end
-        reserve_highlight_21(buf, _36_)
+        reserve_highlight_21(buf, _39_)
       end
       return nil
     else
@@ -272,7 +312,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _40_()
+  local function _43_()
     if (buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -281,7 +321,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_40_, cache.config.attach.delay)
+  vim.defer_fn(_43_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -297,13 +337,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
-  local function _42_(_241)
+  local function _45_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _42_})
-  local function _43_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _45_})
+  local function _46_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _43_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
 end
 return {setup = setup}
