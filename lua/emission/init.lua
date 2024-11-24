@@ -250,28 +250,22 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     return true
   else
     if buf_has_cursor_3f(buf) then
-      if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
-        if cache.config.added.filter(buf) then
-          debug_21("reserving `added` highlights", buf)
-          local function _37_()
-            highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
-            request_to_clear_highlights_21(buf)
-            return cache_old_texts(buf)
-          end
-          reserve_highlight_21(buf, _37_)
-        else
+      if (((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) and cache.config.highlight.filter(buf)) then
+        debug_21("reserving `added` highlights", buf)
+        local function _37_()
+          highlight_added_texts_21(buf, {start_row0, start_col0}, {new_end_row_offset, new_end_col_offset})
+          request_to_clear_highlights_21(buf)
+          return cache_old_texts(buf)
         end
+        reserve_highlight_21(buf, _37_)
       else
-        if cache.config.removed.filter(buf) then
-          debug_21("reserving `removed` highlights", buf)
-          local function _39_()
-            highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
-            request_to_clear_highlights_21(buf)
-            return cache_old_texts(buf)
-          end
-          reserve_highlight_21(buf, _39_)
-        else
+        debug_21("reserving `removed` highlights", buf)
+        local function _38_()
+          highlight_removed_texts_21(buf, {start_row0, start_col0}, {old_end_row_offset, old_end_col_offset})
+          request_to_clear_highlights_21(buf)
+          return cache_old_texts(buf)
         end
+        reserve_highlight_21(buf, _38_)
       end
       return nil
     else
@@ -284,7 +278,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _44_()
+  local function _42_()
     if (buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -293,7 +287,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_44_, cache.config.attach.delay)
+  vim.defer_fn(_42_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -309,13 +303,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
-  local function _46_(_241)
+  local function _44_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _46_})
-  local function _47_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _44_})
+  local function _45_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _47_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _45_})
 end
 return {setup = setup}
