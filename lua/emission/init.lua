@@ -64,18 +64,20 @@ local function clear_highlights_21(buf)
 end
 local function request_to_clear_highlights_21(buf, duration)
   cache["last-duration"] = duration
+  local cb
   local function _10_()
-    local function _11_()
-      if vim.api.nvim_buf_is_valid(buf) then
-        debug_21("clearing namespace after duration", buf)
-        return clear_highlights_21(buf)
-      else
-        return nil
-      end
+    if vim.api.nvim_buf_is_valid(buf) then
+      debug_21("clearing namespace after duration", buf)
+      return clear_highlights_21(buf)
+    else
+      return nil
     end
-    return vim.schedule(_11_)
   end
-  return cache.timer:start(duration, 0, _10_)
+  cb = _10_
+  local function _12_()
+    return vim.schedule(cb)
+  end
+  return cache.timer:start(duration, 0, _12_)
 end
 local function reserve_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)

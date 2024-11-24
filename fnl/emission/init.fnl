@@ -102,12 +102,10 @@
   @param buf number
   @param duration number milliseconds"
   (set cache.last-duration duration)
-  (cache.timer:start duration 0
-                     #(-> (fn []
-                            (when (vim.api.nvim_buf_is_valid buf)
-                              (debug! "clearing namespace after duration" buf)
-                              (clear-highlights! buf)))
-                          (vim.schedule))))
+  (let [cb #(when (vim.api.nvim_buf_is_valid buf)
+              (debug! "clearing namespace after duration" buf)
+              (clear-highlights! buf))]
+    (cache.timer:start duration 0 #(vim.schedule cb))))
 
 (fn reserve-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
