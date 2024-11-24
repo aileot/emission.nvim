@@ -6,7 +6,7 @@
 
 (local default-config ;
        {:debug debug-config
-        :attach {:delay 100
+        :attach {:delay 150
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         :highlight {:duration 300

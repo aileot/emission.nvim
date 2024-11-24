@@ -46,7 +46,7 @@ The default settings:
 require("emission").setup({
   attach = {
     -- Useful to avoid extra attaching attempts in simultaneous buffer editing such as `:bufdo` or `:cdo`.
-    delay = 100,
+    delay = 150,
     excluded_filetypes = {
       -- NOTE: Nothing is excluded by default. Add any as you need.
       -- "lazy",
