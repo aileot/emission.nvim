@@ -10,6 +10,7 @@
                  :excluded_filetypes []
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         :highlight {:duration 300
+                    :min_byte 2
                     :filter #true
                     ;; NOTE: Should the option `delay` be exposed to users?
                     :delay 10}
@@ -270,10 +271,10 @@
               _byte-offset
               old-end-row-offset
               old-end-col-offset
-              _old-end-byte-offset
+              old-end-byte-offset
               new-end-row-offset
               new-end-col-offset
-              _new-end-byte-offset]
+              new-end-byte-offset]
   (if (. cache.buf->detach? buf) ;
       (do
         ;; Make sure to clear highlights on the detached buf.
@@ -285,6 +286,8 @@
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buf->detach` value.
       (when (and (buf-has-cursor? buf) ;
+                 (<= cache.config.highlight.min_byte
+                     (math.max old-end-byte-offset new-end-byte-offset))
                  (cache.config.highlight.filter buf))
         (let [highlight-texts! (if (or (< old-end-row-offset new-end-row-offset)
                                        (and (= 0 old-end-row-offset
