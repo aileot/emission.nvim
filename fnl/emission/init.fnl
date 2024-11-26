@@ -59,6 +59,30 @@
           "Failed to cache lines on attaching to buffer")
   (debug! "cached texts" buf))
 
+(fn get-greedy-inline-diff [line1 line2]
+  "Compare two strings and return the indices of the first greedy inline-diff.
+  The same parts between the indices are ignored.
+  @return number the index where the difference starts.
+  @return number the larger index where the difference ends."
+  (var i 1)
+  (var j (length line1))
+  (var k (length line2))
+  (while (and (<= i j) (<= i k)
+              (= (string.sub line1 i i) ;
+                 (string.sub line2 i i)))
+    (set i (inc i)))
+  (while (and (< i j) (< i k)
+              (= (string.sub line1 j j) ;
+                 (string.sub line2 k k)))
+    (set j (dec j))
+    (set k (dec k)))
+  (let [start-idx i
+        end-idx (math.max j k)]
+    (assert (<= start-idx end-idx)
+            (: "expected `start-idx <= end-idx`, got {start: %d, end: %d}"
+               :format start-idx end-idx))
+    (values start-idx end-idx)))
+
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
     (when (or (vim.list_contains foldopen :undo)
@@ -101,7 +125,8 @@
                     (while (not (cache.pending-highlights:empty?))
                       (let [hl-cb (cache.pending-highlights:pop!)]
                         (hl-cb)))
-                    (cache-old-texts buf))]
+                    (cache-old-texts buf)
+                    (request-to-clear-highlights! buf))]
     (cache.timer-to-highlight:start cache.config.highlight.delay 0
                                     #(vim.schedule timer-cb))))
 
@@ -293,23 +318,14 @@
                  (<= cache.config.highlight.min_byte
                      (math.max old-end-byte-offset new-end-byte-offset))
                  (cache.config.highlight.filter buf))
-        (->> #(let [(highlight-texts! row-offset col-offset) (if (or (< old-end-row-offset
-                                                                        new-end-row-offset)
-                                                                     (and (= 0
-                                                                             old-end-row-offset
-                                                                             new-end-row-offset)
-                                                                          (<= old-end-col-offset
-                                                                              new-end-col-offset)))
-                                                                 (values highlight-added-texts!
-                                                                         new-end-row-offset
-                                                                         new-end-col-offset)
-                                                                 (values highlight-removed-texts!
-                                                                         old-end-row-offset
-                                                                         old-end-col-offset))]
-                (highlight-texts! buf ;
-                                  start-row0 start-col0 ;
-                                  row-offset col-offset)
-                (request-to-clear-highlights! buf))
+        (->> #(if (or (< old-end-row-offset new-end-row-offset)
+                      (and (= 0 old-end-row-offset new-end-row-offset)
+                           (<= old-end-col-offset new-end-col-offset)))
+                  (highlight-added-texts! buf start-row0 start-col0 ;
+                                          new-end-row-offset new-end-col-offset)
+                  (highlight-removed-texts! buf start-row0 start-col0 ;
+                                            old-end-row-offset
+                                            old-end-col-offset))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
