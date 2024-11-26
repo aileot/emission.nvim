@@ -70,27 +70,6 @@
       ;; range for the operators.
       (vim.cmd "silent! . foldopen!"))))
 
-(fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
-  "Dismiss highlights at the same position."
-  (match cache.last-editing-position
-    [start-row0 start-col0]
-    ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
-    ;; the highlights over lines to the exactness with specifying the range.
-    (do
-      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"
-                 :format start-row0 start-col0) ;
-              buf)
-      (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
-    _
-    false)
-  (set cache.last-editing-position [start-row0 start-col0]))
-
-(fn dismiss-deprecated-highlights! [buf [start-row0 start-col0]]
-  "Dismiss highlights at the same position."
-  ;; TODO: (Low priority) Iterate over the changes considering the option
-  ;; value continuous_editing_time.
-  (dismiss-deprecated-highlight! buf [start-row0 start-col0]))
-
 (fn clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
   @param buf number"
@@ -125,6 +104,27 @@
                     (cache-old-texts buf))]
     (cache.timer-to-highlight:start cache.config.highlight.delay 0
                                     #(vim.schedule timer-cb))))
+
+(fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
+  "Dismiss highlights at the same position."
+  (match cache.last-editing-position
+    [start-row0 start-col0]
+    ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
+    ;; the highlights over lines to the exactness with specifying the range.
+    (do
+      (debug! (: "dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"
+                 :format start-row0 start-col0) ;
+              buf)
+      (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
+    _
+    false)
+  (set cache.last-editing-position [start-row0 start-col0]))
+
+(fn dismiss-deprecated-highlights! [buf [start-row0 start-col0]]
+  "Dismiss highlights at the same position."
+  ;; TODO: (Low priority) Iterate over the changes considering the option
+  ;; value continuous_editing_time.
+  (dismiss-deprecated-highlight! buf [start-row0 start-col0]))
 
 (fn highlight-added-texts! [buf
                             start-row0

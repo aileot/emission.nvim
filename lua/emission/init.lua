@@ -36,33 +36,13 @@ local function open_folds_at_cursor_21()
     return nil
   end
 end
-local function dismiss_deprecated_highlight_21(buf, _5_)
-  local start_row0 = _5_[1]
-  local start_col0 = _5_[2]
-  do
-    local _6_ = cache["last-editing-position"]
-    if ((_G.type(_6_) == "table") and (_6_[1] == start_row0) and (_6_[2] == start_col0)) then
-      debug_21(("dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
-      vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
-    else
-      local _ = _6_
-    end
-  end
-  cache["last-editing-position"] = {start_row0, start_col0}
-  return nil
-end
-local function dismiss_deprecated_highlights_21(buf, _8_)
-  local start_row0 = _8_[1]
-  local start_col0 = _8_[2]
-  return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
-end
 local function clear_highlights_21(buf)
   return vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
 end
 local function request_to_clear_highlights_21(buf)
   local duration = cache.config.highlight.duration
   local cb
-  local function _9_()
+  local function _5_()
     if vim.api.nvim_buf_is_valid(buf) then
       debug_21("clearing namespace after duration", buf)
       return clear_highlights_21(buf)
@@ -70,18 +50,18 @@ local function request_to_clear_highlights_21(buf)
       return nil
     end
   end
-  cb = _9_
-  local function _11_()
+  cb = _5_
+  local function _7_()
     return vim.schedule(cb)
   end
-  return cache["timer-to-clear-highlight"]:start(duration, 0, _11_)
+  return cache["timer-to-clear-highlight"]:start(duration, 0, _7_)
 end
 local function request_to_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local timer_cb
-  local function _12_()
+  local function _8_()
     if (not cache["buf->detach?"][buf] and buf_has_cursor_3f(buf)) then
       debug_21(("executing a series of pending %d highlight(s)"):format(#cache["pending-highlights"]:get()), buf)
       while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
@@ -93,11 +73,31 @@ local function request_to_highlight_21(buf, callback)
       return nil
     end
   end
-  timer_cb = _12_
-  local function _14_()
+  timer_cb = _8_
+  local function _10_()
     return vim.schedule(timer_cb)
   end
-  return cache["timer-to-highlight"]:start(cache.config.highlight.delay, 0, _14_)
+  return cache["timer-to-highlight"]:start(cache.config.highlight.delay, 0, _10_)
+end
+local function dismiss_deprecated_highlight_21(buf, _11_)
+  local start_row0 = _11_[1]
+  local start_col0 = _11_[2]
+  do
+    local _12_ = cache["last-editing-position"]
+    if ((_G.type(_12_) == "table") and (_12_[1] == start_row0) and (_12_[2] == start_col0)) then
+      debug_21(("dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
+      vim.api.nvim_buf_clear_namespace(buf, cache.namespace, 0, -1)
+    else
+      local _ = _12_
+    end
+  end
+  cache["last-editing-position"] = {start_row0, start_col0}
+  return nil
+end
+local function dismiss_deprecated_highlights_21(buf, _14_)
+  local start_row0 = _14_[1]
+  local start_col0 = _14_[2]
+  return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
 end
 local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
   local hl_group = cache["hl-group"].added
