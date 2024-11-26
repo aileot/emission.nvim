@@ -5,7 +5,8 @@
 
 (fn feedkeys! [keys ?flags ?escape]
   "A wrapper of `nvim_feedkeys. Any mappings are ignored by default."
-  (vim.api.nvim_feedkeys keys (or ?flags :ni)
+  (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
+                         (or ?flags :ni) ;
                          (if (= ?escape false) false true)))
 
 (fn each-scenario [cb]
