@@ -28,6 +28,22 @@ local function cache_old_texts(buf)
   assert(cache["buf->old-texts"][buf], "Failed to cache lines on attaching to buffer")
   return debug_21("cached texts", buf)
 end
+local function get_greedy_inline_diff(line1, line2)
+  local i = 1
+  local j = #line1
+  local k = #line2
+  while ((i <= j) and (i <= k) and (string.sub(line1, i, i) == string.sub(line2, i, i))) do
+    i = inc(i)
+  end
+  while ((i < j) and (i < k) and (string.sub(line1, j, j) == string.sub(line2, k, k))) do
+    j = dec(j)
+    k = dec(k)
+  end
+  local start_idx = i
+  local end_idx = math.max(j, k)
+  assert((start_idx <= end_idx), ("expected `start-idx <= end-idx`, got {start: %d, end: %d}"):format(start_idx, end_idx))
+  return start_idx, end_idx
+end
 local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
   if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
@@ -239,13 +255,11 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
   else
     if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
       local function _31_()
-        local highlight_texts_21, row_offset, col_offset = nil, nil, nil
         if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
-          highlight_texts_21, row_offset, col_offset = highlight_added_texts_21, new_end_row_offset, new_end_col_offset
+          highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
         else
-          highlight_texts_21, row_offset, col_offset = highlight_removed_texts_21, old_end_row_offset, old_end_col_offset
+          highlight_removed_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
         end
-        highlight_texts_21(buf, start_row0, start_col0, row_offset, col_offset)
         return request_to_clear_highlights_21(buf)
       end
       request_to_highlight_21(buf, _31_)

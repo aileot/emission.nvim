@@ -293,23 +293,16 @@
                  (<= cache.config.highlight.min_byte
                      (math.max old-end-byte-offset new-end-byte-offset))
                  (cache.config.highlight.filter buf))
-        (->> #(let [(highlight-texts! row-offset col-offset) (if (or (< old-end-row-offset
-                                                                        new-end-row-offset)
-                                                                     (and (= 0
-                                                                             old-end-row-offset
-                                                                             new-end-row-offset)
-                                                                          (<= old-end-col-offset
-                                                                              new-end-col-offset)))
-                                                                 (values highlight-added-texts!
-                                                                         new-end-row-offset
-                                                                         new-end-col-offset)
-                                                                 (values highlight-removed-texts!
-                                                                         old-end-row-offset
-                                                                         old-end-col-offset))]
-                (highlight-texts! buf ;
-                                  start-row0 start-col0 ;
-                                  row-offset col-offset)
-                (request-to-clear-highlights! buf))
+        (->> (fn []
+               (if (or (< old-end-row-offset new-end-row-offset)
+                       (and (= 0 old-end-row-offset new-end-row-offset)
+                            (<= old-end-col-offset new-end-col-offset)))
+                   (highlight-added-texts! buf start-row0 start-col0 ;
+                                           new-end-row-offset new-end-col-offset)
+                   (highlight-removed-texts! buf start-row0 start-col0 ;
+                                             old-end-row-offset
+                                             old-end-col-offset))
+               (request-to-clear-highlights! buf))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
