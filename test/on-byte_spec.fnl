@@ -5,7 +5,8 @@
 
 (fn feedkeys! [keys ?flags ?escape]
   "A wrapper of `nvim_feedkeys. Any mappings are ignored by default."
-  (vim.api.nvim_feedkeys keys (or ?flags :ni)
+  (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
+                         (or ?flags :ni) ;
                          (if (= ?escape false) false true)))
 
 (fn each-scenario [cb]
@@ -21,7 +22,7 @@
     (each [_ lines (pairs context-lines)]
       (each [_ ver (ipairs vertical-ranges)]
         (each [_ hor (ipairs horizontal-motions)]
-          (vim.cmd "%d_")
+          (vim.cmd "% delete _")
           (vim.api.nvim_buf_set_lines 0 0 -1 true lines)
           (vim.cmd ver)
           (feedkeys! hor)
@@ -52,6 +53,6 @@
     (each-scenario #(assert.has_no_error #(feedkeys! :s)))
     (each-scenario #(assert.has_no_error #(feedkeys! :>G)))
     (each-scenario #(assert.has_no_error #(feedkeys! "<<")))
-    (each-scenario #(assert.has_no_error #(vim.cmd "1d_")))
-    (each-scenario #(assert.has_no_error #(vim.cmd "$d_")))
-    (each-scenario #(assert.has_no_error #(vim.cmd "%d_")))))
+    (each-scenario #(assert.has_no_error #(vim.cmd "1 delete _")))
+    (each-scenario #(assert.has_no_error #(vim.cmd "$ delete _")))
+    (each-scenario #(assert.has_no_error #(vim.cmd "% delete _")))))
