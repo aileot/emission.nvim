@@ -84,7 +84,8 @@ local function request_to_highlight_21(buf, callback)
         local hl_cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
         hl_cb()
       end
-      return cache_old_texts(buf)
+      cache_old_texts(buf)
+      return request_to_clear_highlights_21(buf)
     else
       return nil
     end
@@ -256,11 +257,10 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
       local function _31_()
         if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
-          highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
+          return highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
         else
-          highlight_removed_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
+          return highlight_removed_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
         end
-        return request_to_clear_highlights_21(buf)
       end
       request_to_highlight_21(buf, _31_)
       return nil
