@@ -115,7 +115,7 @@
       (debug! (: "dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"
                  :format start-row0 start-col0) ;
               buf)
-      (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
+      (clear-highlights! buf))
     _
     false)
   (set cache.last-editing-position [start-row0 start-col0]))
