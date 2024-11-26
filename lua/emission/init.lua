@@ -238,19 +238,17 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     return true
   else
     if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
-      do
-        local highlight_texts_21
+      local function _31_()
+        local highlight_texts_21, row_offset, col_offset = nil, nil, nil
         if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
-          highlight_texts_21 = highlight_added_texts_21
+          highlight_texts_21, row_offset, col_offset = highlight_added_texts_21, new_end_row_offset, new_end_col_offset
         else
-          highlight_texts_21 = highlight_removed_texts_21
+          highlight_texts_21, row_offset, col_offset = highlight_removed_texts_21, old_end_row_offset, old_end_col_offset
         end
-        local function _32_()
-          highlight_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
-          return request_to_clear_highlights_21(buf)
-        end
-        request_to_highlight_21(buf, _32_)
+        highlight_texts_21(buf, start_row0, start_col0, row_offset, col_offset)
+        return request_to_clear_highlights_21(buf)
       end
+      request_to_highlight_21(buf, _31_)
       return nil
     else
       return nil
