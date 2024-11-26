@@ -71,7 +71,7 @@
       (vim.cmd "silent! . foldopen!"))))
 
 (fn clear-highlights! [buf]
-  "Clear highlights in `buf` after `duration` in milliseconds.
+  "Immediately clear all the emission highlights in `buf`.
   @param buf number"
   (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
 
@@ -106,7 +106,9 @@
                                     #(vim.schedule timer-cb))))
 
 (fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
-  "Dismiss highlights at the same position."
+  "Immediately dismiss emission highlights set at the same position.
+  @param buf number
+  @param [start-row0 start-col0] number[]"
   (match cache.last-editing-position
     [start-row0 start-col0]
     ;; NOTE: For the maintainability, prefer the simplisity of dismissing all
@@ -121,7 +123,9 @@
   (set cache.last-editing-position [start-row0 start-col0]))
 
 (fn dismiss-deprecated-highlights! [buf [start-row0 start-col0]]
-  "Dismiss highlights at the same position."
+  "Immediately dismiss emission highlights at the same position.
+  @param buf number
+  @param [start-row0 start-col0] number[]"
   ;; TODO: (Low priority) Iterate over the changes considering the option
   ;; value continuous_editing_time.
   (dismiss-deprecated-highlight! buf [start-row0 start-col0]))
