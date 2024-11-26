@@ -256,7 +256,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
   else
     if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
       local function _31_()
-        if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (old_end_col_offset <= new_end_col_offset))) then
+        if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
           return highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
         else
           return highlight_removed_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
