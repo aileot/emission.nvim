@@ -306,8 +306,9 @@
                                                                  (values highlight-removed-texts!
                                                                          old-end-row-offset
                                                                          old-end-col-offset))]
-                (highlight-texts! buf start-row0 start-col0 row-offset
-                                  col-offset)
+                (highlight-texts! buf ;
+                                  start-row0 start-col0 ;
+                                  row-offset col-offset)
                 (request-to-clear-highlights! buf))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
