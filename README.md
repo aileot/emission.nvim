@@ -61,9 +61,9 @@ require("emission").setup({
   highlight = {
     duration = 300, -- milliseconds
     min_byte = 2, -- minimum bytes to highlight texts
-    filter = function(buf)
+    filter = function(buf) -- See below for examples.
       return true
-    end, -- See below for examples.
+    end,
   },
   added = {
     priority = 102,
