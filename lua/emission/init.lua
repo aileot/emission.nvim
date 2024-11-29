@@ -333,7 +333,7 @@ local function request_to_detach_buf_21(buf)
 end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
-  cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
+  cache.config = vim.tbl_deep_extend("keep", (opts or {}), default_config)
   set_debug_config_21(cache.config.debug)
   trace_21(("merged config: " .. vim.inspect(cache.config)))
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)

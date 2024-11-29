@@ -401,7 +401,7 @@
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
-    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
+    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) default-config))
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
