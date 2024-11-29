@@ -12,7 +12,7 @@
         :highlight {:duration 300
                     :min_byte 2
                     :filter #true
-                    :recache_events [:InsertLeave]
+                    :additional_recache_events [:InsertLeave]
                     ;; NOTE: Should the option `delay` be exposed to users?
                     :delay 10}
         :added {:priority 102
@@ -401,7 +401,7 @@
 
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
-    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) cache.config))
+    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) default-config))
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
@@ -409,7 +409,7 @@
     (vim.api.nvim_set_hl 0 cache.hl-group.added cache.config.added.hl_map)
     (vim.api.nvim_set_hl 0 cache.hl-group.removed cache.config.removed.hl_map)
     (request-to-attach-buf! (vim.api.nvim_get_current_buf))
-    (each [_ event (ipairs cache.config.highlight.recache_events)]
+    (each [_ event (ipairs cache.config.highlight.additional_recache_events)]
       (vim.api.nvim_create_autocmd event
         {:group id :callback #(cache-old-texts $.buf)}))
     (vim.api.nvim_create_autocmd :BufEnter

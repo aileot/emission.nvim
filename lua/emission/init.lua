@@ -10,7 +10,7 @@ local default_config
 local function _3_()
   return true
 end
-default_config = {debug = debug_config, attach = {delay = 150, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight = {duration = 300, min_byte = 2, filter = _3_, recache_events = {"InsertLeave"}, delay = 10}, added = {priority = 102, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}}, removed = {priority = 101, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}}}
+default_config = {debug = debug_config, attach = {delay = 150, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight = {duration = 300, min_byte = 2, filter = _3_, additional_recache_events = {"InsertLeave"}, delay = 10}, added = {priority = 102, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}}, removed = {priority = 101, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}}}
 local cache = {config = vim.deepcopy(default_config), namespace = vim.api.nvim_create_namespace("emission"), ["timer-to-highlight"] = uv.new_timer(), ["timer-to-clear-highlight"] = uv.new_timer(), ["pending-highlights"] = Stack.new(), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
@@ -333,13 +333,13 @@ local function request_to_detach_buf_21(buf)
 end
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
-  cache.config = vim.tbl_deep_extend("keep", (opts or {}), cache.config)
+  cache.config = vim.tbl_deep_extend("keep", (opts or {}), default_config)
   set_debug_config_21(cache.config.debug)
   trace_21(("merged config: " .. vim.inspect(cache.config)))
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
-  for _, event in ipairs(cache.config.highlight.recache_events) do
+  for _, event in ipairs(cache.config.highlight.additional_recache_events) do
     local function _42_(_241)
       return cache_old_texts(_241.buf)
     end
