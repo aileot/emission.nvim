@@ -61,9 +61,15 @@ require("emission").setup({
   highlight = {
     duration = 300, -- milliseconds
     min_byte = 2, -- minimum bytes to highlight texts
-    filter = function(buf)
+    filter = function(buf) -- See below for examples.
       return true
-    end, -- See below for examples.
+    end,
+    -- NOTE: Recache is triggered after each highlighting of emission.nvim for
+    -- the removed text highlight feature. The default value "InsertLeave"
+    -- forces texts to be re-cached regardless of the values of `min_byte`
+    -- and `filter` options.
+    -- Please set |autocmd-events| as your filter settings.
+    recache_events = { "InsertLeave" },
   },
   added = {
     priority = 102,
