@@ -47,9 +47,8 @@
 
 (fn buf-has-cursor? [buf]
   ;; NOTE: Typically avoid atttaching to scratch bufs created in background
-  ;; by some plugins.
-  (and (vim.api.nvim_buf_is_valid buf) ;
-       (= buf (vim.api.nvim_win_get_buf 0))))
+  ;; by some plugins, but does this work as expected?
+  (= buf (vim.api.nvim_win_get_buf 0)))
 
 (fn cache-old-texts [buf]
   (debug! "attempt to cache texts" buf)
@@ -118,6 +117,7 @@
           (.. "expected function, got " (type callback)))
   (cache.pending-highlights:push! callback)
   (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
+                             (vim.api.nvim_buf_is_valid buf) ;
                              (buf-has-cursor? buf))
                     (debug! (: "executing a series of pending %d highlight(s)"
                                :format (length (cache.pending-highlights:get)))
@@ -169,7 +169,8 @@
                         (. 1)
                         (length)))
         hl-opts {:priority cache.config.added.priority}]
-    (-> #(when (buf-has-cursor? buf)
+    (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
+                    (buf-has-cursor? buf))
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (debug! (: "highlighting `added` range {row0: %d, col0: %d} to {row: %d, col: %d}"
@@ -251,7 +252,8 @@
                       :strict false
                       :priority cache.config.removed.priority
                       :virt_text_pos :overlay}]
-    (-> #(when (buf-has-cursor? buf)
+    (-> #(when (and (vim.api.nvim_buf_is_valid buf) ;
+                    (buf-has-cursor? buf))
            (open-folds-at-cursor!)
            (dismiss-deprecated-highlights! buf [start-row0 start-col0])
            (if can-virt_text-display-first-line-removed?
@@ -314,7 +316,8 @@
         true) ;
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buf->detach` value.
-      (when (and (buf-has-cursor? buf) ;
+      (when (and (vim.api.nvim_buf_is_valid buf) ;
+                 (buf-has-cursor? buf) ;
                  (<= cache.config.highlight.min_byte
                      (math.max old-end-byte-offset new-end-byte-offset))
                  (cache.config.highlight.filter buf))
@@ -377,7 +380,8 @@
   ;;    should be efficiently excluded by `excluded_buftypes`.
   ;; Therefore, `excluded-buf?` check must be included in `vim.defer_fn`.
   (debug! "requested to attach buf" buf)
-  (-> #(if (and (buf-has-cursor? buf) ;
+  (-> #(if (and (vim.api.nvim_buf_is_valid buf) ;
+                (buf-has-cursor? buf) ;
                 (not (excluded-buf? buf)))
            (do
              (cache-old-texts buf)

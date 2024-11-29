@@ -20,7 +20,7 @@ local function dec(x)
   return (x - 1)
 end
 local function buf_has_cursor_3f(buf)
-  return (vim.api.nvim_buf_is_valid(buf) and (buf == vim.api.nvim_win_get_buf(0)))
+  return (buf == vim.api.nvim_win_get_buf(0))
 end
 local function cache_old_texts(buf)
   debug_21("attempt to cache texts", buf)
@@ -78,7 +78,7 @@ local function request_to_highlight_21(buf, callback)
   cache["pending-highlights"]["push!"](cache["pending-highlights"], callback)
   local timer_cb
   local function _8_()
-    if (not cache["buf->detach?"][buf] and buf_has_cursor_3f(buf)) then
+    if (not cache["buf->detach?"][buf] and vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       debug_21(("executing a series of pending %d highlight(s)"):format(#cache["pending-highlights"]:get()), buf)
       while not cache["pending-highlights"]["empty?"](cache["pending-highlights"]) do
         local hl_cb = cache["pending-highlights"]["pop!"](cache["pending-highlights"])
@@ -128,7 +128,7 @@ local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row
   end
   local hl_opts = {priority = cache.config.added.priority}
   local function _16_()
-    if buf_has_cursor_3f(buf) then
+    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       debug_21(("highlighting `added` range {row0: %d, col0: %d} to {row: %d, col: %d}"):format(start_row0, start_col0, end_row, end_col), buf)
@@ -207,7 +207,7 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
   end
   local extmark_opts = {hl_eol = true, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
   local function _25_()
-    if buf_has_cursor_3f(buf) then
+    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
       if can_virt_text_display_first_line_removed_3f then
@@ -254,7 +254,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     debug_21("detached from buf", buf)
     return true
   else
-    if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
+    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
       local function _31_()
         local display_start_row = vim.fn.line("w0")
         local display_offset = vim.api.nvim_win_get_height(0)
@@ -315,7 +315,7 @@ end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
   local function _40_()
-    if (buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
+    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
       return debug_21("attached to buf", buf)
