@@ -13,7 +13,7 @@ end
 local function log_msg_21(msg, log_level, _3fbuf)
   if (debug_config.enabled and (debug_config.level <= log_level)) then
     local buf_info
-    if _3fbuf then
+    if (_3fbuf and vim.api.nvim_buf_is_valid(_3fbuf)) then
       local buf_name = vim.api.nvim_buf_get_name(_3fbuf)
       local function _2_()
         if debug_config.short_path then

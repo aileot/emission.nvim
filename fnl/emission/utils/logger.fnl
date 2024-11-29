@@ -17,7 +17,7 @@
 (fn log-msg! [msg log-level ?buf]
   (when (and debug-config.enabled ;
              (<= debug-config.level log-level))
-    (let [buf-info (if ?buf
+    (let [buf-info (if (and ?buf (vim.api.nvim_buf_is_valid ?buf))
                        (let [buf-name (vim.api.nvim_buf_get_name ?buf)]
                          (: " @ buf=%d, bufname=%s" :format ?buf
                             (if debug-config.short_path
