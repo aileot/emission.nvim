@@ -318,14 +318,43 @@
                  (<= cache.config.highlight.min_byte
                      (math.max old-end-byte-offset new-end-byte-offset))
                  (cache.config.highlight.filter buf))
-        (->> #(if (or (< old-end-row-offset new-end-row-offset)
-                      (and (= 0 old-end-row-offset new-end-row-offset)
-                           (< 0 new-end-col-offset)))
-                  (highlight-added-texts! buf start-row0 start-col0 ;
-                                          new-end-row-offset new-end-col-offset)
-                  (highlight-removed-texts! buf start-row0 start-col0 ;
-                                            old-end-row-offset
-                                            old-end-col-offset))
+        ;; NOTE: When col-offset is 0, the last row is only composed by
+        ;; a `\n`, which should not be counted.
+        (->> #(let [display-start-row (vim.fn.line :w0)
+                    display-offset (vim.api.nvim_win_get_height 0)
+                    display-end-row (+ display-start-row display-offset)]
+                (when (or (< start-row0 display-end-row)
+                          (< display-start-row
+                             (+ start-row0 old-end-row-offset))
+                          (< display-start-row
+                             (+ start-row0 new-end-row-offset)))
+                  (debug! (.. "start row0: " start-row0) buf)
+                  (debug! (.. "display start row: " display-start-row))
+                  (debug! (.. "display end row: " display-end-row))
+                  (debug! (.. "old row offset: " old-end-row-offset))
+                  (debug! (.. "new row offset: " new-end-row-offset))
+                  (let [display-row-offset (- display-end-row display-start-row)
+                        start-row0* (math.max start-row0
+                                              (dec display-start-row))]
+                    (if (or (< old-end-row-offset new-end-row-offset)
+                            (and (= 0 old-end-row-offset new-end-row-offset)
+                                 (< 0 new-end-col-offset)))
+                        (let [row-exceeded? (< display-row-offset
+                                               new-end-row-offset)
+                              row-offset (if row-exceeded? display-row-offset
+                                             new-end-row-offset)
+                              col-offset (if row-exceeded? 0
+                                             new-end-col-offset)]
+                          (highlight-added-texts! buf start-row0* start-col0
+                                                  row-offset col-offset))
+                        (let [row-exceeded? (< display-row-offset
+                                               old-end-row-offset)
+                              row-offset (if row-exceeded? display-row-offset
+                                             old-end-row-offset)
+                              col-offset (if row-exceeded? 0
+                                             old-end-col-offset)]
+                          (highlight-removed-texts! buf start-row0* start-col0
+                                                    row-offset col-offset))))))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))

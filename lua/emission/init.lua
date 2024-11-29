@@ -256,10 +256,50 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
   else
     if (buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
       local function _31_()
-        if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
-          return highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
+        local display_start_row = vim.fn.line("w0")
+        local display_offset = vim.api.nvim_win_get_height(0)
+        local display_end_row = (display_start_row + display_offset)
+        if ((start_row0 < display_end_row) or (display_start_row < (start_row0 + old_end_row_offset)) or (display_start_row < (start_row0 + new_end_row_offset))) then
+          debug_21(("start row0: " .. start_row0), buf)
+          debug_21(("display start row: " .. display_start_row))
+          debug_21(("display end row: " .. display_end_row))
+          debug_21(("old row offset: " .. old_end_row_offset))
+          debug_21(("new row offset: " .. new_end_row_offset))
+          local display_row_offset = (display_end_row - display_start_row)
+          local start_row0_2a = math.max(start_row0, dec(display_start_row))
+          if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
+            local row_exceeded_3f = (display_row_offset < new_end_row_offset)
+            local row_offset
+            if row_exceeded_3f then
+              row_offset = display_row_offset
+            else
+              row_offset = new_end_row_offset
+            end
+            local col_offset
+            if row_exceeded_3f then
+              col_offset = 0
+            else
+              col_offset = new_end_col_offset
+            end
+            return highlight_added_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
+          else
+            local row_exceeded_3f = (display_row_offset < old_end_row_offset)
+            local row_offset
+            if row_exceeded_3f then
+              row_offset = display_row_offset
+            else
+              row_offset = old_end_row_offset
+            end
+            local col_offset
+            if row_exceeded_3f then
+              col_offset = 0
+            else
+              col_offset = old_end_col_offset
+            end
+            return highlight_removed_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
+          end
         else
-          return highlight_removed_texts_21(buf, start_row0, start_col0, old_end_row_offset, old_end_col_offset)
+          return nil
         end
       end
       request_to_highlight_21(buf, _31_)
@@ -274,7 +314,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _35_()
+  local function _40_()
     if (buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -283,7 +323,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_35_, cache.config.attach.delay)
+  vim.defer_fn(_40_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -299,13 +339,13 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
-  local function _37_(_241)
+  local function _42_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _37_})
-  local function _38_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _42_})
+  local function _43_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _38_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _43_})
 end
 return {setup = setup}
