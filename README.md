@@ -84,7 +84,7 @@ require("emission").setup({
   },
   added = {
     priority = 102,
-    -- The same options for `nvim_set_hl()` at `{val}` is available.
+    -- The same options for `nvim_set_hl()` at `{val}` are available.
     -- NOTE: With "default" key set to `true`, you can arrange the highlight
     -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
     -- respectively, based on your colorscheme.
