@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       # Note: Generate vimdocs only if helptags make sense.
       - name: Generate vimdoc (reference)
-        uses: kdheepak/panvimdoc@v4.0.0
+        uses: kdheepak/panvimdoc@v4.0.1
         with:
           vimdoc: emission.nvim
           version: "Neovim >= 0.10.2"
