@@ -7,12 +7,13 @@ rewritten in Fennel with
 
 ## Features
 
-- Highlights for **added** texts
-- Highlights for **removed** texts
-- **No** keymap conflicts
+Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
+`undo`/`redo`.
+However, `emission.nvim` does provide the following features:
 
-NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
-`undo`/`redo`, but only `added`/`removed`.
+- Highlights for **added** texts.
+- Highlights for **removed** texts like afterimage.
+- **No** keymap conflicts.
 
 ## Demo
 
