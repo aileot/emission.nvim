@@ -84,10 +84,12 @@ require("emission").setup({
   },
   added = {
     priority = 102,
-    -- The same options for `nvim_set_hl()` at `{val}` are available.
-    -- NOTE: With "default" key set to `true`, you can arrange the highlight
-    -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
-    -- respectively, based on your colorscheme.
+    -- The options for `vim.api.nvim_set_hl(0, "EmissionAdded", {hl_map})`.
+    -- NOTE: If you keep "default" key set to `true`, you can arrange the
+    -- highlight groups hl-EmissionAdded by nvim_set_hl(), based on your
+    -- colorscheme.
+    -- NOTE: You can use "link" key to link the highlight settings to an
+    -- existing highlight group like hl-DiffAdd.
     hl_map = {
       default = true,
       bold = true,
@@ -99,6 +101,7 @@ require("emission").setup({
   -- Note that the default values might be different from `added` ones.
   removed = {
     priority = 101,
+    -- The options for `vim.api.nvim_set_hl(0, "EmissionRemoved", {hl_map})`.
     hl_map = {
       default = true,
       bold = true,
