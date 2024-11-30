@@ -55,8 +55,9 @@ require("emission").setup({
     -- such as `:bufdo` or `:cdo`.
     delay = 150,
     excluded_filetypes = {
-      -- NOTE: Nothing is excluded by default. Add any as you need.
-      -- "lazy",
+      -- NOTE: Nothing is excluded by default. Add any as you need, but check
+      -- the 'buftype' at first.
+      -- "oil",
     },
     excluded_buftypes = {
       "help",
