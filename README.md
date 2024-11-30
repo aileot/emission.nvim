@@ -146,17 +146,17 @@ require("emission").setup({
 ### hl-EmissionAdded
 
 The highlight group used to highlight added texts.
-As you can see in the `setup` snippet above, you can override the highlight
+As you can see in the [Setup](#setup) snippet above, you can override the highlight
 using `added.hl_map` field in `setup()`.
-You can also customize the highlight with `vim.api.nvim_set_hl()`
+You can also customize the highlight with `vim.api.nvim_set_hl()` directly
 to adapt the color to your favorite colorscheme.
 
 ### hl-EmissionRemoved
 
 The highlight group used to highlight removed texts.
-As you can see in the `setup` snippet above, you can override the highlight
+As you can see in the [Setup](#setup) snippet above, you can override the highlight
 using `removed.hl_map` field in `setup()`.
-You can also customize the highlight with `vim.api.nvim_set_hl()`
+You can also customize the highlight with `vim.api.nvim_set_hl()` directly
 to adapt the color to your favorite colorscheme.
 
 ## Related Projects
