@@ -54,16 +54,16 @@ require("emission").setup({
     -- Useful to avoid extra attaching attempts in simultaneous buffer editing
     -- such as `:bufdo` or `:cdo`.
     delay = 150,
-    excluded_filetypes = {
-      -- NOTE: Nothing is excluded by default. Add any as you need, but check
-      -- the 'buftype' at first.
-      -- "oil",
-    },
     excluded_buftypes = {
       "help",
       "nofile",
       "terminal",
       "prompt"
+    },
+    excluded_filetypes = {
+      -- NOTE: Nothing is excluded by default. Add any as you need, but check
+      -- the 'buftype' at first.
+      -- "oil",
     },
   },
   highlight = {
