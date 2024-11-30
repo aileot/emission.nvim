@@ -60,9 +60,9 @@ require("emission").setup({
       "terminal",
       "prompt"
     },
+    -- NOTE: Nothing is excluded by default. Add any as you need, but check
+    -- the 'buftype' at first.
     excluded_filetypes = {
-      -- NOTE: Nothing is excluded by default. Add any as you need, but check
-      -- the 'buftype' at first.
       -- "oil",
     },
   },
