@@ -40,6 +40,12 @@ With [folke/lazy.nvim],
 
 ## Setup
 
+Just set up the plugin as follows:
+
+```lua
+require("emission").setup()
+```
+
 The default settings:
 
 ```lua
