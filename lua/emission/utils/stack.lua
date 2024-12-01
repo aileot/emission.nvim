@@ -16,4 +16,10 @@ end
 Stack["empty?"] = function(self)
   return (0 == #self._stack)
 end
+Stack["clear!"] = function(self)
+  while not self["empty?"](self) do
+    self["pop!"](self)
+  end
+  return nil
+end
 return {Stack = Stack}

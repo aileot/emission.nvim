@@ -22,4 +22,8 @@
 (fn Stack.empty? [self]
   (= 0 (length self._stack)))
 
+(fn Stack.clear! [self]
+  (while (not (self:empty?))
+    (self:pop!)))
+
 {: Stack}
