@@ -39,7 +39,7 @@ jobs:
     needs: vimdoc
     runs-on: ubuntu-22.04
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: .github/release-please/config.json
