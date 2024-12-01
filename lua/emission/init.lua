@@ -56,6 +56,10 @@ local function request_to_clear_highlights_21(buf)
   end
   return cache["timer-to-clear-highlight"]:start(duration, 0, _7_)
 end
+local function discard_highlight_stack_21(buf)
+  cache["pending-highlights"]["clear!"](cache["pending-highlights"])
+  return debug_21("discarded highlight stack", buf)
+end
 local function request_to_highlight_21(buf, callback)
   debug_21("reserving new highlights", buf)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
@@ -234,6 +238,7 @@ end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, old_end_byte_offset, new_end_row_offset, new_end_col_offset, new_end_byte_offset)
   if cache["buf->detach?"][buf] then
     clear_highlights_21(buf, 0)
+    discard_highlight_stack_21(buf)
     cache["buf->detach?"][buf] = nil
     debug_21("detached from buf", buf)
     return true

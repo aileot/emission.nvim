@@ -84,6 +84,10 @@
               (clear-highlights! buf))]
     (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
 
+(fn discard-highlight-stack! [buf]
+  (cache.pending-highlights:clear!)
+  (debug! "discarded highlight stack" buf))
+
 (fn request-to-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
   during a highlight delay.
@@ -287,6 +291,7 @@
       (do
         ;; Make sure to clear highlights on the detached buf.
         (clear-highlights! buf 0)
+        (discard-highlight-stack! buf)
         (tset cache.buf->detach? buf nil)
         (debug! "detached from buf" buf)
         ;; NOTE: Return a truthy value to detach.
