@@ -13,9 +13,8 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
-      # Note: Generate vimdocs only if helptags make sense.
-      - name: Generate vimdoc (reference)
-        uses: kdheepak/panvimdoc@v4.0.0
+      - name: Generate vimdoc
+        uses: kdheepak/panvimdoc@v4.0.1
         with:
           vimdoc: emission.nvim
           version: "Neovim >= 0.10.2"
@@ -40,7 +39,7 @@ jobs:
     needs: vimdoc
     runs-on: ubuntu-22.04
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: .github/release-please/config.json
