@@ -16,7 +16,7 @@ jobs:
       - name: Generate vimdoc
         uses: kdheepak/panvimdoc@v4.0.1
         with:
-          vimdoc: emission.nvim
+          vimdoc: emission
           version: "Neovim >= 0.10.2"
           demojify: true
           treesitter: true
