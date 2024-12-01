@@ -7,18 +7,17 @@ rewritten in Fennel with
 
 ## Features
 
-- Highlights for **added** texts
-- Highlights for **removed** texts
-- **No** keymap conflicts
+Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
+`undo`/`redo`.
+However, `emission.nvim` does provide the following features:
 
-NOTE: Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
-`undo`/`redo`, but only `added`/`removed`.
+- Highlights for **added** texts.
+- Highlights for **removed** texts like afterimage.
+- **No** keymap conflicts.
 
 ## Demo
 
-<!-- TODO: Replace demo with asciinema -->
-
-![recording](https://github.com/tzachar/highlight-undo.nvim/assets/4946827/81b85a3b-b563-4e97-b4e1-7a48d0d2f912)
+![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
 
 ## Requirements
 
@@ -40,22 +39,30 @@ With [folke/lazy.nvim],
 
 ## Setup
 
+Just set up the plugin as follows:
+
+```lua
+require("emission").setup()
+```
+
 The default settings:
 
 ```lua
 require("emission").setup({
   attach = {
-    -- Useful to avoid extra attaching attempts in simultaneous buffer editing such as `:bufdo` or `:cdo`.
+    -- Useful to avoid extra attaching attempts in simultaneous buffer editing
+    -- such as `:bufdo` or `:cdo`.
     delay = 150,
-    excluded_filetypes = {
-      -- NOTE: Nothing is excluded by default. Add any as you need.
-      -- "lazy",
-    },
     excluded_buftypes = {
       "help",
       "nofile",
       "terminal",
       "prompt"
+    },
+    -- NOTE: Nothing is excluded by default. Add any as you need, but check
+    -- the 'buftype' at first.
+    excluded_filetypes = {
+      -- "oil",
     },
   },
   highlight = {
@@ -64,19 +71,24 @@ require("emission").setup({
     filter = function(buf) -- See below for examples.
       return true
     end,
-    -- NOTE: Recache is triggered after each highlighting of emission.nvim for
-    -- the removed text highlight feature. The default value "InsertLeave"
-    -- forces texts to be re-cached regardless of the values of `min_byte`
-    -- and `filter` options.
-    -- Please set |autocmd-events| as your filter settings.
-    recache_events = { "InsertLeave" },
+    -- NOTE: Buffer texts watched by emission.nvim are cached for the removed
+    -- text highlight feature when the buffer is attached and after each
+    -- set of highlight emissions.
+    -- However, `min_byte` and `filter` options are likely to prevent
+    -- necessary recaches. The default value "InsertLeave" forces texts to
+    -- be re-cached regardless of the option values.
+    -- Please add |autocmd-events| properly if emitted highlight texts are
+    -- outdated with your filter settings.
+    additional_recache_events = { "InsertLeave" },
   },
   added = {
     priority = 102,
-    -- The same options for `nvim_set_hl()` at `{val}` is available.
-    -- NOTE: With "default" key set to `true`, you can arrange the highlight
-    -- groups `EmissionAdded` and `EmissionRemoved` highlight groups
-    -- respectively, based on your colorscheme.
+    -- The options for `vim.api.nvim_set_hl(0, "EmissionAdded", {hl_map})`.
+    -- NOTE: If you keep "default" key set to `true`, you can arrange the
+    -- highlight groups hl-EmissionAdded by nvim_set_hl(), based on your
+    -- colorscheme.
+    -- NOTE: You can use "link" key to link the highlight settings to an
+    -- existing highlight group like hl-DiffAdd.
     hl_map = {
       default = true,
       bold = true,
@@ -88,6 +100,7 @@ require("emission").setup({
   -- Note that the default values might be different from `added` ones.
   removed = {
     priority = 101,
+    -- The options for `vim.api.nvim_set_hl(0, "EmissionRemoved", {hl_map})`.
     hl_map = {
       default = true,
       bold = true,
@@ -132,17 +145,17 @@ require("emission").setup({
 ### hl-EmissionAdded
 
 The highlight group used to highlight added texts.
-As you can see in the `setup` snippet above, you can override the highlight
+As you can see in the [Setup](#setup) snippet above, you can override the highlight
 using `added.hl_map` field in `setup()`.
-You can also customize the highlight with `vim.api.nvim_set_hl()`
+You can also customize the highlight with `vim.api.nvim_set_hl()` directly
 to adapt the color to your favorite colorscheme.
 
 ### hl-EmissionRemoved
 
 The highlight group used to highlight removed texts.
-As you can see in the `setup` snippet above, you can override the highlight
+As you can see in the [Setup](#setup) snippet above, you can override the highlight
 using `removed.hl_map` field in `setup()`.
-You can also customize the highlight with `vim.api.nvim_set_hl()`
+You can also customize the highlight with `vim.api.nvim_set_hl()` directly
 to adapt the color to your favorite colorscheme.
 
 ## Related Projects
@@ -151,9 +164,12 @@ to adapt the color to your favorite colorscheme.
   highlights texts added by pre-registered mappings.
 - [yuki-yano/highlight-undo.nvim]
   works on [denops.vim].
+- [machakann/vim-highlightedundo]
+  is written in Vimscript.
 
 [antifennel]: https://git.sr.ht/~technomancy/antifennel
 [denops.vim]: https://github.com/vim-denops/denops.vim
 [folke/lazy.nvim]: https://github.com/folke/lazy.nvim
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
+[machakann/vim-highlightedundo]: https://github.com/machakann/vim-highlightedundo
