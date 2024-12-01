@@ -27,7 +27,10 @@
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer-to-highlight (uv.new_timer)
               :timer-to-clear-highlight (uv.new_timer)
-              :pending-highlights (Stack.new)
+              :buf->pending-highlights (setmetatable {}
+                                         {:__index (fn [t k]
+                                                     (tset t k (Stack.new))
+                                                     (rawget t k))})
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-editing-position [0 0]
               :buf->detach? {}
@@ -73,7 +76,8 @@
 (fn clear-highlights! [buf]
   "Immediately clear all the emission highlights in `buf`.
   @param buf number"
-  (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1))
+  (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
+  (debug! "cleared highlights" buf))
 
 (fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
@@ -84,6 +88,10 @@
               (clear-highlights! buf))]
     (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
 
+(fn discard-pending-highlights! [buf]
+  (tset cache.buf->pending-highlights buf nil)
+  (debug! "discarded highlight stack" buf))
+
 (fn request-to-highlight! [buf callback]
   "Reserve the highlight callback to execute at once all the callbacks stacked
   during a highlight delay.
@@ -92,20 +100,21 @@
   (debug! "reserving new highlights" buf)
   (assert (= :function (type callback))
           (.. "expected function, got " (type callback)))
-  (cache.pending-highlights:push! callback)
-  (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
-                             (vim.api.nvim_buf_is_valid buf) ;
-                             (buf-has-cursor? buf))
-                    (debug! (: "executing a series of pending %d highlight(s)"
-                               :format (length (cache.pending-highlights:get)))
-                            buf)
-                    (while (not (cache.pending-highlights:empty?))
-                      (let [hl-cb (cache.pending-highlights:pop!)]
-                        (hl-cb)))
-                    (cache-old-texts buf)
-                    (request-to-clear-highlights! buf))]
-    (cache.timer-to-highlight:start cache.config.highlight.delay 0
-                                    #(vim.schedule timer-cb))))
+  (let [pending-highlights (. cache.buf->pending-highlights buf)]
+    (pending-highlights:push! callback)
+    (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
+                               (vim.api.nvim_buf_is_valid buf) ;
+                               (buf-has-cursor? buf))
+                      (debug! (: "executing a series of pending %d highlight(s)"
+                                 :format (length (pending-highlights:get)))
+                              buf)
+                      (while (not (pending-highlights:empty?))
+                        (let [hl-cb (pending-highlights:pop!)]
+                          (hl-cb)))
+                      (cache-old-texts buf)
+                      (request-to-clear-highlights! buf))]
+      (cache.timer-to-highlight:start cache.config.highlight.delay 0
+                                      #(vim.schedule timer-cb)))))
 
 (fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
   "Immediately dismiss emission highlights set at the same position.
@@ -285,8 +294,6 @@
               new-end-byte-offset]
   (if (. cache.buf->detach? buf) ;
       (do
-        ;; Make sure to clear highlights on the detached buf.
-        (clear-highlights! buf 0)
         (tset cache.buf->detach? buf nil)
         (debug! "detached from buf" buf)
         ;; NOTE: Return a truthy value to detach.
@@ -372,6 +379,9 @@
 
 (fn request-to-detach-buf! [buf]
   (debug! "requested to detach buf" buf)
+  ;; Make sure to clear highlights on the buf.
+  (clear-highlights! buf 0)
+  (discard-pending-highlights! buf)
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
   (tset cache.buf->detach? buf true))
 
