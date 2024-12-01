@@ -17,9 +17,7 @@ However, `emission.nvim` does provide the following features:
 
 ## Demo
 
-<!-- TODO: Replace demo with asciinema -->
-
-![recording](https://github.com/tzachar/highlight-undo.nvim/assets/4946827/81b85a3b-b563-4e97-b4e1-7a48d0d2f912)
+![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
 
 ## Requirements
 
