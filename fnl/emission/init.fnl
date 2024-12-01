@@ -27,7 +27,10 @@
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer-to-highlight (uv.new_timer)
               :timer-to-clear-highlight (uv.new_timer)
-              :pending-highlights (Stack.new)
+              :buf->pending-highlights (setmetatable {}
+                                         {:__index (fn [t k]
+                                                     (tset t k (Stack.new))
+                                                     (rawget t k))})
               :hl-group {:added :EmissionAdded :removed :EmissionRemoved}
               :last-editing-position [0 0]
               :buf->detach? {}
@@ -92,20 +95,21 @@
   (debug! "reserving new highlights" buf)
   (assert (= :function (type callback))
           (.. "expected function, got " (type callback)))
-  (cache.pending-highlights:push! callback)
-  (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
-                             (vim.api.nvim_buf_is_valid buf) ;
-                             (buf-has-cursor? buf))
-                    (debug! (: "executing a series of pending %d highlight(s)"
-                               :format (length (cache.pending-highlights:get)))
-                            buf)
-                    (while (not (cache.pending-highlights:empty?))
-                      (let [hl-cb (cache.pending-highlights:pop!)]
-                        (hl-cb)))
-                    (cache-old-texts buf)
-                    (request-to-clear-highlights! buf))]
-    (cache.timer-to-highlight:start cache.config.highlight.delay 0
-                                    #(vim.schedule timer-cb))))
+  (let [pending-highlights (. cache.buf->pending-highlights buf)]
+    (pending-highlights:push! callback)
+    (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
+                               (vim.api.nvim_buf_is_valid buf) ;
+                               (buf-has-cursor? buf))
+                      (debug! (: "executing a series of pending %d highlight(s)"
+                                 :format (length (pending-highlights:get)))
+                              buf)
+                      (while (not (pending-highlights:empty?))
+                        (let [hl-cb (pending-highlights:pop!)]
+                          (hl-cb)))
+                      (cache-old-texts buf)
+                      (request-to-clear-highlights! buf))]
+      (cache.timer-to-highlight:start cache.config.highlight.delay 0
+                                      #(vim.schedule timer-cb)))))
 
 (fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
   "Immediately dismiss emission highlights set at the same position.
