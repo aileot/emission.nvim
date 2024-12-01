@@ -13,7 +13,6 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
-      # Note: Generate vimdocs only if helptags make sense.
       - name: Generate vimdoc
         uses: kdheepak/panvimdoc@v4.0.1
         with:
