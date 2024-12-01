@@ -32,6 +32,9 @@ jobs:
   release-pr:
     needs: vimdoc
     runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: googleapis/release-please-action@v4
         with:
