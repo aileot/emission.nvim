@@ -16,25 +16,17 @@ jobs:
       - name: Generate vimdoc
         uses: kdheepak/panvimdoc@v4.0.1
         with:
-          vimdoc: emission.nvim
+          vimdoc: emission
           version: "Neovim >= 0.10.2"
           demojify: true
           treesitter: true
           dedupsubheadings: false # Add heading to subheading anchor links to ensure that subheadings are unique
           docmapping: true # Use h4 headers as mapping docs
       - name: PR new vimdoc
-        uses: peter-evans/create-pull-request@v6
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: create-pull-request--branches--main--vimdoc
-          title: "docs(vimdoc): auto-generate"
-          body: |
-            :robot: Update vimdoc
-            ---
-            This PR was generated with [create-pull-request](https://github.com/peter-evans/create-pull-request).
-          commit-message: "docs(vimdoc): auto-generate"
-          committer: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-          author: "${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>"
-          delete-branch: true
+          commit_message: "docs(vimdoc): auto generate"
+          branch: ${{ github.head_ref }}
   release-pr:
     needs: vimdoc
     runs-on: ubuntu-22.04
