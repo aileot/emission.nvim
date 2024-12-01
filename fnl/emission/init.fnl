@@ -59,30 +59,6 @@
           "Failed to cache lines on attaching to buffer")
   (debug! "cached texts" buf))
 
-(fn get-greedy-inline-diff [line1 line2]
-  "Compare two strings and return the indices of the first greedy inline-diff.
-  The same parts between the indices are ignored.
-  @return number the index where the difference starts.
-  @return number the larger index where the difference ends."
-  (var i 1)
-  (var j (length line1))
-  (var k (length line2))
-  (while (and (<= i j) (<= i k)
-              (= (string.sub line1 i i) ;
-                 (string.sub line2 i i)))
-    (set i (inc i)))
-  (while (and (< i j) (< i k)
-              (= (string.sub line1 j j) ;
-                 (string.sub line2 k k)))
-    (set j (dec j))
-    (set k (dec k)))
-  (let [start-idx i
-        end-idx (math.max j k)]
-    (assert (<= start-idx end-idx)
-            (: "expected `start-idx <= end-idx`, got {start: %d, end: %d}"
-               :format start-idx end-idx))
-    (values start-idx end-idx)))
-
 (fn open-folds-at-cursor! []
   (let [foldopen (vim.opt.foldopen:get)]
     (when (or (vim.list_contains foldopen :undo)

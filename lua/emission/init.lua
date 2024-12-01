@@ -28,22 +28,6 @@ local function cache_old_texts(buf)
   assert(cache["buf->old-texts"][buf], "Failed to cache lines on attaching to buffer")
   return debug_21("cached texts", buf)
 end
-local function get_greedy_inline_diff(line1, line2)
-  local i = 1
-  local j = #line1
-  local k = #line2
-  while ((i <= j) and (i <= k) and (string.sub(line1, i, i) == string.sub(line2, i, i))) do
-    i = inc(i)
-  end
-  while ((i < j) and (i < k) and (string.sub(line1, j, j) == string.sub(line2, k, k))) do
-    j = dec(j)
-    k = dec(k)
-  end
-  local start_idx = i
-  local end_idx = math.max(j, k)
-  assert((start_idx <= end_idx), ("expected `start-idx <= end-idx`, got {start: %d, end: %d}"):format(start_idx, end_idx))
-  return start_idx, end_idx
-end
 local function open_folds_at_cursor_21()
   local foldopen = vim.opt.foldopen:get()
   if (vim.list_contains(foldopen, "undo") or vim.list_contains(foldopen, "all")) then
