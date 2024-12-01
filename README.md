@@ -164,9 +164,12 @@ to adapt the color to your favorite colorscheme.
   highlights texts added by pre-registered mappings.
 - [yuki-yano/highlight-undo.nvim]
   works on [denops.vim].
+- [machakann/vim-highlightedundo]
+  is written in Vimscript.
 
 [antifennel]: https://git.sr.ht/~technomancy/antifennel
 [denops.vim]: https://github.com/vim-denops/denops.vim
 [folke/lazy.nvim]: https://github.com/folke/lazy.nvim
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
+[machakann/vim-highlightedundo]: https://github.com/machakann/vim-highlightedundo
