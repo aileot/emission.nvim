@@ -11,6 +11,7 @@
                  :excluded_buftypes [:help :nofile :terminal :prompt]}
         :highlight {:duration 300
                     :min_byte 2
+                    :min_row_offset 0
                     :filter #true
                     :additional_recache_events [:InsertLeave]
                     ;; NOTE: Should the option `delay` be exposed to users?
@@ -304,6 +305,11 @@
                  (buf-has-cursor? buf) ;
                  (<= cache.config.highlight.min_byte
                      (math.max old-end-byte-offset new-end-byte-offset))
+                 (<= cache.config.highlight.min_row_offset
+                     (+ new-end-row-offset
+                        ;; NOTE: Reduce by 1 if col-offset is 0; otherwise,
+                        ;; keep the row-offset.
+                        (- 1 (math.min 1 old-end-col-offset))))
                  (cache.config.highlight.filter buf))
         ;; NOTE: When col-offset is 0, the last row is only composed by
         ;; a `\n`, which should not be counted.
@@ -330,16 +336,14 @@
                                                new-end-row-offset)
                               row-offset (if row-exceeded? display-row-offset
                                              new-end-row-offset)
-                              col-offset (if row-exceeded? 0
-                                             new-end-col-offset)]
+                              col-offset (if row-exceeded? 0 new-end-col-offset)]
                           (highlight-added-texts! buf start-row0* start-col0
                                                   row-offset col-offset))
                         (let [row-exceeded? (< display-row-offset
                                                old-end-row-offset)
                               row-offset (if row-exceeded? display-row-offset
                                              old-end-row-offset)
-                              col-offset (if row-exceeded? 0
-                                             old-end-col-offset)]
+                              col-offset (if row-exceeded? 0 old-end-col-offset)]
                           (highlight-removed-texts! buf start-row0* start-col0
                                                     row-offset col-offset))))))
              (request-to-highlight! buf))

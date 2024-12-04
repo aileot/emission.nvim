@@ -10,7 +10,7 @@ local default_config
 local function _3_()
   return true
 end
-default_config = {debug = debug_config, attach = {delay = 150, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight = {duration = 300, min_byte = 2, filter = _3_, additional_recache_events = {"InsertLeave"}, delay = 10}, added = {priority = 102, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}}, removed = {priority = 101, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}}}
+default_config = {debug = debug_config, attach = {delay = 150, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight = {duration = 300, min_byte = 2, min_row_offset = 0, filter = _3_, additional_recache_events = {"InsertLeave"}, delay = 10}, added = {priority = 102, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}}, removed = {priority = 101, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}}}
 local cache
 local function _4_(t, k)
   t[k] = Stack.new()
@@ -248,7 +248,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     debug_21("detached from buf", buf)
     return true
   else
-    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
+    if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and (cache.config.highlight.min_row_offset <= (new_end_row_offset + (1 - math.min(1, old_end_col_offset)))) and cache.config.highlight.filter(buf)) then
       local function _32_()
         local display_start_row = vim.fn.line("w0")
         local display_offset = vim.api.nvim_win_get_height(0)
