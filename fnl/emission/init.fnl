@@ -302,22 +302,35 @@
                     (if (or (< old-end-row-offset new-end-row-offset)
                             (and (= 0 old-end-row-offset new-end-row-offset)
                                  (< 0 new-end-col-offset)))
-                        (let [row-exceeded? (< display-row-offset
+                        (when (<= cache.config.added.min_row_offset
+                                  (+ new-end-row-offset
+                                     ;; NOTE: Reduce offset by 1 if col-offset
+                                     ;; is 0; otherwise, keep the row-offset.
+                                     (- -1 (math.min 1 new-end-col-offset))))
+                          (let [row-exceeded? (< display-row-offset
+                                                 new-end-row-offset)
+                                row-offset (if row-exceeded?
+                                               display-row-offset
                                                new-end-row-offset)
-                              row-offset (if row-exceeded?
-                                             display-row-offset
-                                             new-end-row-offset)
-                              col-offset (if row-exceeded? 0 new-end-col-offset)]
-                          (highlight-added-texts! buf start-row0* start-col0
-                                                  row-offset col-offset))
-                        (let [row-exceeded? (< display-row-offset
+                                col-offset (if row-exceeded? 0
+                                               new-end-col-offset)]
+                            (highlight-added-texts! buf start-row0* start-col0
+                                                    row-offset col-offset)))
+                        (when (<= cache.config.removed.min_row_offset
+                                  (+ old-end-row-offset
+                                     ;; NOTE: Reduce offset by 1 if col-offset
+                                     ;; is 0; otherwise, keep the row-offset.
+                                     (- -1 (math.min 1 old-end-col-offset))))
+                          (let [row-exceeded? (< display-row-offset
+                                                 old-end-row-offset)
+                                row-offset (if row-exceeded?
+                                               display-row-offset
                                                old-end-row-offset)
-                              row-offset (if row-exceeded?
-                                             display-row-offset
-                                             old-end-row-offset)
-                              col-offset (if row-exceeded? 0 old-end-col-offset)]
-                          (highlight-removed-texts! buf start-row0* start-col0
-                                                    row-offset col-offset))))))
+                                col-offset (if row-exceeded? 0
+                                               old-end-col-offset)]
+                            (highlight-removed-texts! buf start-row0*
+                                                      start-col0 row-offset
+                                                      col-offset)))))))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
