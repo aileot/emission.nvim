@@ -23,7 +23,7 @@ make build >/dev/null
 while read -r lua_file; do
   set +u
   if [[ "${lua_exceptions[$lua_file]}" == "" ]]; then
-    git reset "$lua_file" >/dev/null
+    git restore --staged "$lua_file" >/dev/null
   fi
   set -u
 done < <(git diff --name-only --cached --diff-filter=dr HEAD~ -- "$lua_dir")
