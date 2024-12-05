@@ -330,6 +330,7 @@ local function request_to_detach_buf_21(buf)
   cache["buf->detach?"][buf] = true
   return nil
 end
+---@param opts emission.Config
 local function setup(opts)
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = config.merge(opts)

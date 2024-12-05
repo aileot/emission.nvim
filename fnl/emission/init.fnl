@@ -375,6 +375,7 @@
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
   (tset cache.buf->detach? buf true))
 
+(lua "---@param opts emission.Config")
 (fn setup [opts]
   (let [id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (config.merge opts))
