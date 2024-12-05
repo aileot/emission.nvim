@@ -404,6 +404,7 @@
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buf! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
-      {:group id :callback #(request-to-detach-buf! $.buf)})))
+      {:group id :callback #(request-to-detach-buf! $.buf)})
+    nil))
 
 {: setup}

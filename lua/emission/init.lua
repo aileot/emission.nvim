@@ -375,6 +375,7 @@ local function setup(opts)
   local function _53_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _53_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _53_})
+  return nil
 end
 return {setup = setup}
