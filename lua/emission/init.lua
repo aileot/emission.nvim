@@ -299,7 +299,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _40_()
+  local function _42_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -308,7 +308,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_40_, cache.config.attach.delay)
+  vim.defer_fn(_42_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -327,29 +327,29 @@ local function setup(opts)
   local opts0 = (opts or {})
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = config.merge(opts0)
-  local _43_
+  local _45_
   do
-    local t_42_ = opts0.added
-    if (nil ~= t_42_) then
-      t_42_ = t_42_.hl_map
+    local t_44_ = opts0.added
+    if (nil ~= t_44_) then
+      t_44_ = t_44_.hl_map
     else
     end
-    _43_ = t_42_
+    _45_ = t_44_
   end
-  if _43_ then
+  if _45_ then
     cache.config.added.hl_map = opts0.added.hl_map
   else
   end
-  local _47_
+  local _49_
   do
-    local t_46_ = opts0.removed
-    if (nil ~= t_46_) then
-      t_46_ = t_46_.hl_map
+    local t_48_ = opts0.removed
+    if (nil ~= t_48_) then
+      t_48_ = t_48_.hl_map
     else
     end
-    _47_ = t_46_
+    _49_ = t_48_
   end
-  if _47_ then
+  if _49_ then
     cache.config.removed.hl_map = opts0.removed.hl_map
   else
   end
@@ -359,19 +359,19 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
-    local function _50_(_241)
+    local function _52_(_241)
       return cache_old_texts(_241.buf)
     end
-    vim.api.nvim_create_autocmd(event, {group = id, callback = _50_})
+    vim.api.nvim_create_autocmd(event, {group = id, callback = _52_})
   end
-  local function _51_(_241)
+  local function _53_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _51_})
-  local function _52_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _53_})
+  local function _54_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _52_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _54_})
   return nil
 end
 return {setup = setup}
