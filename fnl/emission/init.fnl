@@ -17,12 +17,14 @@
                     ;; NOTE: Should the option `delay` be exposed to users?
                     :delay 10}
         :added {:priority 102
-                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}}
+                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}
+                :filter #true}
         :removed {:priority 101
                   :hl_map {:default true
                            :bold true
                            :fg "#dcd7ba"
-                           :bg "#672d2d"}}})
+                           :bg "#672d2d"}
+                  :filter #true}})
 
 (local cache {:config (vim.deepcopy default-config)
               :namespace (vim.api.nvim_create_namespace :emission)
