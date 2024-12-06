@@ -5,13 +5,12 @@ local set_debug_config_21 = _local_2_["set-debug-config!"]
 local trace_21 = _local_2_["trace!"]
 local debug_21 = _local_2_["debug!"]
 local config = require("emission.config")
-local uv = (vim.uv or vim.loop)
 local cache
 local function _3_(t, k)
   t[k] = Stack.new()
   return rawget(t, k)
 end
-cache = {config = {}, namespace = vim.api.nvim_create_namespace("emission"), ["timer-to-highlight"] = uv.new_timer(), ["timer-to-clear-highlight"] = uv.new_timer(), ["buf->pending-highlights"] = setmetatable({}, {__index = _3_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
+cache = {config = {}, namespace = vim.api.nvim_create_namespace("emission"), ["buf->pending-highlights"] = setmetatable({}, {__index = _3_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
@@ -41,8 +40,6 @@ local function clear_highlights_21(buf)
   return debug_21("cleared highlights", buf)
 end
 local function request_to_clear_highlights_21(buf)
-  local duration = cache.config.highlight.duration
-  local cb
   local function _5_()
     if vim.api.nvim_buf_is_valid(buf) then
       debug_21("clearing namespace after duration", buf)
@@ -51,11 +48,7 @@ local function request_to_clear_highlights_21(buf)
       return nil
     end
   end
-  cb = _5_
-  local function _7_()
-    return vim.schedule(cb)
-  end
-  return cache["timer-to-clear-highlight"]:start(duration, 0, _7_)
+  return vim.defer_fn(_5_, cache.config.highlight.duration)
 end
 local function discard_pending_highlights_21(buf)
   cache["buf->pending-highlights"][buf] = nil
@@ -66,8 +59,7 @@ local function request_to_highlight_21(buf, callback)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   local pending_highlights = cache["buf->pending-highlights"][buf]
   pending_highlights["push!"](pending_highlights, callback)
-  local timer_cb
-  local function _8_()
+  local function _7_()
     if (not cache["buf->detach?"][buf] and vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       debug_21(("executing a series of pending %d highlight(s)"):format(#pending_highlights:get()), buf)
       while not pending_highlights["empty?"](pending_highlights) do
@@ -80,30 +72,26 @@ local function request_to_highlight_21(buf, callback)
       return nil
     end
   end
-  timer_cb = _8_
-  local function _10_()
-    return vim.schedule(timer_cb)
-  end
-  return cache["timer-to-highlight"]:start(cache.config.highlight.delay, 0, _10_)
+  return vim.defer_fn(_7_, cache.config.highlight.delay)
 end
-local function dismiss_deprecated_highlight_21(buf, _11_)
-  local start_row0 = _11_[1]
-  local start_col0 = _11_[2]
+local function dismiss_deprecated_highlight_21(buf, _9_)
+  local start_row0 = _9_[1]
+  local start_col0 = _9_[2]
   do
-    local _12_ = cache["last-editing-position"]
-    if ((_G.type(_12_) == "table") and (_12_[1] == start_row0) and (_12_[2] == start_col0)) then
+    local _10_ = cache["last-editing-position"]
+    if ((_G.type(_10_) == "table") and (_10_[1] == start_row0) and (_10_[2] == start_col0)) then
       debug_21(("dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
       clear_highlights_21(buf)
     else
-      local _ = _12_
+      local _ = _10_
     end
   end
   cache["last-editing-position"] = {start_row0, start_col0}
   return nil
 end
-local function dismiss_deprecated_highlights_21(buf, _14_)
-  local start_row0 = _14_[1]
-  local start_col0 = _14_[2]
+local function dismiss_deprecated_highlights_21(buf, _12_)
+  local start_row0 = _12_[1]
+  local start_col0 = _12_[2]
   return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
 end
 local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
@@ -117,7 +105,7 @@ local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row
     end_col = #vim.api.nvim_buf_get_lines(buf, -2, -1, false)[1]
   end
   local hl_opts = {priority = cache.config.added.priority}
-  local function _16_()
+  local function _14_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
@@ -127,7 +115,7 @@ local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row
       return nil
     end
   end
-  return vim.schedule(_16_)
+  return vim.schedule(_14_)
 end
 local function extend_chunk_to_win_width_21(chunk)
   local max_col = vim.api.nvim_win_get_width(0)
@@ -152,14 +140,14 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
   local new_end_row = vim.api.nvim_buf_line_count(buf)
   local can_virt_text_display_first_line_removed_3f = (start_row0 < new_end_row)
   local first_removed_line
-  local function _19_()
+  local function _17_()
     if (0 == old_end_row_offset) then
       return (start_col0 + old_end_col_offset)
     else
       return nil
     end
   end
-  first_removed_line = string.sub(old_texts[start_row], inc(start_col0), _19_())
+  first_removed_line = string.sub(old_texts[start_row], inc(start_col0), _17_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
     _3fmiddle_removed_lines = vim.list_slice(old_texts, inc(start_row), removed_end_row)
@@ -176,10 +164,10 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
   local _3frest_line_chunks
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-    local function _22_(_241)
+    local function _20_(_241)
       return {{_241, hl_group}}
     end
-    _3frest_line_chunks = vim.tbl_map(_22_, _3fmiddle_removed_lines)
+    _3frest_line_chunks = vim.tbl_map(_20_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
@@ -196,7 +184,7 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
     fitted_chunks, exceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
   local extmark_opts = {hl_eol = true, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
-  local function _25_()
+  local function _23_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
@@ -235,7 +223,7 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
       return nil
     end
   end
-  return vim.schedule(_25_)
+  return vim.schedule(_23_)
 end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, old_end_byte_offset, new_end_row_offset, new_end_col_offset, new_end_byte_offset)
   if cache["buf->detach?"][buf] then
@@ -244,7 +232,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     return true
   else
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
-      local function _31_()
+      local function _29_()
         local display_start_row = vim.fn.line("w0")
         local display_offset = vim.api.nvim_win_get_height(0)
         local display_end_row = (display_start_row + display_offset)
@@ -257,41 +245,49 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           local display_row_offset = (display_end_row - display_start_row)
           local start_row0_2a = math.max(start_row0, dec(display_start_row))
           if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
-            local row_exceeded_3f = (display_row_offset < new_end_row_offset)
-            local row_offset
-            if row_exceeded_3f then
-              row_offset = display_row_offset
+            if cache.config.added.filter({buf = buf}) then
+              local row_exceeded_3f = (display_row_offset < new_end_row_offset)
+              local row_offset
+              if row_exceeded_3f then
+                row_offset = display_row_offset
+              else
+                row_offset = new_end_row_offset
+              end
+              local col_offset
+              if row_exceeded_3f then
+                col_offset = 0
+              else
+                col_offset = new_end_col_offset
+              end
+              return highlight_added_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
             else
-              row_offset = new_end_row_offset
+              return nil
             end
-            local col_offset
-            if row_exceeded_3f then
-              col_offset = 0
-            else
-              col_offset = new_end_col_offset
-            end
-            return highlight_added_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
           else
-            local row_exceeded_3f = (display_row_offset < old_end_row_offset)
-            local row_offset
-            if row_exceeded_3f then
-              row_offset = display_row_offset
+            if cache.config.removed.filter({buf = buf}) then
+              local row_exceeded_3f = (display_row_offset < old_end_row_offset)
+              local row_offset
+              if row_exceeded_3f then
+                row_offset = display_row_offset
+              else
+                row_offset = old_end_row_offset
+              end
+              local col_offset
+              if row_exceeded_3f then
+                col_offset = 0
+              else
+                col_offset = old_end_col_offset
+              end
+              return highlight_removed_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
             else
-              row_offset = old_end_row_offset
+              return nil
             end
-            local col_offset
-            if row_exceeded_3f then
-              col_offset = 0
-            else
-              col_offset = old_end_col_offset
-            end
-            return highlight_removed_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
           end
         else
           return nil
         end
       end
-      request_to_highlight_21(buf, _31_)
+      request_to_highlight_21(buf, _29_)
       return nil
     else
       return nil
