@@ -369,7 +369,7 @@
 ---@param opts? emission.Config
 --- Initialize emission.
 --- Your options are always merged into the default config,
---- not the current config.")
+--- not into the last config.")
 
 (fn setup [opts]
   (let [opts (or opts {})

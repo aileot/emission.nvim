@@ -326,7 +326,7 @@ end
 ---@param opts? emission.Config
 --- Initialize emission.
 --- Your options are always merged into the default config,
---- not the current config.
+--- not into the last config.
 local function setup(opts)
   local opts0 = (opts or {})
   local id = vim.api.nvim_create_augroup("Emission", {})
