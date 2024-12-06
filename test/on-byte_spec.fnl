@@ -3,6 +3,9 @@
 
 (local emission (require :emission))
 
+(macro assert/spy [spy-instance method ...]
+  `((. (assert.spy ,spy-instance) ,method) ,...))
+
 (fn get-extmarks []
   (vim.api.nvim_buf_get_extmarks 0 -1 0 -1 {:details true}))
 
@@ -42,6 +45,45 @@
     (each-scenario #(assert.has_error #(error :bar)))
     (each-scenario #(assert.has_error #(vim.fn.error :foo)))
     (each-scenario #(assert.has_error #(vim.cmd "throw 'foo'")))))
+
+(describe* "adding texts"
+  (before_each (fn []
+                 (emission.setup)
+                 (assert.equals 0 (length (get-extmarks)))))
+  (after-each (fn []
+                (vim.cmd :qa!)))
+  (it* "calls `added.filter` function"
+    (let [filter #true
+          spy-filter (spy.new filter)]
+      (emission.setup {:attach {:delay 0
+                                :excluded_buftypes []
+                                :excluded_filetypes []}
+                       :highlight {:min_byte 0 :duration 1 :delay 0}
+                       :added {:filter spy-filter}})
+      ;; NOTE: emission only attaches buffer after `setup`.
+      (vim.cmd.new)
+      (vim.cmd "put = 'foobar'")
+      (vim.wait 5 #(assert/spy spy-filter :was_called 1)))))
+
+(describe* "removing texts"
+  (before_each (fn []
+                 (emission.setup)
+                 (assert.equals 0 (length (get-extmarks)))))
+  (after-each (fn []
+                (vim.cmd :qa!)))
+  (it* "calls `removed.filter` function"
+    (let [filter #(error "called")
+          spy-filter (spy.new filter)]
+      (emission.setup {:attach {:delay 0
+                                :excluded_buftypes []
+                                :excluded_filetypes []}
+                       :highlight {:min_byte 0 :duration 1 :delay 0}
+                       :removed {:filter spy-filter}})
+      ;; NOTE: emission only attaches buffer after `setup`.
+      (vim.cmd.new)
+      (vim.cmd "put = 'foobar'")
+      (vim.cmd "% delete _")
+      (assert/spy spy-filter :was_called 1))))
 
 (describe* "on-byte does not cause error"
   (before-each (fn []
