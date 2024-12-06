@@ -60,11 +60,10 @@
 (fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
   @param buf number"
-  (let [duration cache.config.highlight.duration
-        cb #(when (vim.api.nvim_buf_is_valid buf)
-              (debug! "clearing namespace after duration" buf)
-              (clear-highlights! buf))]
-    (vim.defer_fn cb duration)))
+  (-> #(when (vim.api.nvim_buf_is_valid buf)
+         (debug! "clearing namespace after duration" buf)
+         (clear-highlights! buf))
+      (vim.defer_fn cache.config.highlight.duration)))
 
 (fn discard-pending-highlights! [buf]
   (tset cache.buf->pending-highlights buf nil)
@@ -80,18 +79,17 @@
           (.. "expected function, got " (type callback)))
   (let [pending-highlights (. cache.buf->pending-highlights buf)]
     (pending-highlights:push! callback)
-    (let [timer-cb #(when (and (not (. cache.buf->detach? buf))
-                               (vim.api.nvim_buf_is_valid buf) ;
-                               (buf-has-cursor? buf))
-                      (debug! (: "executing a series of pending %d highlight(s)"
-                                 :format (length (pending-highlights:get)))
-                              buf)
-                      (while (not (pending-highlights:empty?))
-                        (let [hl-cb (pending-highlights:pop!)]
-                          (hl-cb)))
-                      (cache-old-texts buf)
-                      (request-to-clear-highlights! buf))]
-      (vim.defer_fn timer-cb cache.config.highlight.delay))))
+    (-> #(when (and (not (. cache.buf->detach? buf))
+                    (vim.api.nvim_buf_is_valid buf) ;
+                    (buf-has-cursor? buf))
+           (debug! (: "executing a series of pending %d highlight(s)" :format
+                      (length (pending-highlights:get))) buf)
+           (while (not (pending-highlights:empty?))
+             (let [hl-cb (pending-highlights:pop!)]
+               (hl-cb)))
+           (cache-old-texts buf)
+           (request-to-clear-highlights! buf))
+        (vim.defer_fn cache.config.highlight.delay))))
 
 (fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
   "Immediately dismiss emission highlights set at the same position.

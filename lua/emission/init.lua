@@ -40,8 +40,6 @@ local function clear_highlights_21(buf)
   return debug_21("cleared highlights", buf)
 end
 local function request_to_clear_highlights_21(buf)
-  local duration = cache.config.highlight.duration
-  local cb
   local function _5_()
     if vim.api.nvim_buf_is_valid(buf) then
       debug_21("clearing namespace after duration", buf)
@@ -50,8 +48,7 @@ local function request_to_clear_highlights_21(buf)
       return nil
     end
   end
-  cb = _5_
-  return vim.defer_fn(cb, duration)
+  return vim.defer_fn(_5_, cache.config.highlight.duration)
 end
 local function discard_pending_highlights_21(buf)
   cache["buf->pending-highlights"][buf] = nil
@@ -62,7 +59,6 @@ local function request_to_highlight_21(buf, callback)
   assert(("function" == type(callback)), ("expected function, got " .. type(callback)))
   local pending_highlights = cache["buf->pending-highlights"][buf]
   pending_highlights["push!"](pending_highlights, callback)
-  local timer_cb
   local function _7_()
     if (not cache["buf->detach?"][buf] and vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       debug_21(("executing a series of pending %d highlight(s)"):format(#pending_highlights:get()), buf)
@@ -76,8 +72,7 @@ local function request_to_highlight_21(buf, callback)
       return nil
     end
   end
-  timer_cb = _7_
-  return vim.defer_fn(timer_cb, cache.config.highlight.delay)
+  return vim.defer_fn(_7_, cache.config.highlight.delay)
 end
 local function dismiss_deprecated_highlight_21(buf, _9_)
   local start_row0 = _9_[1]
