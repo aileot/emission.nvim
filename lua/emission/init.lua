@@ -2,21 +2,16 @@ local _local_1_ = require("emission.utils.stack")
 local Stack = _local_1_["Stack"]
 local _local_2_ = require("emission.utils.logger")
 local set_debug_config_21 = _local_2_["set-debug-config!"]
-local debug_config = _local_2_["debug-config"]
 local trace_21 = _local_2_["trace!"]
 local debug_21 = _local_2_["debug!"]
+local config = require("emission.config")
 local uv = (vim.uv or vim.loop)
-local default_config
-local function _3_()
-  return true
-end
-default_config = {debug = debug_config, attach = {delay = 150, excluded_filetypes = {}, excluded_buftypes = {"help", "nofile", "terminal", "prompt"}}, highlight = {duration = 300, min_byte = 2, filter = _3_, additional_recache_events = {"InsertLeave"}, delay = 10}, added = {priority = 102, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67"}}, removed = {priority = 101, hl_map = {default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d"}}}
 local cache
-local function _4_(t, k)
+local function _3_(t, k)
   t[k] = Stack.new()
   return rawget(t, k)
 end
-cache = {config = vim.deepcopy(default_config), namespace = vim.api.nvim_create_namespace("emission"), ["timer-to-highlight"] = uv.new_timer(), ["timer-to-clear-highlight"] = uv.new_timer(), ["buf->pending-highlights"] = setmetatable({}, {__index = _4_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
+cache = {config = {}, namespace = vim.api.nvim_create_namespace("emission"), ["timer-to-highlight"] = uv.new_timer(), ["timer-to-clear-highlight"] = uv.new_timer(), ["buf->pending-highlights"] = setmetatable({}, {__index = _3_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
@@ -48,7 +43,7 @@ end
 local function request_to_clear_highlights_21(buf)
   local duration = cache.config.highlight.duration
   local cb
-  local function _6_()
+  local function _5_()
     if vim.api.nvim_buf_is_valid(buf) then
       debug_21("clearing namespace after duration", buf)
       return clear_highlights_21(buf)
@@ -56,11 +51,11 @@ local function request_to_clear_highlights_21(buf)
       return nil
     end
   end
-  cb = _6_
-  local function _8_()
+  cb = _5_
+  local function _7_()
     return vim.schedule(cb)
   end
-  return cache["timer-to-clear-highlight"]:start(duration, 0, _8_)
+  return cache["timer-to-clear-highlight"]:start(duration, 0, _7_)
 end
 local function discard_pending_highlights_21(buf)
   cache["buf->pending-highlights"][buf] = nil
@@ -72,7 +67,7 @@ local function request_to_highlight_21(buf, callback)
   local pending_highlights = cache["buf->pending-highlights"][buf]
   pending_highlights["push!"](pending_highlights, callback)
   local timer_cb
-  local function _9_()
+  local function _8_()
     if (not cache["buf->detach?"][buf] and vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       debug_21(("executing a series of pending %d highlight(s)"):format(#pending_highlights:get()), buf)
       while not pending_highlights["empty?"](pending_highlights) do
@@ -85,30 +80,30 @@ local function request_to_highlight_21(buf, callback)
       return nil
     end
   end
-  timer_cb = _9_
-  local function _11_()
+  timer_cb = _8_
+  local function _10_()
     return vim.schedule(timer_cb)
   end
-  return cache["timer-to-highlight"]:start(cache.config.highlight.delay, 0, _11_)
+  return cache["timer-to-highlight"]:start(cache.config.highlight.delay, 0, _10_)
 end
-local function dismiss_deprecated_highlight_21(buf, _12_)
-  local start_row0 = _12_[1]
-  local start_col0 = _12_[2]
+local function dismiss_deprecated_highlight_21(buf, _11_)
+  local start_row0 = _11_[1]
+  local start_col0 = _11_[2]
   do
-    local _13_ = cache["last-editing-position"]
-    if ((_G.type(_13_) == "table") and (_13_[1] == start_row0) and (_13_[2] == start_col0)) then
+    local _12_ = cache["last-editing-position"]
+    if ((_G.type(_12_) == "table") and (_12_[1] == start_row0) and (_12_[2] == start_col0)) then
       debug_21(("dismissing all the buf highlights due to the duplicated positioning {row0: %d, col0: %d}"):format(start_row0, start_col0), buf)
       clear_highlights_21(buf)
     else
-      local _ = _13_
+      local _ = _12_
     end
   end
   cache["last-editing-position"] = {start_row0, start_col0}
   return nil
 end
-local function dismiss_deprecated_highlights_21(buf, _15_)
-  local start_row0 = _15_[1]
-  local start_col0 = _15_[2]
+local function dismiss_deprecated_highlights_21(buf, _14_)
+  local start_row0 = _14_[1]
+  local start_col0 = _14_[2]
   return dismiss_deprecated_highlight_21(buf, {start_row0, start_col0})
 end
 local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row_offset, new_end_col_offset)
@@ -122,7 +117,7 @@ local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row
     end_col = #vim.api.nvim_buf_get_lines(buf, -2, -1, false)[1]
   end
   local hl_opts = {priority = cache.config.added.priority}
-  local function _17_()
+  local function _16_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
@@ -132,7 +127,7 @@ local function highlight_added_texts_21(buf, start_row0, start_col0, new_end_row
       return nil
     end
   end
-  return vim.schedule(_17_)
+  return vim.schedule(_16_)
 end
 local function extend_chunk_to_win_width_21(chunk)
   local max_col = vim.api.nvim_win_get_width(0)
@@ -157,14 +152,14 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
   local new_end_row = vim.api.nvim_buf_line_count(buf)
   local can_virt_text_display_first_line_removed_3f = (start_row0 < new_end_row)
   local first_removed_line
-  local function _20_()
+  local function _19_()
     if (0 == old_end_row_offset) then
       return (start_col0 + old_end_col_offset)
     else
       return nil
     end
   end
-  first_removed_line = string.sub(old_texts[start_row], inc(start_col0), _20_())
+  first_removed_line = string.sub(old_texts[start_row], inc(start_col0), _19_())
   local _3fmiddle_removed_lines
   if (1 < old_end_row_offset) then
     _3fmiddle_removed_lines = vim.list_slice(old_texts, inc(start_row), removed_end_row)
@@ -181,10 +176,10 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
   local _3frest_line_chunks
   if _3fmiddle_removed_lines then
     table.insert(_3fmiddle_removed_lines, _3flast_removed_line)
-    local function _23_(_241)
+    local function _22_(_241)
       return {{_241, hl_group}}
     end
-    _3frest_line_chunks = vim.tbl_map(_23_, _3fmiddle_removed_lines)
+    _3frest_line_chunks = vim.tbl_map(_22_, _3fmiddle_removed_lines)
   elseif _3flast_removed_line then
     _3frest_line_chunks = {{{_3flast_removed_line, hl_group}}}
   else
@@ -201,7 +196,7 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
     fitted_chunks, exceeded_chunks = vim.list_slice(_3frest_line_chunks, 1, offset), vim.list_slice(_3frest_line_chunks, inc(offset))
   end
   local extmark_opts = {hl_eol = true, priority = cache.config.removed.priority, virt_text_pos = "overlay", strict = false}
-  local function _26_()
+  local function _25_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf)) then
       open_folds_at_cursor_21()
       dismiss_deprecated_highlights_21(buf, {start_row0, start_col0})
@@ -240,7 +235,7 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
       return nil
     end
   end
-  return vim.schedule(_26_)
+  return vim.schedule(_25_)
 end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, old_end_byte_offset, new_end_row_offset, new_end_col_offset, new_end_byte_offset)
   if cache["buf->detach?"][buf] then
@@ -249,7 +244,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     return true
   else
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
-      local function _32_()
+      local function _31_()
         local display_start_row = vim.fn.line("w0")
         local display_offset = vim.api.nvim_win_get_height(0)
         local display_end_row = (display_start_row + display_offset)
@@ -296,7 +291,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           return nil
         end
       end
-      request_to_highlight_21(buf, _32_)
+      request_to_highlight_21(buf, _31_)
       return nil
     else
       return nil
@@ -308,7 +303,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _41_()
+  local function _40_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -317,7 +312,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_41_, cache.config.attach.delay)
+  vim.defer_fn(_40_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -330,30 +325,30 @@ end
 local function setup(opts)
   local opts0 = (opts or {})
   local id = vim.api.nvim_create_augroup("Emission", {})
-  cache.config = vim.tbl_deep_extend("keep", (opts0 or {}), default_config)
-  local _44_
+  cache.config = config.merge(opts0)
+  local _43_
   do
-    local t_43_ = opts0.added
-    if (nil ~= t_43_) then
-      t_43_ = t_43_.hl_map
+    local t_42_ = opts0.added
+    if (nil ~= t_42_) then
+      t_42_ = t_42_.hl_map
     else
     end
-    _44_ = t_43_
+    _43_ = t_42_
   end
-  if _44_ then
+  if _43_ then
     cache.config.added.hl_map = opts0.added.hl_map
   else
   end
-  local _48_
+  local _47_
   do
-    local t_47_ = opts0.removed
-    if (nil ~= t_47_) then
-      t_47_ = t_47_.hl_map
+    local t_46_ = opts0.removed
+    if (nil ~= t_46_) then
+      t_46_ = t_46_.hl_map
     else
     end
-    _48_ = t_47_
+    _47_ = t_46_
   end
-  if _48_ then
+  if _47_ then
     cache.config.removed.hl_map = opts0.removed.hl_map
   else
   end
@@ -363,19 +358,19 @@ local function setup(opts)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
-    local function _51_(_241)
+    local function _50_(_241)
       return cache_old_texts(_241.buf)
     end
-    vim.api.nvim_create_autocmd(event, {group = id, callback = _51_})
+    vim.api.nvim_create_autocmd(event, {group = id, callback = _50_})
   end
-  local function _52_(_241)
+  local function _51_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _52_})
-  local function _53_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _51_})
+  local function _52_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _53_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _52_})
   return nil
 end
 return {setup = setup}
