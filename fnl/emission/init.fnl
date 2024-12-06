@@ -370,6 +370,7 @@
 --- Initialize emission.
 --- Your options are always merged into the default config,
 --- not the current config.")
+
 (fn setup [opts]
   (let [opts (or opts {})
         id (vim.api.nvim_create_augroup :Emission {})]
