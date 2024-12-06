@@ -24,6 +24,7 @@ local default_config = {
     duration = 300,
     min_byte = 2,
     min_row_offset = 0,
+    ---@deprecated
     filter = function(_buf)
       return true
     end,
@@ -59,6 +60,14 @@ local default_config = {
 
 M.merge = function(opts)
   user_config = vim.tbl_deep_extend("keep", opts or {}, default_config)
+  if user_config.highlight.filter ~= default_config.highlight.filter then
+    vim.deprecate(
+      "highlight.filter",
+      "{added,removed}.filter",
+      "2.0.0",
+      "emission.nvim"
+    )
+  end
   return user_config
 end
 
