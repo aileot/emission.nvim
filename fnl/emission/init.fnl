@@ -68,7 +68,7 @@
         cb #(when (vim.api.nvim_buf_is_valid buf)
               (debug! "clearing namespace after duration" buf)
               (clear-highlights! buf))]
-    (cache.timer-to-clear-highlight:start duration 0 #(vim.schedule cb))))
+    (vim.defer_fn cb duration)))
 
 (fn discard-pending-highlights! [buf]
   (tset cache.buf->pending-highlights buf nil)
@@ -95,8 +95,7 @@
                           (hl-cb)))
                       (cache-old-texts buf)
                       (request-to-clear-highlights! buf))]
-      (cache.timer-to-highlight:start cache.config.highlight.delay 0
-                                      #(vim.schedule timer-cb)))))
+      (vim.defer_fn timer-cb cache.config.highlight.delay))))
 
 (fn dismiss-deprecated-highlight! [buf [start-row0 start-col0]]
   "Immediately dismiss emission highlights set at the same position.
@@ -308,20 +307,25 @@
                     (if (or (< old-end-row-offset new-end-row-offset)
                             (and (= 0 old-end-row-offset new-end-row-offset)
                                  (< 0 new-end-col-offset)))
-                        (let [row-exceeded? (< display-row-offset
+                        (when (cache.config.added.filter {: buf})
+                          (let [row-exceeded? (< display-row-offset
+                                                 new-end-row-offset)
+                                row-offset (if row-exceeded? display-row-offset
                                                new-end-row-offset)
-                              row-offset (if row-exceeded? display-row-offset
-                                             new-end-row-offset)
-                              col-offset (if row-exceeded? 0 new-end-col-offset)]
-                          (highlight-added-texts! buf start-row0* start-col0
-                                                  row-offset col-offset))
-                        (let [row-exceeded? (< display-row-offset
+                                col-offset (if row-exceeded? 0
+                                               new-end-col-offset)]
+                            (highlight-added-texts! buf start-row0* start-col0
+                                                    row-offset col-offset)))
+                        (when (cache.config.removed.filter {: buf})
+                          (let [row-exceeded? (< display-row-offset
+                                                 old-end-row-offset)
+                                row-offset (if row-exceeded? display-row-offset
                                                old-end-row-offset)
-                              row-offset (if row-exceeded? display-row-offset
-                                             old-end-row-offset)
-                              col-offset (if row-exceeded? 0 old-end-col-offset)]
-                          (highlight-removed-texts! buf start-row0* start-col0
-                                                    row-offset col-offset))))))
+                                col-offset (if row-exceeded? 0
+                                               old-end-col-offset)]
+                            (highlight-removed-texts! buf start-row0*
+                                                      start-col0 row-offset
+                                                      col-offset)))))))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
