@@ -3,12 +3,8 @@
 
 (local config (require :emission.config))
 
-(local uv (or vim.uv vim.loop))
-
 (local cache {:config {}
               :namespace (vim.api.nvim_create_namespace :emission)
-              :timer-to-highlight (uv.new_timer)
-              :timer-to-clear-highlight (uv.new_timer)
               :buf->pending-highlights (setmetatable {}
                                          {:__index (fn [t k]
                                                      (tset t k (Stack.new))

@@ -5,13 +5,12 @@ local set_debug_config_21 = _local_2_["set-debug-config!"]
 local trace_21 = _local_2_["trace!"]
 local debug_21 = _local_2_["debug!"]
 local config = require("emission.config")
-local uv = (vim.uv or vim.loop)
 local cache
 local function _3_(t, k)
   t[k] = Stack.new()
   return rawget(t, k)
 end
-cache = {config = {}, namespace = vim.api.nvim_create_namespace("emission"), ["timer-to-highlight"] = uv.new_timer(), ["timer-to-clear-highlight"] = uv.new_timer(), ["buf->pending-highlights"] = setmetatable({}, {__index = _3_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
+cache = {config = {}, namespace = vim.api.nvim_create_namespace("emission"), ["buf->pending-highlights"] = setmetatable({}, {__index = _3_}), ["hl-group"] = {added = "EmissionAdded", removed = "EmissionRemoved"}, ["last-editing-position"] = {0, 0}, ["buf->detach?"] = {}, ["last-recache-time"] = 0, ["buf->old-texts"] = {}}
 local vim_2fhl = (vim.hl or vim.highlight)
 local function inc(x)
   return (x + 1)
