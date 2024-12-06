@@ -43,6 +43,14 @@
     (each-scenario #(assert.has_error #(vim.fn.error :foo)))
     (each-scenario #(assert.has_error #(vim.cmd "throw 'foo'")))))
 
+(describe* "adding texts"
+  (before_each (fn []
+                 (emission.setup {:highlight {:min_byte 0 :duration 1 :delay 0}})
+                 (assert.equals 0 (length (get-extmarks)))))
+  (it* "creates highlights"
+    (vim.cmd "put = 'foo'")
+    (assert.equals 1 (length (get-extmarks)))))
+
 (describe* "on-byte does not cause error"
   (before-each (fn []
                  (vim.cmd.new)
