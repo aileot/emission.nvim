@@ -3,6 +3,9 @@
 
 (local emission (require :emission))
 
+(fn get-extmarks []
+  (vim.api.nvim_buf_get_extmarks 0 -1 0 -1 {:details true}))
+
 (fn feedkeys! [keys ?flags ?escape]
   "A wrapper of `nvim_feedkeys. Any mappings are ignored by default."
   (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
