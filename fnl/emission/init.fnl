@@ -330,16 +330,14 @@
                                                new-end-row-offset)
                               row-offset (if row-exceeded? display-row-offset
                                              new-end-row-offset)
-                              col-offset (if row-exceeded? 0
-                                             new-end-col-offset)]
+                              col-offset (if row-exceeded? 0 new-end-col-offset)]
                           (highlight-added-texts! buf start-row0* start-col0
                                                   row-offset col-offset))
                         (let [row-exceeded? (< display-row-offset
                                                old-end-row-offset)
                               row-offset (if row-exceeded? display-row-offset
                                              old-end-row-offset)
-                              col-offset (if row-exceeded? 0
-                                             old-end-col-offset)]
+                              col-offset (if row-exceeded? 0 old-end-col-offset)]
                           (highlight-removed-texts! buf start-row0* start-col0
                                                     row-offset col-offset))))))
              (request-to-highlight! buf))
@@ -386,8 +384,13 @@
   (tset cache.buf->detach? buf true))
 
 (fn setup [opts]
-  (let [id (vim.api.nvim_create_augroup :Emission {})]
+  (let [opts (or opts {})
+        id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (vim.tbl_deep_extend :keep (or opts {}) default-config))
+    (when (?. opts.added :hl_map)
+      (set cache.config.added.hl_map opts.added.hl_map))
+    (when (?. opts.removed :hl_map)
+      (set cache.config.removed.hl_map opts.removed.hl_map))
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
@@ -401,6 +404,7 @@
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buf! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
-      {:group id :callback #(request-to-detach-buf! $.buf)})))
+      {:group id :callback #(request-to-detach-buf! $.buf)})
+    nil))
 
 {: setup}
