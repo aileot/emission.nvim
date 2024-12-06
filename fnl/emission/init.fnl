@@ -1,29 +1,11 @@
 (local {: Stack} (require :emission.utils.stack))
-(local {: set-debug-config! : debug-config : trace! : debug!}
-       (require :emission.utils.logger))
+(local {: set-debug-config! : trace! : debug!} (require :emission.utils.logger))
+
+(local config (require :emission.config))
 
 (local uv (or vim.uv vim.loop))
 
-(local default-config ;
-       {:debug debug-config
-        :attach {:delay 150
-                 :excluded_filetypes []
-                 :excluded_buftypes [:help :nofile :terminal :prompt]}
-        :highlight {:duration 300
-                    :min_byte 2
-                    :filter #true
-                    :additional_recache_events [:InsertLeave]
-                    ;; NOTE: Should the option `delay` be exposed to users?
-                    :delay 10}
-        :added {:priority 102
-                :hl_map {:default true :bold true :fg "#dcd7ba" :bg "#2d4f67"}}
-        :removed {:priority 101
-                  :hl_map {:default true
-                           :bold true
-                           :fg "#dcd7ba"
-                           :bg "#672d2d"}}})
-
-(local cache {:config (vim.deepcopy default-config)
+(local cache {:config {}
               :namespace (vim.api.nvim_create_namespace :emission)
               :timer-to-highlight (uv.new_timer)
               :timer-to-clear-highlight (uv.new_timer)
@@ -383,10 +365,16 @@
   ;; NOTE: On neovim 0.10.2, there is no function to detach buf directly.
   (tset cache.buf->detach? buf true))
 
+(lua "
+---@param opts? emission.Config
+--- Initialize emission.
+--- Your options are always merged into the default config,
+--- not the current config.")
+
 (fn setup [opts]
   (let [opts (or opts {})
         id (vim.api.nvim_create_augroup :Emission {})]
-    (set cache.config (vim.tbl_deep_extend :keep (or opts {}) default-config))
+    (set cache.config (config.merge opts))
     (when (?. opts.added :hl_map)
       (set cache.config.added.hl_map opts.added.hl_map))
     (when (?. opts.removed :hl_map)

@@ -2,7 +2,7 @@
 
 (local plugin-name :emission)
 
-(local debug-config {:enabled vim.env.EMISSION_DEBUG
+(local debug-config {:enabled (or vim.env.EMISSION_DEBUG false)
                      :level (-> (or vim.env.EMISSION_DEBUG_LEVEL
                                     vim.log.levels.DEBUG)
                                 (tonumber))
