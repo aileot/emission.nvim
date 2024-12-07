@@ -72,7 +72,7 @@ require("emission").setup({
   highlight = {
     duration = 300, -- milliseconds
     min_byte = 2, -- minimum bytes to highlight texts
-    filter = function(buf) -- See below for examples.
+    filter = function(buf)
       return true
     end,
     -- NOTE: Buffer texts watched by emission.nvim are cached for the removed
@@ -103,6 +103,7 @@ require("emission").setup({
     ---@return boolean Return false or nil to ignore; otherwise, highlight
     --- added texts.
     filter = function(ctx)
+      -- See below for examples.
       return true
     end,
   },
@@ -121,6 +122,7 @@ require("emission").setup({
     ---@return boolean Return false or nil to ignore; otherwise, highlight
     --- removed texts.
     filter = function(ctx)
+      -- See below for examples.
       return true
     end,
   },
@@ -129,13 +131,13 @@ require("emission").setup({
 
 ### Recommended Filter Settings
 
-In the following example, highlighting is restricted to `normal` mode.
+In the following example, `added` highlights are restricted to `normal` mode.
 Additionally, it will never highlight during recorded macro execution.
 
 ```lua
 ---@param buf number attached buffer handle
 ---@return boolean Return false or nil to ignore; otherwise, highlight texts
-local filter = function(buf)
+local added_filter = function(buf)
   -- Do not highlight during executing macro.
   if vim.fn.reg_executing() ~= "" then
     return false
@@ -149,9 +151,9 @@ end
 
 require("emission").setup({
   -- Set other options...
-  highlight = {
-    -- Set other options at `highlight`...
-    filter = filter,
+  added = {
+    -- Set other options at `added`...
+    filter = added_filter,
   },
 })
 ```
