@@ -136,6 +136,8 @@ require("emission").setup({
       return true
     end,
   },
+  --- A option to help create autocmds dedicated to emission.
+  on_events = {},
 })
 ```
 
