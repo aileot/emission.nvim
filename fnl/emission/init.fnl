@@ -389,4 +389,4 @@
       {:group id :callback #(request-to-detach-buf! $.buf)})
     nil))
 
-{: setup}
+{: setup :override config.override}

@@ -348,4 +348,4 @@ local function setup(opts)
   vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _44_})
   return nil
 end
-return {setup = setup}
+return {setup = setup, override = config.override}
