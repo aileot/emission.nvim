@@ -267,12 +267,9 @@
               new-end-row-offset
               new-end-col-offset
               new-end-byte-offset]
-  (if (. cache.buf->detach? buf) ;
-      (do
-        (tset cache.buf->detach? buf nil)
-        (debug! "detached from buf" buf)
-        ;; NOTE: Return a truthy value to detach.
-        true) ;
+  (if (. cache.buf->detach? buf)
+      true
+      ;; NOTE: Return a truthy value to detach.
       ;; NOTE: `on_bytes` would be called before buf becomes valid; therefore,
       ;; check to detach should only be managed by `buf->detach` value.
       (when (and (vim.api.nvim_buf_is_valid buf) ;
@@ -321,6 +318,10 @@
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
 
+(fn on-detach [_string-detach buf]
+  (tset cache.buf->detach? buf nil)
+  (debug! "detached from buf" buf))
+
 (fn excluded-buf? [buf]
   (or (vim.list_contains cache.config.attach.excluded_buftypes
                          (. vim.bo buf :buftype))
@@ -344,7 +345,8 @@
                 (not (excluded-buf? buf)))
            (do
              (cache-old-texts buf)
-             (vim.api.nvim_buf_attach buf false {:on_bytes on-bytes})
+             (vim.api.nvim_buf_attach buf false
+                                      {:on_bytes on-bytes :on_detach on-detach})
              (debug! "attached to buf" buf))
            (debug! "the buf did not meet the requirements to be attached" buf))
       (vim.defer_fn cache.config.attach.delay))
