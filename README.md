@@ -108,6 +108,8 @@ require("emission").setup({
       bg = "#672d2d",
     },
   },
+  --- A option to help create autocmds dedicated to emission.
+  on_events = {},
 })
 ```
 
