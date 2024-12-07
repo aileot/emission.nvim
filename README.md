@@ -108,10 +108,15 @@ require("emission").setup({
       bg = "#672d2d",
     },
   },
+  --- A option to help create autocmds dedicated to emission.
+  --- See below for examples.
+  on_events = {},
 })
 ```
 
-### Recommended filter settings
+### Recommended Filter Settings
+
+#### filter
 
 In the following example, highlighting is restricted to `normal` mode.
 Additionally, it will never highlight during recorded macro execution.
@@ -139,6 +144,10 @@ require("emission").setup({
   },
 })
 ```
+
+### Usage of on_events
+
+#### on_events
 
 ## Highlights
 
