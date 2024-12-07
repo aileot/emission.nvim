@@ -327,51 +327,25 @@ local function setup(opts)
   local opts0 = (opts or {})
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = config.merge(opts0)
-  local _43_
-  do
-    local t_42_ = opts0.added
-    if (nil ~= t_42_) then
-      t_42_ = t_42_.hl_map
-    else
-    end
-    _43_ = t_42_
-  end
-  if _43_ then
-    cache.config.added.hl_map = opts0.added.hl_map
-  else
-  end
-  local _47_
-  do
-    local t_46_ = opts0.removed
-    if (nil ~= t_46_) then
-      t_46_ = t_46_.hl_map
-    else
-    end
-    _47_ = t_46_
-  end
-  if _47_ then
-    cache.config.removed.hl_map = opts0.removed.hl_map
-  else
-  end
   set_debug_config_21(cache.config.debug)
   trace_21(("merged config: " .. vim.inspect(cache.config)))
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
-    local function _50_(_241)
+    local function _42_(_241)
       return cache_old_texts(_241.buf)
     end
-    vim.api.nvim_create_autocmd(event, {group = id, callback = _50_})
+    vim.api.nvim_create_autocmd(event, {group = id, callback = _42_})
   end
-  local function _51_(_241)
+  local function _43_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _51_})
-  local function _52_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _43_})
+  local function _44_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _52_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _44_})
   return nil
 end
 return {setup = setup}

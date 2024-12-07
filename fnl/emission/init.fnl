@@ -373,10 +373,6 @@
   (let [opts (or opts {})
         id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (config.merge opts))
-    (when (?. opts.added :hl_map)
-      (set cache.config.added.hl_map opts.added.hl_map))
-    (when (?. opts.removed :hl_map)
-      (set cache.config.removed.hl_map opts.removed.hl_map))
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group

@@ -45,7 +45,14 @@ local default_config = {
 ---@param opts? emission.Config
 ---@return emission.Config
 M.merge = function(opts)
-  user_config = vim.tbl_deep_extend("keep", opts or {}, default_config)
+  opts = opts or {}
+  user_config = vim.tbl_deep_extend("keep", opts, default_config)
+  if opts.added and opts.added.hl_map then
+    user_config.added.hl_map = opts.added.hl_map
+  end
+  if opts.removed and opts.removed.hl_map then
+    user_config.removed.hl_map = opts.removed.hl_map
+  end
   return user_config
 end
 
