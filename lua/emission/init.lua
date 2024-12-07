@@ -326,20 +326,8 @@ local function request_to_detach_buf_21(buf)
   cache["buf->detach?"][buf] = true
   return nil
 end
-
----@param opts? emission.Config
---- Initialize emission.
---- Your options are always merged into the default config,
---- not the current config.
-local function setup(opts)
-  local opts0 = (opts or {})
+local function create_autocmds_21()
   local id = vim.api.nvim_create_augroup("Emission", {})
-  config.merge(opts0)
-  set_debug_config_21(cache.config.debug)
-  trace_21(("merged config: " .. vim.inspect(cache.config)))
-  vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
-  vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
-  request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
     local function _44_(_241)
       return cache_old_texts(_241.buf)
@@ -353,7 +341,22 @@ local function setup(opts)
   local function _46_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
+  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
+end
+
+---@param opts? emission.Config
+--- Initialize emission.
+--- Your options are always merged into the default config,
+--- not the current config.
+local function setup(opts)
+  local opts0 = (opts or {})
+  config.merge(opts0)
+  set_debug_config_21(cache.config.debug)
+  trace_21(("merged config: " .. vim.inspect(cache.config)))
+  vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
+  vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
+  create_autocmds_21()
+  request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   return nil
 end
 
