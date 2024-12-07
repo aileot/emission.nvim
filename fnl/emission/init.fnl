@@ -388,4 +388,13 @@
       {:group id :callback #(request-to-detach-buf! $.buf)})
     nil))
 
-{: setup :override config.override :reset config.reset}
+;; NOTE: For end-users, the documentation is slightly different from
+;; `config.reset` which internaly correlates with `config.merge`.
+(lua "
+--- Reset current config to the last config determined by `emission.setup()`.
+---@return emission.Config")
+
+(fn reset []
+  (config.reset))
+
+{: setup :override config.override : reset}
