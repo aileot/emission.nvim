@@ -3,7 +3,11 @@
 
 (local config (require :emission.config))
 
-(local cache {:config {}
+(local cache {:config (setmetatable {}
+                        {:__index (fn [_t k]
+                                    (. config._config k))
+                         :__newindex (fn []
+                                       (error "No new entry is allowed"))})
               :namespace (vim.api.nvim_create_namespace :emission)
               :buf->pending-highlights (setmetatable {}
                                          {:__index (fn [t k]
@@ -371,7 +375,8 @@
 (fn setup [opts]
   (let [opts (or opts {})
         id (vim.api.nvim_create_augroup :Emission {})]
-    (set cache.config (config.merge opts))
+    ;; NOTE: Every `cache.config` value should be got via metatable.
+    (config.merge opts)
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
