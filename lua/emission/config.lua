@@ -65,4 +65,13 @@ M.merge = function(opts)
   return user_config
 end
 
+--- Override current config with given `opts`.
+---@param opts emission.Config
+---@return emission.Config
+M.override = function(opts)
+  user_config = vim.tbl_deep_extend("keep", opts or {}, user_config)
+  user_config = override_table_opts(opts)
+  return user_config
+end
+
 return M
