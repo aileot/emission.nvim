@@ -385,14 +385,21 @@
 
 (fn create-autocmds! []
   "Create Emission autocmds."
-  (let [id (vim.api.nvim_create_augroup :Emission {})]
+  (let [id (vim.api.nvim_create_augroup :Emission {})
+        extra-events cache.config.on_events]
     (each [_ event (ipairs cache.config.highlight.additional_recache_events)]
       (vim.api.nvim_create_autocmd event
         {:group id :callback #(cache-old-texts $.buf)}))
     (vim.api.nvim_create_autocmd :BufEnter
       {:group id :callback #(request-to-attach-buf! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
-      {:group id :callback #(request-to-detach-buf! $.buf)})))
+      {:group id :callback #(request-to-detach-buf! $.buf)})
+    (each [event opt-list (pairs extra-events)]
+      (assert (and (not opt-list.callback) (not opt-list.command))
+              "expected a list of autocmd opts, got a table")
+      (each [_ opts (ipairs opt-list)]
+        (set opts.group (or opts.group id))
+        (vim.api.nvim_create_autocmd event opts)))))
 
 (lua "
 ---@param opts? emission.Config

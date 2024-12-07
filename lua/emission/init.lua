@@ -328,6 +328,7 @@ local function request_to_detach_buf_21(buf)
 end
 local function create_autocmds_21()
   local id = vim.api.nvim_create_augroup("Emission", {})
+  local extra_events = cache.config.on_events
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
     local function _44_(_241)
       return cache_old_texts(_241.buf)
@@ -341,7 +342,15 @@ local function create_autocmds_21()
   local function _46_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  return vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _46_})
+  for event, opt_list in pairs(extra_events) do
+    assert((not opt_list.callback and not opt_list.command), "expected a list of autocmd opts, got a table")
+    for _, opts in ipairs(opt_list) do
+      opts.group = (opts.group or id)
+      vim.api.nvim_create_autocmd(event, opts)
+    end
+  end
+  return nil
 end
 
 ---@param opts? emission.Config
