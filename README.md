@@ -113,7 +113,7 @@ require("emission").setup({
 })
 ```
 
-### Recommended filter settings
+### Recommended Filter Settings
 
 In the following example, highlighting is restricted to `normal` mode.
 Additionally, it will never highlight during recorded macro execution.
