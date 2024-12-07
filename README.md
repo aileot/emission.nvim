@@ -100,6 +100,13 @@ require("emission").setup({
       bg = "#2d4f67",
     },
     min_row_offset = 0, -- minimum row offset to highlight texts
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- added texts.
+    filter = function(ctx)
+      assert(type(ctx.buf) == "number")
+      return true
+    end,
   },
   -- The same options as `added` are available.
   -- Note that the default values might be different from `added` ones.
@@ -113,6 +120,13 @@ require("emission").setup({
       bg = "#672d2d",
     },
     min_row_offset = 0, -- minimum row offset to highlight texts
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- removed texts.
+    filter = function(ctx)
+      assert(type(ctx.buf) == "number")
+      return true
+    end,
   },
 })
 ```
