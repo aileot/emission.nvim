@@ -20,3 +20,16 @@
     (emission.setup {:removed {:hl_map {:reverse true}}})
     (assert.is_same {:reverse true :cterm {:reverse true}}
                     (vim.api.nvim_get_hl 0 {:name :EmissionRemoved}))))
+
+(describe* "emission.override()"
+  (it* "overrides only given key values."
+    (let [base-opts {:attach {:excluded_filetypes [:foobar]}
+                     :added {:hl_map {:reverse true}}}
+          overriding-opts {:attach {:excluded_filetypes [:foo]}}]
+      (emission.setup base-opts)
+      (let [new-config (emission.override overriding-opts)]
+        (assert.is_same new-config.attach.excluded_filetypes
+                        overriding-opts.attach.excluded_filetypes)
+        (assert.is_not_same new-config.attach.excluded_filetypes
+                            base-opts.attach.excluded_filetypes)
+        (assert.is_same new-config.added.hl_map base-opts.added.hl_map)))))

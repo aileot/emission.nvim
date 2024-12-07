@@ -245,43 +245,35 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           local display_row_offset = (display_end_row - display_start_row)
           local start_row0_2a = math.max(start_row0, dec(display_start_row))
           if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
-            if cache.config.added.filter({buf = buf}) then
-              local row_exceeded_3f = (display_row_offset < new_end_row_offset)
-              local row_offset
-              if row_exceeded_3f then
-                row_offset = display_row_offset
-              else
-                row_offset = new_end_row_offset
-              end
-              local col_offset
-              if row_exceeded_3f then
-                col_offset = 0
-              else
-                col_offset = new_end_col_offset
-              end
-              return highlight_added_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
+            local row_exceeded_3f = (display_row_offset < new_end_row_offset)
+            local row_offset
+            if row_exceeded_3f then
+              row_offset = display_row_offset
             else
-              return nil
+              row_offset = new_end_row_offset
             end
+            local col_offset
+            if row_exceeded_3f then
+              col_offset = 0
+            else
+              col_offset = new_end_col_offset
+            end
+            return highlight_added_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
           else
-            if cache.config.removed.filter({buf = buf}) then
-              local row_exceeded_3f = (display_row_offset < old_end_row_offset)
-              local row_offset
-              if row_exceeded_3f then
-                row_offset = display_row_offset
-              else
-                row_offset = old_end_row_offset
-              end
-              local col_offset
-              if row_exceeded_3f then
-                col_offset = 0
-              else
-                col_offset = old_end_col_offset
-              end
-              return highlight_removed_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
+            local row_exceeded_3f = (display_row_offset < old_end_row_offset)
+            local row_offset
+            if row_exceeded_3f then
+              row_offset = display_row_offset
             else
-              return nil
+              row_offset = old_end_row_offset
             end
+            local col_offset
+            if row_exceeded_3f then
+              col_offset = 0
+            else
+              col_offset = old_end_col_offset
+            end
+            return highlight_removed_texts_21(buf, start_row0_2a, start_col0, row_offset, col_offset)
           end
         else
           return nil
@@ -299,7 +291,7 @@ local function excluded_buf_3f(buf)
 end
 local function request_to_attach_buf_21(buf)
   debug_21("requested to attach buf", buf)
-  local function _40_()
+  local function _38_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
       vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
@@ -308,7 +300,7 @@ local function request_to_attach_buf_21(buf)
       return debug_21("the buf did not meet the requirements to be attached", buf)
     end
   end
-  vim.defer_fn(_40_, cache.config.attach.delay)
+  vim.defer_fn(_38_, cache.config.attach.delay)
   return nil
 end
 local function request_to_detach_buf_21(buf)
@@ -327,51 +319,25 @@ local function setup(opts)
   local opts0 = (opts or {})
   local id = vim.api.nvim_create_augroup("Emission", {})
   cache.config = config.merge(opts0)
-  local _43_
-  do
-    local t_42_ = opts0.added
-    if (nil ~= t_42_) then
-      t_42_ = t_42_.hl_map
-    else
-    end
-    _43_ = t_42_
-  end
-  if _43_ then
-    cache.config.added.hl_map = opts0.added.hl_map
-  else
-  end
-  local _47_
-  do
-    local t_46_ = opts0.removed
-    if (nil ~= t_46_) then
-      t_46_ = t_46_.hl_map
-    else
-    end
-    _47_ = t_46_
-  end
-  if _47_ then
-    cache.config.removed.hl_map = opts0.removed.hl_map
-  else
-  end
   set_debug_config_21(cache.config.debug)
   trace_21(("merged config: " .. vim.inspect(cache.config)))
   vim.api.nvim_set_hl(0, cache["hl-group"].added, cache.config.added.hl_map)
   vim.api.nvim_set_hl(0, cache["hl-group"].removed, cache.config.removed.hl_map)
   request_to_attach_buf_21(vim.api.nvim_get_current_buf())
   for _, event in ipairs(cache.config.highlight.additional_recache_events) do
-    local function _50_(_241)
+    local function _40_(_241)
       return cache_old_texts(_241.buf)
     end
-    vim.api.nvim_create_autocmd(event, {group = id, callback = _50_})
+    vim.api.nvim_create_autocmd(event, {group = id, callback = _40_})
   end
-  local function _51_(_241)
+  local function _41_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _51_})
-  local function _52_(_241)
+  vim.api.nvim_create_autocmd("BufEnter", {group = id, callback = _41_})
+  local function _42_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _52_})
+  vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _42_})
   return nil
 end
-return {setup = setup}
+return {setup = setup, override = config.override}

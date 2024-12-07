@@ -301,25 +301,22 @@
                     (if (or (< old-end-row-offset new-end-row-offset)
                             (and (= 0 old-end-row-offset new-end-row-offset)
                                  (< 0 new-end-col-offset)))
-                        (when (cache.config.added.filter {: buf})
-                          (let [row-exceeded? (< display-row-offset
-                                                 new-end-row-offset)
-                                row-offset (if row-exceeded? display-row-offset
+                        (let [row-exceeded? (< display-row-offset
                                                new-end-row-offset)
-                                col-offset (if row-exceeded? 0
-                                               new-end-col-offset)]
-                            (highlight-added-texts! buf start-row0* start-col0
-                                                    row-offset col-offset)))
-                        (when (cache.config.removed.filter {: buf})
-                          (let [row-exceeded? (< display-row-offset
-                                                 old-end-row-offset)
-                                row-offset (if row-exceeded? display-row-offset
+                              row-offset (if row-exceeded?
+                                             display-row-offset
+                                             new-end-row-offset)
+                              col-offset (if row-exceeded? 0 new-end-col-offset)]
+                          (highlight-added-texts! buf start-row0* start-col0
+                                                  row-offset col-offset))
+                        (let [row-exceeded? (< display-row-offset
                                                old-end-row-offset)
-                                col-offset (if row-exceeded? 0
-                                               old-end-col-offset)]
-                            (highlight-removed-texts! buf start-row0*
-                                                      start-col0 row-offset
-                                                      col-offset)))))))
+                              row-offset (if row-exceeded?
+                                             display-row-offset
+                                             old-end-row-offset)
+                              col-offset (if row-exceeded? 0 old-end-col-offset)]
+                          (highlight-removed-texts! buf start-row0* start-col0
+                                                    row-offset col-offset))))))
              (request-to-highlight! buf))
         ;; HACK: Keep the `nil` to make sure not to detach unexpectedly.
         nil)))
@@ -373,10 +370,6 @@
   (let [opts (or opts {})
         id (vim.api.nvim_create_augroup :Emission {})]
     (set cache.config (config.merge opts))
-    (when (?. opts.added :hl_map)
-      (set cache.config.added.hl_map opts.added.hl_map))
-    (when (?. opts.removed :hl_map)
-      (set cache.config.removed.hl_map opts.removed.hl_map))
     (set-debug-config! cache.config.debug)
     (trace! (.. "merged config: " (vim.inspect cache.config)))
     ;; NOTE: `vim.api.nvim_set_hl` always returns `nil`; to get the hl-group
@@ -393,4 +386,4 @@
       {:group id :callback #(request-to-detach-buf! $.buf)})
     nil))
 
-{: setup}
+{: setup :override config.override}

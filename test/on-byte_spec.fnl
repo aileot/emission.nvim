@@ -7,7 +7,9 @@
   "A wrapper of `nvim_feedkeys. Any mappings are ignored by default."
   (vim.api.nvim_feedkeys (vim.api.nvim_replace_termcodes keys true true true)
                          (or ?flags :ni) ;
-                         (if (= ?escape false) false true)))
+                         (if (= ?escape false)
+                             false
+                             true)))
 
 (fn each-scenario [cb]
   "Apply `cb` to combinations of buffer rows and cursor positions.
@@ -30,6 +32,7 @@
 
 (describe* "the helper `each-scenario`"
   (before-each (fn []
+                 (emission.setup)
                  (vim.cmd.new)))
   (after-each (fn []
                 (vim.cmd :q!)))
@@ -40,8 +43,8 @@
 
 (describe* "on-byte does not cause error"
   (before-each (fn []
-                 (vim.cmd.new)
-                 (emission.setup)))
+                 (emission.setup)
+                 (vim.cmd.new)))
   (after-each (fn []
                 (vim.cmd :q!)))
   (it* "on inserting texts"
