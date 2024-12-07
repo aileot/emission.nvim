@@ -1,7 +1,7 @@
 local logger = require("emission.utils.logger")
 
 local M = {}
-local user_config
+local user_config, last_config
 
 ---@alias HlMap table<string,any> options for the 3rd arg of `nvim_set_hl()`
 
@@ -41,6 +41,8 @@ local default_config = {
   },
 }
 
+last_config = default_config
+
 --- Make sure to override table config, which does not make sense to be
 --- merged.
 ---@param opts emission.Config
@@ -62,6 +64,7 @@ M.merge = function(opts)
   opts = opts or {}
   user_config = vim.tbl_deep_extend("keep", opts, default_config)
   user_config = override_table_opts(opts)
+  last_config = user_config
   return user_config
 end
 
@@ -71,6 +74,13 @@ end
 M.override = function(opts)
   user_config = vim.tbl_deep_extend("keep", opts or {}, user_config)
   user_config = override_table_opts(opts)
+  return user_config
+end
+
+--- Reset current config to the last config determined by .merge().
+---@return emission.Config
+M.reset = function()
+  user_config = last_config
   return user_config
 end
 

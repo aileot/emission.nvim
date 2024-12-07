@@ -342,4 +342,10 @@ local function setup(opts)
   vim.api.nvim_create_autocmd("BufLeave", {group = id, callback = _42_})
   return nil
 end
-return {setup = setup, override = config.override}
+
+--- Reset current config to the last config determined by `emission.setup()`.
+---@return emission.Config
+local function reset()
+  return config.reset()
+end
+return {setup = setup, override = config.override, reset = reset}
