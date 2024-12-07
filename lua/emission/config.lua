@@ -41,6 +41,12 @@ local default_config = {
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d" },
   },
+  ---@alias AutocmdEvent string|string[] the 1st arg of `nvim_create_autocmd()
+  ---@alias AutocmdOpts table the 2nd arg of `nvim_create_autocmd()`
+  ---@alias emission.Config.OnEvents table<AutocmdEvent,AutocmdOpts[]>
+  --- A option to help create autocmds dedicated to emission.
+  ---@type emission.Config.OnEvents
+  on_events = {},
 }
 
 M._config = default_config
