@@ -99,6 +99,12 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#2d4f67",
     },
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- added texts.
+    filter = function(ctx)
+      return true
+    end,
   },
   -- The same options as `added` are available.
   -- Note that the default values might be different from `added` ones.
@@ -111,6 +117,12 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#672d2d",
     },
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- removed texts.
+    filter = function(ctx)
+      return true
+    end,
   },
 })
 ```
