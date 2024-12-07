@@ -15,9 +15,13 @@ However, `emission.nvim` does provide the following features:
 - Highlights for **removed** texts like afterimage.
 - **No** keymap conflicts.
 
+<!-- panvimdoc-ignore-start -->
+
 ## Demo
 
 ![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
+
+<!-- panvimdoc-ignore-end -->
 
 ## Requirements
 
