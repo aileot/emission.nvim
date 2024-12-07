@@ -42,8 +42,8 @@
 
 (describe* "on-byte does not cause error"
   (before-each (fn []
-                 (vim.cmd.new)
-                 (emission.setup)))
+                 (emission.setup)
+                 (vim.cmd.new)))
   (after-each (fn []
                 (vim.cmd :q!)))
   (it* "on inserting texts"
