@@ -32,6 +32,7 @@
 
 (describe* "the helper `each-scenario`"
   (before-each (fn []
+                 (emission.setup)
                  (vim.cmd.new)))
   (after-each (fn []
                 (vim.cmd :q!)))
