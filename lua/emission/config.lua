@@ -1,7 +1,9 @@
 local logger = require("emission.utils.logger")
 
-local M = {}
-local user_config, last_config
+local M = {
+  _config = {},
+}
+local last_config
 
 ---@alias HlMap table<string,any> options for the 3rd arg of `nvim_set_hl()`
 
@@ -41,7 +43,8 @@ local default_config = {
   },
 }
 
-last_config = default_config
+M._config = default_config
+last_config = M._config
 
 --- Make sure to override table config, which does not make sense to be
 --- merged.
@@ -49,12 +52,12 @@ last_config = default_config
 ---@return emission.Config
 local function override_table_opts(opts)
   if opts.added and opts.added.hl_map then
-    user_config.added.hl_map = opts.added.hl_map
+    M._config.added.hl_map = opts.added.hl_map
   end
   if opts.removed and opts.removed.hl_map then
-    user_config.removed.hl_map = opts.removed.hl_map
+    M._config.removed.hl_map = opts.removed.hl_map
   end
-  return user_config
+  return M._config
 end
 
 --- Merge given `opts` into default config.
@@ -62,26 +65,26 @@ end
 ---@return emission.Config
 M.merge = function(opts)
   opts = opts or {}
-  user_config = vim.tbl_deep_extend("keep", opts, default_config)
-  user_config = override_table_opts(opts)
-  last_config = user_config
-  return user_config
+  M._config = vim.tbl_deep_extend("keep", opts, default_config)
+  M._config = override_table_opts(opts)
+  last_config = M._config
+  return M._config
 end
 
 --- Override current config with given `opts`.
 ---@param opts emission.Config
 ---@return emission.Config
 M.override = function(opts)
-  user_config = vim.tbl_deep_extend("keep", opts or {}, user_config)
-  user_config = override_table_opts(opts)
-  return user_config
+  M._config = vim.tbl_deep_extend("keep", opts or {}, M._config)
+  M._config = override_table_opts(opts)
+  return M._config
 end
 
 --- Reset current config to the last config determined by .merge().
 ---@return emission.Config
 M.reset = function()
-  user_config = last_config
-  return user_config
+  M._config = last_config
+  return M._config
 end
 
 return M
