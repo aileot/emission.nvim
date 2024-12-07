@@ -41,6 +41,9 @@ local default_config = {
   },
 }
 
+--- Merge given `opts` into default config.
+---@param opts? emission.Config
+---@return emission.Config
 M.merge = function(opts)
   user_config = vim.tbl_deep_extend("keep", opts or {}, default_config)
   return user_config
