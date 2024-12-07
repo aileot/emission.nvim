@@ -41,18 +41,27 @@ local default_config = {
   },
 }
 
---- Merge given `opts` into default config.
----@param opts? emission.Config
+--- Make sure to override table config, which does not make sense to be
+--- merged.
+---@param opts emission.Config
 ---@return emission.Config
-M.merge = function(opts)
-  opts = opts or {}
-  user_config = vim.tbl_deep_extend("keep", opts, default_config)
+local function override_table_opts(opts)
   if opts.added and opts.added.hl_map then
     user_config.added.hl_map = opts.added.hl_map
   end
   if opts.removed and opts.removed.hl_map then
     user_config.removed.hl_map = opts.removed.hl_map
   end
+  return user_config
+end
+
+--- Merge given `opts` into default config.
+---@param opts? emission.Config
+---@return emission.Config
+M.merge = function(opts)
+  opts = opts or {}
+  user_config = vim.tbl_deep_extend("keep", opts, default_config)
+  user_config = override_table_opts(opts)
   return user_config
 end
 
