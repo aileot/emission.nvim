@@ -144,6 +144,9 @@ The default settings:
           return true
         end,
       },
+      --- A option to help create autocmds dedicated to emission.
+      --- See below for examples.
+      on_events = {},
     })
 <
 
@@ -179,6 +182,56 @@ execution.
         -- Set other options at `removed`...
         -- You can also set another filter apart from `added` one.
         filter = filter,
+      },
+    })
+<
+
+
+MODIFY OPTIONS ON AUTOCMD EVENTS ~
+
+Emission provides an helper interface `on_events` to manage emission options on
+autocmd events.
+
+For the purpose, there are the functions `require("emission").override({})` and
+`require("emission").reset()` are provided, since `require("emission").setup()`
+is always merged with the default config.
+
+
+on_events                                                 *emission-on_events*
+
+>lua
+    require("emission").setup({
+      on_events = {
+        ModeChanged = {
+          {
+            desc = "Disable emission in certain occasions",
+            pattern = "*",
+            callback = function(a)
+              local old_mode, new_mode = a.match:match("(.+):(.+)")
+              if old_mode == "no" then
+                -- Do not emit highlights for texts removed within 1 row via
+                -- Operator-pending mode.
+                require("emission").override({
+                  removed = {
+                    min_row_offset = 1,
+                  },
+                })
+                return
+              elseif old_mode:find("[vV\22]") then
+                -- Disable emissions on texts removed from Visual mode.
+                require("emission").override({
+                  removed = {
+                    enabled = false,
+                  },
+                })
+                return
+              else
+                require("emission").reset()
+                return
+              end
+            end,
+          },
+        },
       },
     })
 <
