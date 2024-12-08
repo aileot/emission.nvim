@@ -24,6 +24,7 @@ local default_config = {
   ---@class emission.Config.Highlight
   highlight = {
     duration = 300,
+    ---@deprecated Use {added,removed}.min_byte instead
     min_byte = 2,
     ---@deprecated Use {added,removed}.filter instead
     filter = function(_buf)
@@ -99,6 +100,14 @@ end
 ---@return emission.Config
 M.merge = function(opts)
   opts = opts or {}
+  if opts.highlight.min_byte then
+    vim.deprecate(
+      "highlight.min_byte",
+      "{added,removed}.min_byte",
+      "2.0.0",
+      "emission.nvim"
+    )
+  end
   if opts.highlight.filter then
     vim.deprecate(
       "highlight.filter",
