@@ -5,11 +5,8 @@
 (it* "setup without any args does not cause error"
   (emission.setup))
 
-(describe* "option"
-  (before_each (fn []
-                 ;; Reset to default config.
-                 (emission.setup)))
-  (it* "`{added,removed}.hl_map` overrides hl-Emission{Added,Removed}"
+(describe* "option {added,removed}.hl_map"
+  (it* "overrides hl-Emission{Added,Removed}"
     (emission.setup {:added {:hl_map {}}})
     (assert.is_same {} (vim.api.nvim_get_hl 0 {:name :EmissionAdded}))
     (emission.setup {:added {:hl_map {:reverse true}}})
