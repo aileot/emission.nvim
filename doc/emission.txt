@@ -31,7 +31,7 @@ Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
 
 REQUIREMENTS                                           *emission-requirements*
 
-- Neovim >= 0.9.5
+- Neovim >= 0.10.2
 
 
 INSTALLATION                                           *emission-installation*
