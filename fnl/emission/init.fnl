@@ -304,10 +304,10 @@
                                  (< 0 new-end-col-offset)))
                         (when (and cache.config.added.enabled
                                    (<= cache.config.added.min_row_offset
-                                       (+ new-end-row-offset
+                                       (- new-end-row-offset
                                           ;; NOTE: Reduce offset by 1 if col-offset
                                           ;; is 0; otherwise, keep the row-offset.
-                                          (- -1 (math.min 1 new-end-col-offset))))
+                                          (math.min 1 new-end-col-offset) -1))
                                    (cache.config.added.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  new-end-row-offset)
@@ -320,10 +320,10 @@
                                                     row-offset col-offset)))
                         (when (and cache.config.removed.enabled
                                    (<= cache.config.removed.min_row_offset
-                                       (+ old-end-row-offset
+                                       (- old-end-row-offset
                                           ;; NOTE: Reduce offset by 1 if col-offset
                                           ;; is 0; otherwise, keep the row-offset.
-                                          (- -1 (math.min 1 old-end-col-offset))))
+                                          (math.min 1 old-end-col-offset) -1))
                                    (cache.config.removed.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  old-end-row-offset)
