@@ -302,11 +302,12 @@
                     (if (or (< old-end-row-offset new-end-row-offset)
                             (and (= 0 old-end-row-offset new-end-row-offset)
                                  (< 0 new-end-col-offset)))
-                        (when (<= cache.config.added.min_row_offset
-                                  (+ new-end-row-offset
-                                     ;; NOTE: Reduce offset by 1 if col-offset
-                                     ;; is 0; otherwise, keep the row-offset.
-                                     (- -1 (math.min 1 new-end-col-offset))))
+                        (when (and (<= cache.config.added.min_row_offset
+                                       (+ new-end-row-offset
+                                          ;; NOTE: Reduce offset by 1 if col-offset
+                                          ;; is 0; otherwise, keep the row-offset.
+                                          (- -1 (math.min 1 new-end-col-offset))))
+                                   (cache.config.added.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  new-end-row-offset)
                                 row-offset (if row-exceeded?
@@ -316,11 +317,12 @@
                                                new-end-col-offset)]
                             (highlight-added-texts! buf start-row0* start-col0
                                                     row-offset col-offset)))
-                        (when (<= cache.config.removed.min_row_offset
-                                  (+ old-end-row-offset
-                                     ;; NOTE: Reduce offset by 1 if col-offset
-                                     ;; is 0; otherwise, keep the row-offset.
-                                     (- -1 (math.min 1 old-end-col-offset))))
+                        (when (and (<= cache.config.removed.min_row_offset
+                                       (+ old-end-row-offset
+                                          ;; NOTE: Reduce offset by 1 if col-offset
+                                          ;; is 0; otherwise, keep the row-offset.
+                                          (- -1 (math.min 1 old-end-col-offset))))
+                                   (cache.config.removed.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  old-end-row-offset)
                                 row-offset (if row-exceeded?

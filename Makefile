@@ -59,7 +59,8 @@ lua/%.lua: $(FNL_SRC_DIR)/%.fnl
 
 .PHONY: clean
 clean:
-	@rm $(LUA_RES)
+	@rm -f $(LUA_RES)
+	@rm -f $(LUA_SPECS)
 
 .PHONY: build
 build: $(LUA_RES)

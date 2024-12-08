@@ -5,6 +5,9 @@ local M = {
 }
 local last_config
 
+---@class emission.Filter.Context
+---@field buf integer
+
 ---@alias HlMap table<string,any> options for the 3rd arg of `nvim_set_hl()`
 
 ---@class emission.Config
@@ -35,6 +38,13 @@ local default_config = {
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67" },
     min_row_offset = 0,
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- added texts.
+    filter = function(ctx)
+      assert(type(ctx.buf) == "number")
+      return true
+    end,
   },
   ---@class emission.Config.Removed
   removed = {
@@ -42,6 +52,13 @@ local default_config = {
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d" },
     min_row_offset = 0,
+    ---@param ctx emission.Filter.Context
+    ---@return boolean Return false or nil to ignore; otherwise, highlight
+    --- removed texts.
+    filter = function(ctx)
+      assert(type(ctx.buf) == "number")
+      return true
+    end,
   },
 }
 
