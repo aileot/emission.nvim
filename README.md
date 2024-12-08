@@ -103,6 +103,7 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#2d4f67",
     },
+    min_byte = 2, -- minimum bytes to highlight texts
     min_row_offset = 0, -- minimum row offset to highlight texts
     ---@param ctx emission.Filter.Context
     ---@return boolean Return false or nil to ignore; otherwise, highlight
@@ -127,6 +128,7 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#672d2d",
     },
+    min_byte = 2, -- minimum bytes to highlight texts
     min_row_offset = 0, -- minimum row offset to highlight texts
     ---@param ctx emission.Filter.Context
     ---@return boolean Return false or nil to ignore; otherwise, highlight
