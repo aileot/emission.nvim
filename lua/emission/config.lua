@@ -99,9 +99,7 @@ end
 ---@return emission.Config
 M.merge = function(opts)
   opts = opts or {}
-  M._config = vim.tbl_deep_extend("keep", opts, default_config)
-  M._config = override_table_opts(opts)
-  if M._config.highlight.filter ~= default_config.highlight.filter then
+  if opts.highlight.filter then
     vim.deprecate(
       "highlight.filter",
       "{added,removed}.filter",
@@ -109,6 +107,8 @@ M.merge = function(opts)
       "emission.nvim"
     )
   end
+  M._config = vim.tbl_deep_extend("keep", opts, default_config)
+  M._config = override_table_opts(opts)
   last_config = M._config
   return M._config
 end
