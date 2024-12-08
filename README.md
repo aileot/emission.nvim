@@ -72,6 +72,7 @@ require("emission").setup({
   highlight = {
     duration = 300, -- milliseconds
     min_byte = 2, -- minimum bytes to highlight texts
+    ---@deprecated Use {added,removed}.filter instead
     filter = function(buf)
       return true
     end,
@@ -107,7 +108,7 @@ require("emission").setup({
     ---@return boolean Return false or nil to ignore; otherwise, highlight
     --- added texts.
     filter = function(ctx)
--- See below for examples.
+      -- See below for examples.
       assert(type(ctx.buf) == "number")
       return true
     end,
