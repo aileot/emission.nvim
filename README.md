@@ -71,6 +71,7 @@ require("emission").setup({
   },
   highlight = {
     duration = 300, -- milliseconds
+    ---@deprecated Use {added,removed}.min_byte instead
     min_byte = 2, -- minimum bytes to highlight texts
     ---@deprecated Use {added,removed}.filter instead
     filter = function(buf)

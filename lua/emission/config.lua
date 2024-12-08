@@ -24,6 +24,7 @@ local default_config = {
   ---@class emission.Config.Highlight
   highlight = {
     duration = 300,
+    ---@deprecated Use {added,removed}.min_byte instead
     min_byte = 2,
     ---@deprecated Use {added,removed}.filter instead
     filter = function(_buf)
@@ -99,9 +100,15 @@ end
 ---@return emission.Config
 M.merge = function(opts)
   opts = opts or {}
-  M._config = vim.tbl_deep_extend("keep", opts, default_config)
-  M._config = override_table_opts(opts)
-  if M._config.highlight.filter ~= default_config.highlight.filter then
+  if opts.highlight.min_byte then
+    vim.deprecate(
+      "highlight.min_byte",
+      "{added,removed}.min_byte",
+      "2.0.0",
+      "emission.nvim"
+    )
+  end
+  if opts.highlight.filter then
     vim.deprecate(
       "highlight.filter",
       "{added,removed}.filter",
@@ -109,6 +116,8 @@ M.merge = function(opts)
       "emission.nvim"
     )
   end
+  M._config = vim.tbl_deep_extend("keep", opts, default_config)
+  M._config = override_table_opts(opts)
   last_config = M._config
   return M._config
 end
