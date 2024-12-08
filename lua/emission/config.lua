@@ -100,7 +100,7 @@ end
 ---@return emission.Config
 M.merge = function(opts)
   opts = opts or {}
-  if opts.highlight.min_byte then
+  if opts.highlight and opts.highlight.min_byte then
     vim.deprecate(
       "highlight.min_byte",
       "{added,removed}.min_byte",
@@ -108,7 +108,7 @@ M.merge = function(opts)
       "emission.nvim"
     )
   end
-  if opts.highlight.filter then
+  if opts.highlight and opts.highlight.filter then
     vim.deprecate(
       "highlight.filter",
       "{added,removed}.filter",
