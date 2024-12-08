@@ -1,4 +1,4 @@
-*emission.txt*        For Neovim >= 0.10.2       Last change: 2024 December 07
+*emission.txt*        For Neovim >= 0.10.2       Last change: 2024 December 08
 
 ==============================================================================
 Table of Contents                                 *emission-table-of-contents*
