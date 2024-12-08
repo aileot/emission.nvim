@@ -19,6 +19,8 @@
                     (vim.api.nvim_get_hl 0 {:name :EmissionRemoved}))))
 
 (describe* "option on_events"
+  (it* "throws error if option format is wrong"
+    (assert.has_error #(emission.setup {:on_events {:ModeChanged {:callback #:foo}}})))
   (it* "adds autocmds in augroup \"Emission\""
     (emission.setup)
     (let [default-autocmds (vim.api.nvim_get_autocmds {:group :Emission})]
