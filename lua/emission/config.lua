@@ -34,6 +34,9 @@ local default_config = {
   },
   ---@class emission.Config.Added
   added = {
+    -- Set it to false to disable highlights on added texts regardless of the
+    -- other filter options.
+    enabled = true,
     priority = 102,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67" },
@@ -48,6 +51,9 @@ local default_config = {
   },
   ---@class emission.Config.Removed
   removed = {
+    -- Set it to false to disable highlights on removed texts regardless of
+    -- the other filter options.
+    enabled = true,
     priority = 101,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d" },
