@@ -303,6 +303,8 @@
                             (and (= 0 old-end-row-offset new-end-row-offset)
                                  (< 0 new-end-col-offset)))
                         (when (and cache.config.added.enabled
+                                   (<= cache.config.added.min_byte
+                                       new-end-byte-offset)
                                    (<= cache.config.added.min_row_offset
                                        (- new-end-row-offset
                                           ;; NOTE: Reduce offset by 1 if col-offset
@@ -319,6 +321,8 @@
                             (highlight-added-texts! buf start-row0* start-col0
                                                     row-offset col-offset)))
                         (when (and cache.config.removed.enabled
+                                   (<= cache.config.removed.min_byte
+                                       old-end-byte-offset)
                                    (<= cache.config.removed.min_row_offset
                                        (- old-end-row-offset
                                           ;; NOTE: Reduce offset by 1 if col-offset

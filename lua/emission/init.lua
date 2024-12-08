@@ -249,7 +249,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
           local display_row_offset = (display_end_row - display_start_row)
           local start_row0_2a = math.max(start_row0, dec(display_start_row))
           if ((old_end_row_offset < new_end_row_offset) or (((0 == old_end_row_offset) and (old_end_row_offset == new_end_row_offset)) and (0 < new_end_col_offset))) then
-            if (cache.config.added.enabled and (cache.config.added.min_row_offset <= (new_end_row_offset - math.min(1, new_end_col_offset) - -1)) and cache.config.added.filter({buf = buf})) then
+            if (cache.config.added.enabled and (cache.config.added.min_byte <= new_end_byte_offset) and (cache.config.added.min_row_offset <= (new_end_row_offset - math.min(1, new_end_col_offset) - -1)) and cache.config.added.filter({buf = buf})) then
               local row_exceeded_3f = (display_row_offset < new_end_row_offset)
               local row_offset
               if row_exceeded_3f then
@@ -268,7 +268,7 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
               return nil
             end
           else
-            if (cache.config.removed.enabled and (cache.config.removed.min_row_offset <= (old_end_row_offset - math.min(1, old_end_col_offset) - -1)) and cache.config.removed.filter({buf = buf})) then
+            if (cache.config.removed.enabled and (cache.config.removed.min_byte <= old_end_byte_offset) and (cache.config.removed.min_row_offset <= (old_end_row_offset - math.min(1, old_end_col_offset) - -1)) and cache.config.removed.filter({buf = buf})) then
               local row_exceeded_3f = (display_row_offset < old_end_row_offset)
               local row_offset
               if row_exceeded_3f then
