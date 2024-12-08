@@ -34,12 +34,14 @@ local default_config = {
     priority = 102,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67" },
+    min_row_offset = 0,
   },
   ---@class emission.Config.Removed
   removed = {
     priority = 101,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d" },
+    min_row_offset = 0,
   },
 }
 
