@@ -25,7 +25,7 @@ However, `emission.nvim` does provide the following features:
 
 ## Requirements
 
-- Neovim >= 0.9.5
+- Neovim >= 0.10.2
 
 ## Installation
 
