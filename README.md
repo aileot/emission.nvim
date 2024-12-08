@@ -95,6 +95,7 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#2d4f67",
     },
+    min_row_offset = 0, -- minimum row offset to highlight texts
   },
   -- The same options as `added` are available.
   -- Note that the default values might be different from `added` ones.
@@ -107,6 +108,7 @@ require("emission").setup({
       fg = "#dcd7ba",
       bg = "#672d2d",
     },
+    min_row_offset = 0, -- minimum row offset to highlight texts
   },
 })
 ```
