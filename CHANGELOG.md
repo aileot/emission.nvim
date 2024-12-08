@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/aileot/emission.nvim/compare/v1.1.0...v1.1.1) (2024-12-08)
+
+
+### Bug Fixes
+
+* **config:** nil check at `highlight` ([#36](https://github.com/aileot/emission.nvim/issues/36)) ([84853b8](https://github.com/aileot/emission.nvim/commit/84853b879224cca6bc29f8a2b589b236a2c59a97))
+
 ## [1.1.0](https://github.com/aileot/emission.nvim/compare/v1.0.1...v1.1.0) (2024-12-08)
 
 
