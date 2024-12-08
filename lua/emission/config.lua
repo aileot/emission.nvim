@@ -41,6 +41,7 @@ local default_config = {
     priority = 102,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#2d4f67" },
+    min_byte = 2,
     min_row_offset = 0,
     ---@param ctx emission.Filter.Context
     ---@return boolean Return false or nil to ignore; otherwise, highlight
@@ -58,6 +59,7 @@ local default_config = {
     priority = 101,
     ---@type HlMap options for the 3rd arg of `nvim_set_hl()`
     hl_map = { default = true, bold = true, fg = "#dcd7ba", bg = "#672d2d" },
+    min_byte = 2,
     min_row_offset = 0,
     ---@param ctx emission.Filter.Context
     ---@return boolean Return false or nil to ignore; otherwise, highlight
