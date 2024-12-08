@@ -107,7 +107,7 @@ require("emission").setup({
     ---@return boolean Return false or nil to ignore; otherwise, highlight
     --- added texts.
     filter = function(ctx)
--- See below for examples.
+      -- See below for examples.
       assert(type(ctx.buf) == "number")
       return true
     end,
