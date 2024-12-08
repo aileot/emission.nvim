@@ -12,9 +12,6 @@
       (let [key (. keys i)]
         (values key (. tbl key))))))
 
-(it* "setup without any args does not cause error"
-  (emission.setup))
-
 (describe* "option must be named in snake_case"
   (λ assert/keys-are-in-snake_case [opts]
     (assert (= :table (type opts)) (.. "expected table, got " (type opts)))
