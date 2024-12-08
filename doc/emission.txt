@@ -94,6 +94,9 @@ The default settings:
         additional_recache_events = { "InsertLeave" },
       },
       added = {
+        -- Set it to false to disable highlights on added texts regardless of
+        -- the other filter options.
+        enabled = true,
         priority = 102,
         -- The options for `vim.api.nvim_set_hl(0, "EmissionAdded", {hl_map})`.
         -- NOTE: If you keep "default" key set to `true`, you can arrange the
@@ -120,6 +123,9 @@ The default settings:
       -- The same options as `added` are available.
       -- Note that the default values might be different from `added` ones.
       removed = {
+        -- Set it to false to disable highlights on removed texts regardless of
+        -- the other filter options.
+        enabled = true,
         priority = 101,
         -- The options for `vim.api.nvim_set_hl(0, "EmissionRemoved", {hl_map})`.
         hl_map = {
