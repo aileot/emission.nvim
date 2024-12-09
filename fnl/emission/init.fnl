@@ -306,10 +306,12 @@
                                    (<= cache.config.added.min_byte
                                        new-end-byte-offset)
                                    (<= cache.config.added.min_row_offset
-                                       (- new-end-row-offset
-                                          ;; NOTE: Reduce offset by 1 if col-offset
-                                          ;; is 0; otherwise, keep the row-offset.
-                                          (math.min 1 new-end-col-offset) -1))
+                                       (+ new-end-row-offset
+                                          ;; NOTE: Reduce offset by 1 if
+                                          ;; col-offset is 0; otherwise, keep
+                                          ;; the row-offset.
+                                          (math.min 1 new-end-col-offset) ;
+                                          -1))
                                    (cache.config.added.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  new-end-row-offset)
@@ -324,10 +326,12 @@
                                    (<= cache.config.removed.min_byte
                                        old-end-byte-offset)
                                    (<= cache.config.removed.min_row_offset
-                                       (- old-end-row-offset
-                                          ;; NOTE: Reduce offset by 1 if col-offset
-                                          ;; is 0; otherwise, keep the row-offset.
-                                          (math.min 1 old-end-col-offset) -1))
+                                       (+ old-end-row-offset
+                                          ;; NOTE: Reduce offset by 1 if
+                                          ;; col-offset is 0; otherwise, keep
+                                          ;; the row-offset.
+                                          (math.min 1 old-end-col-offset) ;
+                                          -1))
                                    (cache.config.removed.filter {: buf}))
                           (let [row-exceeded? (< display-row-offset
                                                  old-end-row-offset)
