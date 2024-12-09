@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/aileot/emission.nvim/compare/v1.1.1...v1.1.2) (2024-12-09)
+
+
+### Bug Fixes
+
+* **option:** correctly adjust linewise `min_row_offset` ([#38](https://github.com/aileot/emission.nvim/issues/38)) ([f4ef544](https://github.com/aileot/emission.nvim/commit/f4ef5448a390ff02c7f3d12db46d05017da3e9fd))
+
 ## [1.1.1](https://github.com/aileot/emission.nvim/compare/v1.1.0...v1.1.1) (2024-12-08)
 
 
