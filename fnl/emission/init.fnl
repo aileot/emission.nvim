@@ -57,13 +57,13 @@
 
 (fn clear-highlights! [buf]
   "Immediately clear all the emission highlights in `buf`.
-  @param buf number"
+@param buf number"
   (vim.api.nvim_buf_clear_namespace buf cache.namespace 0 -1)
   (debug! "cleared highlights" buf))
 
 (fn request-to-clear-highlights! [buf]
   "Clear highlights in `buf` after `duration` in milliseconds.
-  @param buf number"
+@param buf number"
   (-> #(when (vim.api.nvim_buf_is_valid buf)
          (debug! "clearing namespace after duration" buf)
          (clear-highlights! buf))
