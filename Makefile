@@ -58,14 +58,14 @@ lua/%.lua: $(FNL_SRC_DIR)/%.fnl
 	@echo $< "	->	" $@
 
 .PHONY: clean
-clean:
+clean: ## Remove generated files
 	@rm -f $(LUA_RES)
 	@rm -f $(LUA_SPECS)
 
 .PHONY: build
 build: $(LUA_RES)
 
-%_spec.lua: %_spec.fnl ## Compile fnl spec file into lua
+%_spec.lua: %_spec.fnl
 	@$(FENNEL) \
 		$(FNL_FLAGS) \
 		$(FNL_EXTRA_FLAGS) \
