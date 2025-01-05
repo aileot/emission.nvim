@@ -353,10 +353,10 @@ local function create_autocmds_21()
   return nil
 end
 
----@param opts? emission.Config
 --- Initialize emission.
---- Your options are always merged into the default config,
---- not the current config.
+--- Your options are always merged into the default config, not the
+--- current config.
+---@param opts? emission.Config
 local function setup(opts)
   local opts0 = (opts or {})
   config.merge(opts0)
