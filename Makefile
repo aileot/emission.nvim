@@ -40,13 +40,8 @@ REPO_MACRO_PATH := $(REPO_MACRO_DIR)/?.fnl;$(REPO_MACRO_DIR)/?/init.fnl
 .DEFAULT_GOAL := help
 .PHONY: help
 help: ## Show this help
-	@echo
-	@echo 'Usage:'
-	@echo '  make <target> [flags...]'
-	@echo
 	@echo 'Targets:'
-	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -c 2 -s ':' | sed 's/^/  /'
-	@echo
+	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -s ':' | sed 's/^/  /'
 
 lua/%.lua: $(FNL_SRC_DIR)/%.fnl
 	@mkdir -p $(dir $@)
@@ -58,24 +53,20 @@ lua/%.lua: $(FNL_SRC_DIR)/%.fnl
 	@echo $< "	->	" $@
 
 .PHONY: clean
-clean:
+clean: ## Remove generated files
 	@rm -f $(LUA_RES)
 	@rm -f $(LUA_SPECS)
 
 .PHONY: build
 build: $(LUA_RES)
 
-%_spec.lua: %_spec.fnl ## Compile fnl spec file into lua
+%_spec.lua: %_spec.fnl
 	@$(FENNEL) \
 		$(FNL_FLAGS) \
 		$(FNL_EXTRA_FLAGS) \
 		--correlate \
 		--add-macro-path "$(REPO_MACRO_PATH);$(SPEC_ROOT)/?.fnl" \
 		--compile $< > $@
-
-.PHONY: clean-test
-clean-test: ## Clean lua test files compiled from fnl
-	@rm $(LUA_SPECS) || exit 0
 
 .PHONY: test
 test: build $(LUA_SPECS) ## Run test
