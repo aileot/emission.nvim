@@ -40,13 +40,8 @@ REPO_MACRO_PATH := $(REPO_MACRO_DIR)/?.fnl;$(REPO_MACRO_DIR)/?/init.fnl
 .DEFAULT_GOAL := help
 .PHONY: help
 help: ## Show this help
-	@echo
-	@echo 'Usage:'
-	@echo '  make <target> [flags...]'
-	@echo
 	@echo 'Targets:'
-	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -c 2 -s ':' | sed 's/^/  /'
-	@echo
+	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -s ':' | sed 's/^/  /'
 
 lua/%.lua: $(FNL_SRC_DIR)/%.fnl
 	@mkdir -p $(dir $@)
