@@ -397,11 +397,17 @@
         extra-events cache.config.on_events]
     (each [_ event (ipairs cache.config.highlight.additional_recache_events)]
       (vim.api.nvim_create_autocmd event
-        {: group :callback #(cache-old-texts $.buf)}))
+        {:desc "Emission: recache texts to be deleted"
+         : group
+         :callback #(cache-old-texts $.buf)}))
     (vim.api.nvim_create_autocmd :BufEnter
-      {: group :callback #(request-to-attach-buf! $.buf)})
+      {:desc "Emission: register buf to be attached"
+       : group
+       :callback #(request-to-attach-buf! $.buf)})
     (vim.api.nvim_create_autocmd :BufLeave
-      {: group :callback #(request-to-detach-buf! $.buf)})
+      {:desc "Emission: register buf to be detached"
+       : group
+       :callback #(request-to-detach-buf! $.buf)})
     (each [event opt-list (pairs extra-events)]
       (assert (and (not opt-list.callback) (not opt-list.command))
               "expected a list of autocmd opts, got a table")
