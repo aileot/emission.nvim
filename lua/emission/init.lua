@@ -233,6 +233,8 @@ local function highlight_removed_texts_21(buf, start_row0, start_col0, old_end_r
 end
 local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0, _byte_offset, old_end_row_offset, old_end_col_offset, old_end_byte_offset, new_end_row_offset, new_end_col_offset, new_end_byte_offset)
   if cache["buf->detach?"][buf] then
+    cache["buf->detach?"][buf] = nil
+    debug_21("detached from buf", buf)
     return true
   else
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and (cache.config.highlight.min_byte <= math.max(old_end_byte_offset, new_end_byte_offset)) and cache.config.highlight.filter(buf)) then
@@ -298,10 +300,6 @@ local function on_bytes(_string_bytes, buf, _changedtick, start_row0, start_col0
     end
   end
 end
-local function on_detach(_string_detach, buf)
-  cache["buf->detach?"][buf] = nil
-  return debug_21("detached from buf", buf)
-end
 local function excluded_buf_3f(buf)
   return (vim.list_contains(cache.config.attach.excluded_buftypes, vim.bo[buf].buftype) or vim.list_contains(cache.config.attach.excluded_filetypes, vim.bo[buf].filetype))
 end
@@ -310,7 +308,7 @@ local function request_to_attach_buf_21(buf)
   local function _42_()
     if (vim.api.nvim_buf_is_valid(buf) and buf_has_cursor_3f(buf) and not excluded_buf_3f(buf)) then
       cache_old_texts(buf)
-      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes, on_detach = on_detach})
+      vim.api.nvim_buf_attach(buf, false, {on_bytes = on_bytes})
       return debug_21("attached to buf", buf)
     else
       return debug_21("the buf did not meet the requirements to be attached", buf)
