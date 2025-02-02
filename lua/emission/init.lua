@@ -331,16 +331,16 @@ local function create_autocmds_21()
     local function _44_(_241)
       return cache_old_texts(_241.buf)
     end
-    vim.api.nvim_create_autocmd(event, {group = group, callback = _44_})
+    vim.api.nvim_create_autocmd(event, {desc = "Emission: recache texts to be deleted", group = group, callback = _44_})
   end
   local function _45_(_241)
     return request_to_attach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufEnter", {group = group, callback = _45_})
+  vim.api.nvim_create_autocmd("BufEnter", {desc = "Emission: register buf to be attached", group = group, callback = _45_})
   local function _46_(_241)
     return request_to_detach_buf_21(_241.buf)
   end
-  vim.api.nvim_create_autocmd("BufLeave", {group = group, callback = _46_})
+  vim.api.nvim_create_autocmd("BufLeave", {desc = "Emission: register buf to be detached", group = group, callback = _46_})
   for event, opt_list in pairs(extra_events) do
     assert((not opt_list.callback and not opt_list.command), "expected a list of autocmd opts, got a table")
     for _, opts in ipairs(opt_list) do
