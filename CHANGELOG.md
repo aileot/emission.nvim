@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/aileot/emission.nvim/compare/v1.1.2...v1.2.0) (2025-02-02)
+
+
+### Features
+
+* **autocmd:** add "desc" to each autocmd ([#44](https://github.com/aileot/emission.nvim/issues/44)) ([cc78496](https://github.com/aileot/emission.nvim/commit/cc784968696daf1e0c2ad0ecf04001c063d5f988))
+
+
+### Bug Fixes
+
+* **attach:** reattach buffers once detached ([#42](https://github.com/aileot/emission.nvim/issues/42)) ([911427f](https://github.com/aileot/emission.nvim/commit/911427ff55ec6ef75bc9722bcfb8eebc7039244f))
+
 ## [1.1.2](https://github.com/aileot/emission.nvim/compare/v1.1.1...v1.1.2) (2024-12-09)
 
 
