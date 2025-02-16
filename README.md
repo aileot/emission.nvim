@@ -33,7 +33,7 @@ rewritten in Fennel with
 
 ## Demo
 
-![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
+![demo-emission.nvim](https://github.com/user-attachments/assets/17dcb2b6-35db-4558-a5f0-d4f4f538b2e6)
 
 <!-- panvimdoc-ignore-end -->
 
