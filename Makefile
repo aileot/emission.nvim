@@ -44,7 +44,7 @@ REPO_MACRO_PATH := $(REPO_MACRO_DIR)/?.fnl;$(REPO_MACRO_DIR)/?/init.fnl
 .DEFAULT_GOAL := help
 .PHONY: help
 help: ## Show this help
-	@echo 'Targets:'
+	@echo Targets:
 	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -s ':' | sed 's/^/  /'
 
 lua/%.lua: fnl/%.fnl
