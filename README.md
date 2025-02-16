@@ -1,9 +1,35 @@
+<div align="center">
+
 # ✨ emission.nvim
 
-A generalized fork of
+[![badge/test][]][url/to/workflow/test]
+[![badge/semver][]][url/to/semver]
+[![badge/license][]][url/to/license]\
+[![badge/lua][]][url/to/lua]
+[![badge/fennel][]][url/to/fennel]
+
+<!--
+NOTE: The colors come from the palette of catppuccin-mocha:
+https://github.com/catppuccin/catppuccin/tree/v0.2.0?tab=readme-ov-file#-palettes
+-->
+
+[badge/test]: https://img.shields.io/github/actions/workflow/status/aileot/emission.nvim/test.yml?branch=main&label=Test&logo=github&style=for-the-badge&logo=neovim&logoColor=CDD6F4&labelColor=1E1E2E&color=a6e3a1
+[badge/semver]: https://img.shields.io/github/v/release/aileot/emission.nvim?style=for-the-badge&logo=starship&logoColor=CDD6F4&labelColor=1E1E2E&&color=cdd6f4&include_prerelease&sort=semver
+[badge/license]: https://img.shields.io/github/license/aileot/emission.nvim?style=for-the-badge&logoColor=CDD6F4&labelColor=1E1E2E&color=eba0ac
+[badge/lua]: https://img.shields.io/badge/Powered_by_Lua-030281?&style=for-the-badge&logo=lua&logoColor=CDD6F4&label=Lua&labelColor=1E1E2E&color=cba6f7
+[badge/fennel]: https://img.shields.io/badge/&_Fennel-030281?&style=for-the-badge&logo=lua&logoColor=cdd6f4&label=Lua&labelColor=1E1E2E&color=cba6f7
+[url/to/workflow/test]: https://github.com/aileot/emission.nvim/actions/workflows/test.yml
+[url/to/license]: ./LICENSE
+[url/to/semver]: https://github.com/aileot/emission.nvim/releases/latest
+[url/to/lua]: https://www.lua.org/
+[url/to/fennel]: https://fennel-lang.org/
+
+_A generalized fork of
 [tzachar/highlight-undo.nvim]
 rewritten in Fennel with
-[antifennel].
+[antifennel]._
+
+</div>
 
 ## Features
 
