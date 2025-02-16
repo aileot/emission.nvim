@@ -17,9 +17,8 @@ VUSTED_FLAGS ?= --shuffle --output=utfTerminal $(VUSTED_EXTRA_FLAGS)
 
 REPO_ROOT:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TEST_ROOT:=$(REPO_ROOT)/test
-SPEC_ROOT:=$(TEST_ROOT)
 
-FNL_SPECS:=$(wildcard $(SPEC_ROOT)/*_spec.fnl)
+FNL_SPECS:=$(wildcard $(TEST_ROOT)/*_spec.fnl)
 LUA_SPECS:=$(FNL_SPECS:%.fnl=%.lua)
 
 FNL_SRC:=$(wildcard fnl/*.fnl)
@@ -52,7 +51,7 @@ lua/%.lua: fnl/%.fnl
 	@$(FENNEL) \
 		$(FNL_FLAGS) \
 		$(FNL_EXTRA_FLAGS) \
-		--add-macro-path "$(REPO_MACRO_PATH);$(SPEC_ROOT)/?.fnl" \
+		--add-macro-path "$(REPO_MACRO_PATH);$(TEST_ROOT)/?.fnl" \
 		--compile $< > $@
 	@echo $< "	->	" $@
 
@@ -74,7 +73,7 @@ build: $(LUA_RES)
 		$(FNL_FLAGS) \
 		$(FNL_EXTRA_FLAGS) \
 		--correlate \
-		--add-macro-path "$(REPO_MACRO_PATH);$(SPEC_ROOT)/?.fnl" \
+		--add-macro-path "$(REPO_MACRO_PATH);$(TEST_ROOT)/?.fnl" \
 		--compile $< > $@
 
 .PHONY: test
