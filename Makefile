@@ -66,7 +66,7 @@ clean: ## Remove generated files
 	@rm -f $(LUA_SPECS)
 
 .PHONY: build
-build: $(LUA_RES)
+build: $(LUA_RES) ## Deploy product files into lua/
 
 %_spec.lua: %_spec.fnl
 	@$(FENNEL) \
