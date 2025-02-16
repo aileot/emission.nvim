@@ -29,6 +29,14 @@ _A generalized fork of
 rewritten in Fennel with
 [antifennel]._
 
+<!-- panvimdoc-ignore-start -->
+
+## Demo
+
+![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
+
+<!-- panvimdoc-ignore-end -->
+
 </div>
 
 ## Features
@@ -65,14 +73,6 @@ Now, the differences are only
     - ...
 
 </details>
-
-<!-- panvimdoc-ignore-start -->
-
-## Demo
-
-![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
-
-<!-- panvimdoc-ignore-end -->
 
 ## Requirements
 
