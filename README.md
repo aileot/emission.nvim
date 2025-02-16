@@ -7,13 +7,38 @@ rewritten in Fennel with
 
 ## Features
 
-Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
-`undo`/`redo`.
-However, `emission.nvim` does provide the following features:
-
 - Highlights for **added** texts.
 - Highlights for **removed** texts like afterimage.
 - **No** keymap conflicts.
+
+<details>
+<summary>
+The differences from
+<a href=https://github.com/tzachar/highlight-undo.nvim>
+highlight-undo.nvim</a>
+</summary>
+Since the
+<a href=https://github.com/tzachar/highlight-undo.nvim/commit/cc802af09bc2bb1e018b9cd5325647d771aed807>
+commit</a>,
+highlight-undo.nvim
+has discarded the previous highlight occasions
+limited to undo/redo,
+and highlight any text changes as
+<a href=https://github.com/aileot/emission.nvim>
+emission.nvim</a>
+does.
+Now, the differences are only
+
+- Tested
+- Provided options
+  - Different highlight settings for "added" or "removed" respectively.
+  - Filters (with sane defaults)
+    - by changed byte size
+    - by changed row offset
+    - by modes (not limited to Normal mode)
+    - ...
+
+</details>
 
 <!-- panvimdoc-ignore-start -->
 
@@ -61,7 +86,7 @@ require("emission").setup({
       "help",
       "nofile",
       "terminal",
-      "prompt"
+      "prompt",
     },
     -- NOTE: Nothing is excluded by default. Add any as you need, but check
     -- the 'buftype' at first.
