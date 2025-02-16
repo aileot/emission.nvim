@@ -1,27 +1,78 @@
+<div align="center">
+
 # ✨ emission.nvim
 
-A generalized fork of
+[![badge/test][]][url/to/workflow/test]
+[![badge/semver][]][url/to/semver]
+[![badge/license][]][url/to/license]\
+[![badge/lua][]][url/to/lua]
+[![badge/fennel][]][url/to/fennel]
+
+<!--
+NOTE: The colors come from the palette of catppuccin-mocha:
+https://github.com/catppuccin/catppuccin/tree/v0.2.0?tab=readme-ov-file#-palettes
+-->
+
+[badge/test]: https://img.shields.io/github/actions/workflow/status/aileot/emission.nvim/test.yml?branch=main&label=Test&logo=github&style=for-the-badge&logo=neovim&logoColor=CDD6F4&labelColor=1E1E2E&color=a6e3a1
+[badge/semver]: https://img.shields.io/github/v/release/aileot/emission.nvim?style=for-the-badge&logo=starship&logoColor=CDD6F4&labelColor=1E1E2E&&color=cdd6f4&include_prerelease&sort=semver
+[badge/license]: https://img.shields.io/github/license/aileot/emission.nvim?style=for-the-badge&logoColor=CDD6F4&labelColor=1E1E2E&color=eba0ac
+[badge/lua]: https://img.shields.io/badge/Powered_by_Lua-030281?&style=for-the-badge&logo=lua&logoColor=CDD6F4&label=Lua&labelColor=1E1E2E&color=cba6f7
+[badge/fennel]: https://img.shields.io/badge/&_Fennel-030281?&style=for-the-badge&logo=lua&logoColor=cdd6f4&label=Lua&labelColor=1E1E2E&color=cba6f7
+[url/to/workflow/test]: https://github.com/aileot/emission.nvim/actions/workflows/test.yml
+[url/to/license]: ./LICENSE
+[url/to/semver]: https://github.com/aileot/emission.nvim/releases/latest
+[url/to/lua]: https://www.lua.org/
+[url/to/fennel]: https://fennel-lang.org/
+
+_A generalized fork of
 [tzachar/highlight-undo.nvim]
 rewritten in Fennel with
-[antifennel].
-
-## Features
-
-Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
-`undo`/`redo`.
-However, `emission.nvim` does provide the following features:
-
-- Highlights for **added** texts.
-- Highlights for **removed** texts like afterimage.
-- **No** keymap conflicts.
+[antifennel]._
 
 <!-- panvimdoc-ignore-start -->
 
 ## Demo
 
-![demo-emission.nvim](https://github.com/user-attachments/assets/31abf6b7-f970-4afa-990f-6547d774999c)
+![demo-emission.nvim](https://github.com/user-attachments/assets/17dcb2b6-35db-4558-a5f0-d4f4f538b2e6)
 
 <!-- panvimdoc-ignore-end -->
+
+</div>
+
+## Features
+
+- Highlights for **added** texts.
+- Highlights for **removed** texts like afterimage.
+- **No** keymap conflicts.
+
+<details>
+<summary>
+The differences from
+<a href=https://github.com/tzachar/highlight-undo.nvim>
+highlight-undo.nvim</a>
+</summary>
+Since the
+<a href=https://github.com/tzachar/highlight-undo.nvim/commit/cc802af09bc2bb1e018b9cd5325647d771aed807>
+commit</a>,
+highlight-undo.nvim
+has discarded the previous highlight occasions
+limited to undo/redo,
+and highlight any text changes as
+<a href=https://github.com/aileot/emission.nvim>
+emission.nvim</a>
+does.
+Now, the differences are only
+
+- Tested
+- Provided options
+  - Different highlight settings for "added" or "removed" respectively.
+  - Filters (with sane defaults)
+    - by changed byte size
+    - by changed row offset
+    - by modes (not limited to Normal mode)
+    - ...
+
+</details>
 
 ## Requirements
 
@@ -61,7 +112,7 @@ require("emission").setup({
       "help",
       "nofile",
       "terminal",
-      "prompt"
+      "prompt",
     },
     -- NOTE: Nothing is excluded by default. Add any as you need, but check
     -- the 'buftype' at first.
