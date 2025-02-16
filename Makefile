@@ -18,9 +18,6 @@ VUSTED_FLAGS ?= --shuffle --output=utfTerminal $(VUSTED_EXTRA_FLAGS)
 REPO_ROOT:=$(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 TEST_ROOT:=$(REPO_ROOT)/test
 
-FNL_SPECS:=$(wildcard $(TEST_ROOT)/*_spec.fnl)
-LUA_SPECS:=$(FNL_SPECS:%.fnl=%.lua)
-
 FNL_SRC:=$(wildcard fnl/*.fnl)
 FNL_SRC+=$(wildcard fnl/*/*.fnl)
 FNL_SRC+=$(wildcard fnl/*/*/*.fnl)
@@ -34,6 +31,9 @@ LUA_RES:=$(FNL_SRC:fnl/%.fnl=lua/%.lua)
 LUA_RES+=$(LUA_COPIED)
 
 FNL_SRC_DIRS:=$(wildcard fnl/*/*/)
+
+FNL_SPECS:=$(wildcard $(TEST_ROOT)/*_spec.fnl)
+LUA_SPECS:=$(FNL_SPECS:%.fnl=%.lua)
 
 REPO_FNL_DIR := $(REPO_ROOT)/fnl
 REPO_FNL_PATH := $(REPO_FNL_DIR)/?.fnl;$(REPO_FNL_DIR)/?/init.fnl
