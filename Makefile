@@ -63,7 +63,7 @@ lua/%.lua: fnl/%.lua
 
 .PHONY: clean
 clean: ## Remove generated files
-	@rm -f $(LUA_RES)
+	@rm -rf lua/
 	@rm -f $(LUA_SPECS)
 
 .PHONY: build
