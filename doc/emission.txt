@@ -3,7 +3,6 @@
 ==============================================================================
 Table of Contents                                 *emission-table-of-contents*
 
-1. emission.nvim                                      |emission-emission.nvim|
   - Features                                               |emission-features|
   - Requirements                                       |emission-requirements|
   - Installation                                       |emission-installation|
@@ -11,22 +10,29 @@ Table of Contents                                 *emission-table-of-contents*
   - Highlights                                           |emission-highlights|
   - Related Projects                               |emission-related-projects|
 
-==============================================================================
-1. emission.nvim                                      *emission-emission.nvim*
-
-A generalized fork of tzachar/highlight-undo.nvim
-<https://github.com/tzachar/highlight-undo.nvim> rewritten in Fennel with
-antifennel <https://git.sr.ht/~technomancy/antifennel>.
-
 
 FEATURES                                                   *emission-features*
-
-Unlike `highlight-undo.nvim` does, `emission.nvim` does NOT distinguish
-`undo`/`redo`. However, `emission.nvim` does provide the following features:
 
 - Highlights for **added** texts.
 - Highlights for **removed** texts like afterimage.
 - **No** keymap conflicts.
+
+The differences from
+
+highlight-undo.nvim ~
+
+Since the commit, highlight-undo.nvim has discarded the previous highlight
+occasions limited to undo/redo, and highlight any text changes as emission.nvim
+does. Now, the differences are only
+
+- Tested
+- Provided options
+    - Different highlight settings for "added" or "removed" respectively.
+    - Filters (with sane defaults)
+        - by changed byte size
+        - by changed row offset
+        - by modes (not limited to Normal mode)
+        - …
 
 
 REQUIREMENTS                                           *emission-requirements*
@@ -69,7 +75,7 @@ The default settings:
           "help",
           "nofile",
           "terminal",
-          "prompt"
+          "prompt",
         },
         -- NOTE: Nothing is excluded by default. Add any as you need, but check
         -- the 'buftype' at first.
