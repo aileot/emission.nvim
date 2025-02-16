@@ -26,7 +26,13 @@ FNL_SRC:=$(wildcard fnl/*.fnl)
 FNL_SRC+=$(wildcard fnl/*/*.fnl)
 FNL_SRC+=$(wildcard fnl/*/*/*.fnl)
 FNL_SRC:=$(filter-out %/macros.fnl,$(FNL_SRC))
+
+LUA_IN_FNL:=$(wildcard fnl/*/*.lua)
+LUA_IN_FNL+=$(wildcard fnl/*/*/*.lua)
+LUA_COPIED:=$(LUA_IN_FNL:fnl/%.lua=lua/%.lua)
+
 LUA_RES:=$(FNL_SRC:fnl/%.fnl=lua/%.lua)
+LUA_RES+=$(LUA_COPIED)
 
 FNL_SRC_DIRS:=$(wildcard fnl/*/*/)
 
