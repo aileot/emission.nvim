@@ -17,23 +17,6 @@ please open an issue first to avoid duplicate work.
 
 ## Building
 
-### `make build`
-
-This command will do two things:
-
-1. Transpile all the updated **Fennel** files
-   under `fnl/` to `lua/` directory.
-2. Copy all the updated **Lua** files
-   under `fnl/` to `lua/` directory.
-
-This command is also executed automatically on [`make test`](#testing)
-and
-(once you run [`make init`](#make-init))
-on `git-commit`.
-
-See also the section:
-[How to resolve conflicts in `lua/`](#how-to-resolve-conflicts-in-lua).
-
 ### `make init`
 
 This command will setup the project:
@@ -50,6 +33,23 @@ This command will setup the project:
 2. Generate `.envrc` for nix users.\
    It only helps if you have `nix` and `direnv` installed.
    Please check the `.envrc` contents, and run `direnv allow`.
+
+### `make build`
+
+This command will do two things:
+
+1. Transpile all the updated **Fennel** files
+   under `fnl/` to `lua/` directory.
+2. Copy all the updated **Lua** files
+   under `fnl/` to `lua/` directory.
+
+This command is also executed automatically on [`make test`](#testing)
+and
+(once you run [`make init`](#make-init))
+on `git-commit`.
+
+See also the section:
+[How to resolve conflicts in `lua/`](#how-to-resolve-conflicts-in-lua).
 
 ### How to resolve conflicts in `lua/`
 
