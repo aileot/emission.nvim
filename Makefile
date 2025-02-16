@@ -22,17 +22,15 @@ SPEC_ROOT:=$(TEST_ROOT)
 FNL_SPECS:=$(wildcard $(SPEC_ROOT)/*_spec.fnl)
 LUA_SPECS:=$(FNL_SPECS:%.fnl=%.lua)
 
-FNL_SRC_DIR=fnl
-
-FNL_SRC:=$(wildcard $(FNL_SRC_DIR)/*.fnl)
-FNL_SRC+=$(wildcard $(FNL_SRC_DIR)/*/*.fnl)
-FNL_SRC+=$(wildcard $(FNL_SRC_DIR)/*/*/*.fnl)
+FNL_SRC:=$(wildcard fnl/*.fnl)
+FNL_SRC+=$(wildcard fnl/*/*.fnl)
+FNL_SRC+=$(wildcard fnl/*/*/*.fnl)
 FNL_SRC:=$(filter-out %/macros.fnl,$(FNL_SRC))
-LUA_RES:=$(FNL_SRC:$(FNL_SRC_DIR)/%.fnl=lua/%.lua)
+LUA_RES:=$(FNL_SRC:fnl/%.fnl=lua/%.lua)
 
-FNL_SRC_DIRS:=$(wildcard $(FNL_SRC_DIR)/*/*/)
+FNL_SRC_DIRS:=$(wildcard fnl/*/*/)
 
-REPO_FNL_DIR := $(REPO_ROOT)/$(FNL_SRC_DIR)
+REPO_FNL_DIR := $(REPO_ROOT)/fnl
 REPO_FNL_PATH := $(REPO_FNL_DIR)/?.fnl;$(REPO_FNL_DIR)/?/init.fnl
 REPO_MACRO_DIR := $(REPO_FNL_DIR)
 REPO_MACRO_PATH := $(REPO_MACRO_DIR)/?.fnl;$(REPO_MACRO_DIR)/?/init.fnl
@@ -43,7 +41,7 @@ help: ## Show this help
 	@echo 'Targets:'
 	@egrep -h '^\S+: .*## \S+' $(MAKEFILE_LIST) | sed 's/: .*##/:/' | column -t -s ':' | sed 's/^/  /'
 
-lua/%.lua: $(FNL_SRC_DIR)/%.fnl
+lua/%.lua: fnl/%.fnl
 	@mkdir -p $(dir $@)
 	@$(FENNEL) \
 		$(FNL_FLAGS) \
