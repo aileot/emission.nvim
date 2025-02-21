@@ -304,7 +304,11 @@ to adapt the color to your favorite colorscheme.
 ## Related Projects
 
 - [tzachar/highlight-undo.nvim]
-  highlights texts added by pre-registered mappings.
+  previously highlights texts added by pre-registered mappings; now, every
+  added texts.
+- [y3owk1n/undo-glow.nvim][]
+  is another fork of highlight-undo.nvim.
+  The highlights are bound to keymaps: undo, redo, yank, paste, etc.
 - [yuki-yano/highlight-undo.nvim]
   works on [denops.vim].
 - [machakann/vim-highlightedundo]
@@ -316,3 +320,4 @@ to adapt the color to your favorite colorscheme.
 [tzachar/highlight-undo.nvim]: https://github.com/tzachar/highlight-undo.nvim
 [yuki-yano/highlight-undo.nvim]: https://github.com/yuki-yano/highlight-undo.nvim
 [machakann/vim-highlightedundo]: https://github.com/machakann/vim-highlightedundo
+[y3owk1n/undo-glow.nvim]: https://github.com/y3owk1n/undo-glow.nvim
